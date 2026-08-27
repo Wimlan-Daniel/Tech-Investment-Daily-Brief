@@ -136,6 +136,24 @@ try {
 function installMacOS(at) {
   const [hour, minute] = at.split(":").map(Number);
   const label = "com.daily-brief";
+  // node 所在目录：定时任务里要用它来定位同目录下的 claude CLI
+  const nodeBinDir = path.dirname(process.execPath);
+  const claudeCandidates = [
+    path.join(nodeBinDir, "claude"),
+    path.join(os.homedir(), ".local", "bin", "claude"),
+    "/usr/local/bin/claude",
+    "/opt/homebrew/bin/claude",
+  ];
+  const claudeCliPath =
+    claudeCandidates.find((p) => fs.existsSync(p)) ?? "claude";
+  if (claudeCliPath === "claude") {
+    console.warn(
+      "[警告] 没在常见位置找到 claude CLI。定时任务将依赖 PATH 查找，" +
+        "若失败请手动在 plist 的 CLAUDE_CLI_PATH 里填绝对路径。",
+    );
+  } else {
+    console.log(`[OK] claude CLI: ${claudeCliPath}`);
+  }
   const logOut = path.join(projectRoot, "logs", "launchd.out.log");
   const logErr = path.join(projectRoot, "logs", "launchd.err.log");
   fs.mkdirSync(path.dirname(logOut), { recursive: true });
@@ -159,6 +177,22 @@ function installMacOS(at) {
         <integer>${hour}</integer>
         <key>Minute</key>
         <integer>${minute}</integer>
+    </dict>
+    <!--
+      launchd 不读 ~/.zshrc，默认 PATH 只有 /usr/bin:/bin:/usr/sbin:/sbin。
+      claude CLI（以及用户目录下的 node）不在里面，不显式注入的话定时任务会
+      每天静默失败——日志里只有一句 "claude: command not found"。
+      CLAUDE_CLI_PATH 是双保险：backends/claude-cli.ts 优先读它，即使 PATH
+      以后被改动也仍能定位到 CLI。
+    -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>${nodeBinDir}:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>CLAUDE_CLI_PATH</key>
+        <string>${claudeCliPath}</string>
+        <key>HOME</key>
+        <string>${os.homedir()}</string>
     </dict>
     <key>StandardOutPath</key>
     <string>${logOut}</string>

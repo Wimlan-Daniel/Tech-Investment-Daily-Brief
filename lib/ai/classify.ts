@@ -142,7 +142,9 @@ export async function classifyArticles(
             "",
             `再次强调：输出的 items 数组必须刚好 ${payload.length} 条，i 原样回填。`,
           ].join("\n"),
-          timeoutMs: 300_000,
+          // 实测成功调用平均 144 秒、最慢 243 秒（2 路并发下），300 秒线太紧，
+        // 会把本来快跑完的批次误杀。放到 480 秒。
+        timeoutMs: 480_000,
         });
         const parsed = JSON.parse(extractJson(text)) as ClassifyResult;
         let hits = 0;

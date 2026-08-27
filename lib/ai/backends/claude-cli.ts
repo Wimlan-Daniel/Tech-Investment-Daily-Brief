@@ -99,6 +99,14 @@ export function runClaudeCli({
         finish(new Error(`claude CLI exited ${code} with empty stdout`));
         return;
       }
+      // CLI 在被限流时会以退出码 0 把 "API Error: ..." 打到 stdout，
+      // 上游据此判定成功，调用方拿到的却是一段无法解析的文本。识别出来
+      // 当失败处理，重试逻辑才能生效，日志里也才看得出真实原因。
+      const head = stdout.trimStart().slice(0, 200);
+      if (/^API Error/i.test(head)) {
+        finish(new Error(`claude CLI 返回 API 错误: ${head.slice(0, 160)}`));
+        return;
+      }
       finish(null);
     });
 
