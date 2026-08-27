@@ -1,117 +1,121 @@
-# 一级市场 · 前沿科技简报
+# 前沿科技 · 投资简报
 
-每天早上自动生成一份网页版简报，围绕**中国一级市场前沿科技投资**这一个用途。
+每天自动生成一份网页版简报，服务于**中国一级市场前沿科技投资**这一个用途。
 改造自 [leiting-eric/DailyBrief](https://github.com/leiting-eric/DailyBrief)（MIT 协议）。
 
 ---
 
-## 它长什么样
+## 每天你会看到什么
 
-一个网页，顶部五个标签页，按重要性排序：
+一个网页，六个标签页：
 
-| 标签页 | 里面是什么 |
+| 标签页 | 内容 |
 |---|---|
-| **一级市场**（打开默认停在这里） | 国内创投（36氪快讯 / 创投主题 / 热榜、创业邦）+ 海外创投（TechCrunch 创投、Crunchbase、The Information、红杉、YC） |
-| **前沿科技** | 中文科技媒体（量子位、雷峰网、极客公园、钛媒体、InfoQ、Solidot）、海外科技媒体、热门论文、X 推文热度榜、GitHub Trending |
-| **深度观察** | 虎嗅商业长文 |
-| **二级参照** | 7 个标的，只用来读环境：纳斯达克 / 恒生科技 / 科创50（退出窗口）、费城半导体 / 英伟达（技术风向）、10Y 美债 / 美元人民币（估值锚） |
-| **宏观政策** | 国家统计局、华尔街见闻、东方财富、BBC World |
+| **每日简报**（默认打开） | AI 跨板块精选 6-8 条当天最关键的，每条附一句「**为何重要**」——这件事影响哪条赛道、哪个判断 |
+| **中国一级市场** | 融资、基金募集、并购退出、IPO、创投政策；海外重大事件也在这里 |
+| **前沿技术** | 技术本身走到哪了：论文、能力突破、路线之争、开源动向 |
+| **科技商业** | 技术变成生意了：发布、定价、客户、产能、供应链、公司动作 |
+| **资本市场** | 上市公司与二级市场、宏观数据、利率汇率 |
+| **全球商业** | 按《金融时报》头版标准筛的重大商业事件 |
+| **环境指标** | 7 个指标读环境：纳斯达克/恒生科技/科创50（退出窗口）、费城半导体/英伟达（算力景气）、10Y美债/美元人民币（估值锚） |
 
-网页最上方是 AI 生成的当日总览和精选条目，下面是各源原始列表。
-
----
-
-## 和原版比，改了什么
-
-1. **信源全换了**。原版偏硅谷科技 + 二级市场，现在是 27 个源，以简体中文为主，重心在一级市场融资动态。
-2. **股票列表从 21 个砍到 7 个**。你不炒股，所以去掉了个股和加密货币，只留能反映"退出窗口开没开、算力景气度如何、折现率多高"的指标。
-3. **AI 的分析视角换了**。原来是"新闻编辑"，现在是"服务一级市场投资人的研究助理"——写融资消息时会强制补全**轮次、金额、投资方、公司在做什么**四要素，原文没写的一律不编。技术新闻会点出商业化含义对应哪条赛道。政策新闻会说明传导路径。
-4. **板块重排**，一级市场放第一位。
-
-> 每个信源为什么选它，都写在 `sources.config.json` 每条的 `notes` 字段里。
+每条资讯都标了 **第一手** 还是 **媒体报道**。
 
 ---
 
-## 怎么让它跑起来
+## 和原版最大的三点不同
 
-### 你需要准备的唯一一样东西：一个 AI 的 API key
+### 1. 板块按「内容性质」分，不按「信源」分
 
-推荐 **DeepSeek**（便宜、中文好，一个月不到 1 美元）：去 [platform.deepseek.com](https://platform.deepseek.com) 注册 → 充值几美元 → 在 API keys 页面生成一个 key，是一串 `sk-` 开头的字符。
+原版是一个源固定属于一个板块。实测发现这行不通——36氪快讯同一天里既有「某公司完成 A 轮融资」（一级市场），也有「某上市公司上半年净利润 29 亿」（二级市场），还有「某游戏制作人离职」（纯噪音）。按来源分，三者会被塞进同一个板块。
 
-> 这一步必须你自己做，涉及注册和支付信息。
+所以加了一层 [`lib/ai/classify.ts`](lib/ai/classify.ts)：抓取之后、渲染之前，把每条交给模型判断真实归属，**顺便剔除噪音**。
 
-### 部署（全程在网页上点，不需要在自己电脑装任何东西）
+副作用是以后想调整板块划分，改一段说明文字就行，不用重新找信源。
 
-1. **把这个项目传到 GitHub**
-   在 GitHub 新建一个仓库（**必须选 Public**，因为免费账户的网页托管功能只对公开仓库开放），然后在本目录执行：
+### 2. 每日简报页是新建的
 
-   ```bash
-   git remote add origin https://github.com/你的用户名/仓库名.git
-   ```
+原版**每天都在花钱生成简报，但从来没显示过**——`renderHtml` 只用了行情数据，简报只存在于默认不输出的 Markdown 里。现在它是第一个标签页。
 
-   ```bash
-   git push -u origin main
-   ```
+简报相对下面各板块原始列表的增量，是每条的 `why` 字段：不重复摘要，只回答「所以呢」。
 
-2. **允许它自动运行**
-   仓库页面 → Settings → Actions → General → 找到 Workflow permissions → 选 **Read and write permissions** → Save
+### 3. 信源换成中文为主 + 第一手优先
 
-3. **填入你的 key**
-   仓库页面 → Settings → Secrets and variables → **Actions**
-   - 在 **Secrets** 标签点 New repository secret：名字 `DEEPSEEK_API_KEY`，值填你的 key
-   - 在 **Variables** 标签点 New repository variable：名字 `REPORT_TZ`，值填 `Asia/Shanghai`
+36 个启用源，其中 **18 个第一手**（OpenAI、DeepMind、Google Research、NVIDIA、Waymo、Mistral、CMU 机器人研究所、MIT News、国务院、国家统计局、红杉、YC 等官方渠道）、18 个二手媒体。
 
-   > ⚠️ 两个最容易踩的坑：
-   > 一是走错页面——必须从左栏「Secrets and variables → Actions」进，**不要从「Environments」进**，那是另一套配置，运行时读不到。
-   > 二是输入 `DEEPSEEK_API_KEY` 时中文输入法会把下划线变成全角 `＿`，一定要切英文输入法。
-   >
-   > 本项目的默认后端就是 DeepSeek，所以**不需要**额外加 `LLM_BACKEND` 变量。换别家才要加。
-
-4. **手动跑一次**
-   仓库 Actions 标签 → 第一次进来会有黄条提示，点 **"I understand my workflows, go ahead and enable them"** → 左边选 "Daily Brief" → 右边 **Run workflow**
-
-5. **打开网页托管**
-   等第 4 步跑完（约 5-8 分钟，绿色对勾表示成功）→ Settings → Pages → Source 选 "Deploy from a branch" → 分支选 `gh-pages`，路径 `/ (root)` → Save
-
-   > `gh-pages` 这个分支要跑成功一次之后才会出现，所以顺序不能反。
-
-跑完后，简报在 `https://你的用户名.github.io/仓库名/`，之后**每天早上 8 点（北京时间）自动更新**。
+> 每个源为什么选它、有什么坑，都写在 [`sources.config.json`](sources.config.json) 每条的 `notes` 里。
 
 ---
 
-## 日常想改什么
+## 怎么用
+
+环境已经装好了（Node 在 `~/.local/node`，claude 命令行已登录）。
+
+### 手动出一份简报
+
+```bash
+npm run daily
+```
+
+跑完后打开：
+
+```bash
+npm run open
+```
+
+### 让它每天早上 8 点自动跑
+
+```bash
+node scripts/install.mjs --at 08:00 --global
+```
+
+装完之后每天自动出。**电脑睡着不会被叫醒，但唤醒后会自动补跑**（这是 macOS launchd 的行为，苹果官方文档明确写了「不像 cron 会跳过，launchd 会在下次唤醒时启动任务」）。整天没开电脑就跳过当天。
+
+手动触发一次：
+
+```bash
+launchctl start com.daily-brief
+```
+
+### 想发到手机上看
+
+生成的 HTML 是**单文件、无外部依赖**（样式和交互全部内嵌），隔空投送到 iPhone、发微信、发邮件都能直接打开。
+
+---
+
+## 想改什么改哪里
 
 | 想做的事 | 改哪里 |
 |---|---|
-| 加一个信源 | `sources.config.json` 里照着已有的格式加一条 |
-| 关掉一个信源 | 把那条的 `"enabled": true` 改成 `false`（不用删） |
-| 换触发时间 | GitHub Variables 加 `REPORT_HOUR`，比如 `8,18` = 早晚各一次 |
-| 只在工作日出 | GitHub Variables 加 `REPORT_DAYS`，值填 `1-5` |
-| 改股票列表 | `lib/trading/watchlist.ts` |
-| 改 AI 的分析口径 | `lib/ai/prompts.ts`（当日总览）、`lib/ai/enrich.ts`（逐条摘要） |
-| 改板块名字和顺序 | `lib/output/render.ts` 顶部的 `TEXTS_ZH` |
+| 加/关一个信源 | [`sources.config.json`](sources.config.json)，改 `enabled` 或加一条 |
+| **调整板块的划分标准** | [`lib/ai/classify.ts`](lib/ai/classify.ts) 里的 `SYSTEM_PROMPT`，五个板块的定义都在那 |
+| **调整简报的选条标准** | [`lib/ai/prompts.ts`](lib/ai/prompts.ts)，「挑选简报条目的标准」那一节 |
+| 每条摘要的写法 | [`lib/ai/enrich.ts`](lib/ai/enrich.ts) |
+| 每个板块显示多少条 | [`lib/output/render.ts`](lib/output/render.ts) 的 `MERGED_SUBGROUP_LIMITS` |
+| 板块名称和顺序 | [`lib/output/render.ts`](lib/output/render.ts) 顶部的 `TEXTS_ZH` 和 `CATEGORY_ORDER` |
+| 环境指标的标的 | [`lib/trading/watchlist.ts`](lib/trading/watchlist.ts) |
+| 触发时间 | 重跑 `node scripts/install.mjs --at 07:30 --global` |
 
-改完 `git push`，下次自动运行就生效。
+改完直接下次运行生效，不需要编译。
 
 ---
 
 ## 已知的脆弱点
 
-- **36氪那三个源走的是 RSSHub 公共镜像**（`rsshub.rssforever.com`）。36氪官方 RSS 已经下线，只能这么取。公共镜像可能限流或下线，**如果哪天 36氪的内容不见了**，把 `sources.config.json` 里那三条的域名换成 `https://hub.slarker.me` 或 `https://rsshub.ktachibana.party`，路径部分不动。
-- **国家统计局的时间格式不标准**，程序可能读不出发布时间，导致它的条目在合并列表里排序靠后。内容还是会进报告。
-- **中文源不会生成 AI 摘要**，直接显示原文摘录（这是有意为之，省钱，中文原文本来就能读）。如果想让中文源也过一遍 AI，把 `sources.config.json` 里对应条目的 `"lang": "zh"` 删掉即可，代价是每天多花一点 API 费用。
-- **DW 中文源实测返回空**，已默认关闭。
+- **36氪走的是 RSSHub 公共镜像**。36氪官方 RSS 已下线，没有别的路子（官方 API 返回的是网页外壳）。镜像会被上游间歇性封锁——实测同一个地址上午能用、下午 503。已配 **4 个镜像自动切换**，抓不到会依次重试；4 个全挂时当天该源为空，不影响其他源。
+- **公众号内容拿不到**。微信生态封闭，`wechat2rss`、RSSHub 微信路由、`werss` 全部实测失败。机器之心、新智元目前只有公众号，暂时缺失。量子位有官网 RSS，已收录。
+- **一级市场结构化数据拿不到**。IT桔子、烯牛数据、投中网都是付费数据库，公开接口全部拒绝访问。清科/投中的月度报告只能等媒体报道后由 AI 识别出来。
+- **国家统计局的时间格式不标准**，可能解析不出发布时间，导致排序靠后。内容仍会进报告。
+- **中文源不生成 AI 摘要**，直接显示原文摘录（省调用，中文原文本来就能读）。想让中文源也过一遍 AI，删掉 `sources.config.json` 里对应条目的 `"lang": "zh"`。
 
 ---
 
-## 原版文档
-
-上游项目的完整说明保留在 [UPSTREAM-README.md](UPSTREAM-README.md)，二次开发指南在 [FORKING.md](FORKING.md)。
-
-拉取上游更新：
+## 拉取上游更新
 
 ```bash
 git fetch upstream && git merge upstream/main
 ```
 
-（我改过 `sources.config.json`、`render.ts`、`watchlist.ts`、`prompts.ts`、`enrich.ts`、`daily.ts`，合并时这几个文件可能冲突。）
+改动较大的文件：`sources.config.json`、`lib/output/render.ts`、`lib/ai/prompts.ts`、`lib/ai/enrich.ts`、`lib/ai/classify.ts`（新增）、`lib/sources/types.ts`、`scripts/daily.ts`、`lib/trading/watchlist.ts`。合并时可能冲突。
+
+上游原始文档保留在 [UPSTREAM-README.md](UPSTREAM-README.md)，二次开发指南在 [FORKING.md](FORKING.md)。
