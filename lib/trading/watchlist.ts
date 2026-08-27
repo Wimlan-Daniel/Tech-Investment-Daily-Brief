@@ -1,22 +1,24 @@
 /**
- * 一级市场视角的二级市场参照盘。
+ * 数据指标盯盘表。
  *
- * 一级市场投资人不炒股，但二级市场是三件事的先行指标：
- *   1. 退出环境 —— 科技股估值决定 IPO 窗口开不开、并购方肯不肯出价
- *   2. 技术风向 —— 半导体和算力龙头的资本开支，领先应用层融资 2-3 个季度
- *   3. 估值锚   —— 无风险利率是一级市场折现率的地板；汇率影响美元基金募资
+ * 服务对象是一级市场投资人，不做交易，看这些是为了读环境：
+ *   - 中国市场决定境内退出窗口（科创板/创业板 IPO 节奏、港股估值水位）
+ *   - 美国市场决定美元基金的募资与退出预期
+ *   - 科技巨头的股价与资本开支，领先应用层融资 2-3 个季度
+ *   - 汇率影响美元基金募资成本与被投企业出海结算
  *
- * 所以这里只留 7 个标的，全部是"读环境"用的，没有个股交易标的。
+ * 刻意不放：费城半导体等行业指数（读者反馈不关心）、加密货币、大宗商品。
  */
 export type AssetGroup =
-  | "exit-window" // 退出环境
-  | "tech-signal" // 技术风向
-  | "valuation-anchor"; // 估值锚
+  | "cn-market" // 中国市场
+  | "us-market" // 美国市场
+  | "tech-giants" // 科技巨头
+  | "fx"; // 汇率
 
 export interface TickerDef {
   symbol: string; // Yahoo Finance 代码
   displayName: string; // 中文展示名
-  displayNameEn?: string; // 英文展示名（缺省时回落到中文）
+  displayNameEn?: string; // 英文展示名（缺省回落到中文）
   group: AssetGroup;
 }
 
@@ -25,15 +27,17 @@ export function getDisplayName(t: TickerDef, locale: "zh" | "en"): string {
 }
 
 const ASSET_GROUP_LABELS_ZH: Record<AssetGroup, string> = {
-  "exit-window": "退出环境",
-  "tech-signal": "技术风向",
-  "valuation-anchor": "估值锚",
+  "cn-market": "中国市场",
+  "us-market": "美国市场",
+  "tech-giants": "科技巨头",
+  fx: "汇率",
 };
 
 const ASSET_GROUP_LABELS_EN: Record<AssetGroup, string> = {
-  "exit-window": "Exit Window",
-  "tech-signal": "Tech Signal",
-  "valuation-anchor": "Valuation Anchor",
+  "cn-market": "China",
+  "us-market": "US",
+  "tech-giants": "Tech Giants",
+  fx: "FX",
 };
 
 export function getAssetGroupLabels(
@@ -43,20 +47,34 @@ export function getAssetGroupLabels(
 }
 
 export const ASSET_GROUP_ORDER: AssetGroup[] = [
-  "exit-window",
-  "tech-signal",
-  "valuation-anchor",
+  "cn-market",
+  "us-market",
+  "tech-giants",
+  "fx",
 ];
 
 export const WATCHLIST: TickerDef[] = [
-  // === 退出环境：三个主要退出市场的估值水位 ===
-  { symbol: "^IXIC", displayName: "纳斯达克", displayNameEn: "Nasdaq Composite", group: "exit-window" },
-  { symbol: "HSTECH.HK", displayName: "恒生科技指数", displayNameEn: "Hang Seng TECH", group: "exit-window" },
-  { symbol: "000688.SS", displayName: "科创 50", displayNameEn: "STAR 50", group: "exit-window" },
-  // === 技术风向：算力链条的景气度 ===
-  { symbol: "^SOX", displayName: "费城半导体指数", displayNameEn: "PHLX Semiconductor", group: "tech-signal" },
-  { symbol: "NVDA", displayName: "英伟达", displayNameEn: "Nvidia", group: "tech-signal" },
-  // === 估值锚：折现率与汇率 ===
-  { symbol: "^TNX", displayName: "10Y 美债收益率 (%)", displayNameEn: "10Y Treasury Yield (%)", group: "valuation-anchor" },
-  { symbol: "USDCNY=X", displayName: "美元 / 人民币", displayNameEn: "USD / CNY", group: "valuation-anchor" },
+  // === 中国市场：境内退出窗口 ===
+  { symbol: "000001.SS", displayName: "上证指数", displayNameEn: "SSE Composite", group: "cn-market" },
+  { symbol: "399001.SZ", displayName: "深证成指", displayNameEn: "Shenzhen Component", group: "cn-market" },
+  { symbol: "000688.SS", displayName: "科创 50", displayNameEn: "STAR 50", group: "cn-market" },
+  { symbol: "^HSI", displayName: "恒生指数", displayNameEn: "Hang Seng", group: "cn-market" },
+  { symbol: "HSTECH.HK", displayName: "恒生科技指数", displayNameEn: "Hang Seng TECH", group: "cn-market" },
+  // === 美国市场：美元基金的募资与退出预期 ===
+  { symbol: "^IXIC", displayName: "纳斯达克", displayNameEn: "Nasdaq Composite", group: "us-market" },
+  { symbol: "^GSPC", displayName: "标普 500", displayNameEn: "S&P 500", group: "us-market" },
+  { symbol: "^DJI", displayName: "道琼斯", displayNameEn: "Dow Jones", group: "us-market" },
+  // === 科技巨头：资本开支与竞争格局的先行信号 ===
+  { symbol: "NVDA", displayName: "英伟达", displayNameEn: "Nvidia", group: "tech-giants" },
+  { symbol: "TSM", displayName: "台积电", displayNameEn: "TSMC", group: "tech-giants" },
+  { symbol: "MSFT", displayName: "微软", displayNameEn: "Microsoft", group: "tech-giants" },
+  { symbol: "GOOGL", displayName: "谷歌", displayNameEn: "Alphabet", group: "tech-giants" },
+  { symbol: "AAPL", displayName: "苹果", displayNameEn: "Apple", group: "tech-giants" },
+  { symbol: "TSLA", displayName: "特斯拉", displayNameEn: "Tesla", group: "tech-giants" },
+  { symbol: "0700.HK", displayName: "腾讯控股", displayNameEn: "Tencent", group: "tech-giants" },
+  { symbol: "BABA", displayName: "阿里巴巴", displayNameEn: "Alibaba", group: "tech-giants" },
+  // === 汇率：募资成本与出海结算 ===
+  { symbol: "USDCNY=X", displayName: "美元 / 人民币", displayNameEn: "USD / CNY", group: "fx" },
+  { symbol: "USDJPY=X", displayName: "美元 / 日元", displayNameEn: "USD / JPY", group: "fx" },
+  { symbol: "USDSGD=X", displayName: "美元 / 新加坡元", displayNameEn: "USD / SGD", group: "fx" },
 ];

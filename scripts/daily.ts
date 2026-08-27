@@ -186,7 +186,9 @@ async function enrichCategory(
  * indicators + signals, then ask Sonnet for a market overview + a
  * picks-to-watch list. Returns null if no ticker came back.
  */
-async function runTrading(): Promise<TradingSection | null> {
+async function runTrading(
+  articles: ArticleInput[],
+): Promise<TradingSection | null> {
   console.log(`[daily] analyzing watchlist + crypto context (Yahoo / alt.me / CoinGecko)…`);
   const t0 = Date.now();
   const [tickers, cryptoFearGreed, cryptoGlobal] = await Promise.all([
@@ -208,6 +210,22 @@ async function runTrading(): Promise<TradingSection | null> {
     tickers,
     cryptoFearGreed: cryptoFearGreed ?? undefined,
     cryptoGlobal: cryptoGlobal ?? undefined,
+    // 技术指标回答不了"为什么涨/跌"。把当天分到科技商业与资本市场的新闻
+    // 一并送过去，模型才有可能把英伟达这类标的的涨跌和具体事件对上。
+    newsHeadlines: articles
+      .filter(
+        (a) =>
+          a.category === "tech-business" || a.category === "capital-markets",
+      )
+      .sort(
+        (a, b) =>
+          (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0),
+      )
+      .slice(0, 60)
+      .map((a) => ({
+        title: a.title,
+        summary: (a.summary ?? a.excerpt ?? "").slice(0, 120) || undefined,
+      })),
   });
   console.log(
     `[daily] trading commentary ready in ${((Date.now() - t1) / 1000).toFixed(1)}s`,
@@ -268,7 +286,7 @@ async function main() {
   // if it errors, we still ship the news digest.
   let trading: TradingSection | null = null;
   try {
-    trading = await runTrading();
+    trading = await runTrading(articles);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.warn(`[daily] trading section failed: ${msg}`);

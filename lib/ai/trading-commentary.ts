@@ -28,16 +28,33 @@ export interface WatchlistPick {
   rationale: string;
 }
 
+/** 单个标的当日异动的归因。仅对科技巨头分组生成。 */
+export interface TickerDriver {
+  symbol: string;
+  /** 30-60 字，说明今天这个波动的可能原因；找不到对应新闻时留空不编造 */
+  reason: string;
+}
+
 export interface TradingCommentary {
   market_overview: string;
   watchlist: WatchlistPick[];
   risk_caveat: string;
+  /**
+   * 科技巨头当日异动的简要原因。
+   *
+   * 技术指标本身回答不了"为什么涨/跌"，所以这里把当天已分类的科技商业与
+   * 资本市场新闻标题一并送给模型，让它把价格变动和具体事件对上。对不上的
+   * 标的直接不出现在数组里——宁可没有，也不要编一个听起来合理的理由。
+   */
+  drivers?: TickerDriver[];
 }
 
 export interface TradingCommentaryInput {
   tickers: TickerAnalysis[];
   cryptoFearGreed?: FearGreedSnapshot;
   cryptoGlobal?: CryptoGlobalStats;
+  /** 当天已分类的相关新闻，用于给科技巨头的涨跌做归因 */
+  newsHeadlines?: { title: string; summary?: string }[];
 }
 
 const SYSTEM_PROMPT_ZH = `你是一名专业、克制、中性的中文技术指标解读员。你的任务是基于公开行情数据计算出的技术指标，写一份**客观的技术状态描述报告**——你不是投顾，不预测涨跌，只复述指标读数和走势形态。任何使用本报告的读者都已经知道并接受这一定位。
@@ -58,8 +75,21 @@ const SYSTEM_PROMPT_ZH = `你是一名专业、克制、中性的中文技术指
     { "symbol": "<必须从输入精确复制>", "display_name": "<中文+(英文代码) 或 仅中文>", "stance": "偏上行" | "偏下行" | "中性", "rationale": "<80-150 字，必须引用具体技术指标数字>" },
     ...
   ],
-  "risk_caveat": "<60-100 字，必须包含「过去走势不代表未来表现」与「仅供技术指标解读参考」>"
+  "risk_caveat": "<60-100 字，必须包含「过去走势不代表未来表现」与「仅供技术指标解读参考」>",
+  "drivers": [
+    { "symbol": "<必须从输入精确复制>", "reason": "<30-60 字，说明该标的今日波动的可能原因>" },
+    ...
+  ]
 }
+
+**关于 drivers（异动归因）**：
+- 只为 group 是 "tech-giants" 的标的生成，其他分组不要出现在 drivers 里。
+- 用户提供的「当日相关新闻」里如果有能解释某只标的波动的事件，就写出来，例如
+  「英伟达拟 129 亿美元收购 Hugging Face，市场解读为向模型分发层扩张」。
+- **找不到对应新闻就不要放进 drivers**。宁可这只标的没有归因，也绝不编一个
+  听起来合理的理由——编造的归因比没有归因伤害大得多。
+- 如果当日波动很小（1 日涨跌幅绝对值 < 1%）且无相关新闻，同样不要放进来。
+- reason 只陈述事实与市场解读，不做涨跌预测，不给操作建议。
 
 **关于 watchlist（这是历史上最容易出错的字段，请严格执行）**：
 - watchlist **必须正好包含 3-5 个 ticker**。
@@ -110,7 +140,7 @@ const SYSTEM_PROMPT =
 export async function generateTradingCommentary(
   input: TradingCommentaryInput,
 ): Promise<TradingCommentary> {
-  const { tickers, cryptoFearGreed, cryptoGlobal } = input;
+  const { tickers, cryptoFearGreed, cryptoGlobal, newsHeadlines } = input;
   // Slim payload — drop fields that don't help the model (no need to send
   // exchangeName/currency etc. — those are display-only)
   const payload = tickers.map((a) => ({
@@ -171,6 +201,9 @@ export async function generateTradingCommentary(
           contextLines.length > 0
             ? `Auxiliary context (**you MUST reference at least one of these in market_overview**):\n${contextLines.map((l) => `  - ${l}`).join("\n")}\n`
             : "",
+          newsHeadlines && newsHeadlines.length > 0
+            ? `Today's related news (use ONLY for the drivers field; do not invent attributions):\n${JSON.stringify(newsHeadlines)}\n`
+            : "",
           `Candidate assets (${payload.length} entries, JSON array):`,
           JSON.stringify(payload),
           "",
@@ -183,6 +216,9 @@ export async function generateTradingCommentary(
           "",
           contextLines.length > 0
             ? `辅助背景（**必须在 market_overview 里至少引用一项**）：\n${contextLines.map((l) => `  - ${l}`).join("\n")}\n`
+            : "",
+          newsHeadlines && newsHeadlines.length > 0
+            ? `当日相关新闻（**仅用于 drivers 字段的归因，找不到对应的就别硬凑**）：\n${JSON.stringify(newsHeadlines)}\n`
             : "",
           `候选资产（共 ${payload.length} 个，JSON 数组）：`,
           JSON.stringify(payload),
@@ -292,10 +328,21 @@ async function callOnce(
       `watchlist pick has invalid shape: ${JSON.stringify(malformed).slice(0, 120)}`,
     );
   }
+  const drivers = Array.isArray(parsed.drivers)
+    ? (parsed.drivers as TickerDriver[]).filter(
+        (d) =>
+          d &&
+          typeof d.symbol === "string" &&
+          typeof d.reason === "string" &&
+          d.reason.trim().length > 0,
+      )
+    : [];
+
   return {
     market_overview: overview,
     watchlist: picks as WatchlistPick[],
     risk_caveat: parsed.risk_caveat ?? fallback.risk_caveat,
+    drivers,
   };
 }
 

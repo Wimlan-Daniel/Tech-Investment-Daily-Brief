@@ -31,11 +31,12 @@ const TEXTS_ZH = {
   catChinaVc: "中国一级市场",
   catCapitalMarkets: "资本市场",
   catGlobalBusiness: "全球商业",
-  catTrading: "环境指标",
+  catTrading: "数据指标",
   subMain: "全部",
   tierFirst: "第一手",
   tierMedia: "媒体报道",
   digestWhy: "为何重要",
+  tickerDriver: "异动原因",
   digestEmpty: "今日简报生成失败或无内容。下方各板块的原始列表仍然可用。",
   subAiNews: "AI 媒体",
   subTrendingPapers: "热门论文",
@@ -87,11 +88,12 @@ const TEXTS_EN: typeof TEXTS_ZH = {
   catChinaVc: "China Private Markets",
   catCapitalMarkets: "Capital Markets",
   catGlobalBusiness: "Global Business",
-  catTrading: "Environment",
+  catTrading: "Market Data",
   subMain: "All",
   tierFirst: "First-party",
   tierMedia: "Media",
   digestWhy: "Why it matters",
+  tickerDriver: "What moved it",
   digestEmpty: "Today's brief could not be generated. The raw lists below are still available.",
   subAiNews: "AI Media",
   subTrendingPapers: "Trending Papers",
@@ -255,7 +257,7 @@ export const MERGED_SUBGROUP_LIMITS: Record<string, number> = {
   "frontier-tech:main": 20,
   "tech-business:main": 20,
   "capital-markets:main": 15,
-  "global-business:main": 15,
+  "global-business:main": 22,
 };
 
 /**
@@ -991,6 +993,16 @@ export function renderHtml(
     vertical-align: middle;
     white-space: nowrap;
   }
+  .ticker-driver {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--fg-soft);
+    background: var(--card);
+    padding: 0.5rem 0.7rem;
+    border-radius: 5px;
+    margin: 0.6rem 0 0;
+  }
+  .ticker-driver-label { font-weight: 650; margin-right: 0.4rem; color: var(--accent); }
   .tier-first { background: #dcfce7; color: #166534; }
   .tier-media { background: var(--card); color: var(--muted); }
   @media (prefers-color-scheme: dark) {
@@ -1525,7 +1537,7 @@ function renderPickCard(p: WatchlistPick): string {
   </article>`;
 }
 
-function renderTickerCard(t: TickerAnalysis): string {
+function renderTickerCard(t: TickerAnalysis, driver?: string): string {
   const trendCls = t.trend;
   const priceCls = t.pct1Day >= 0 ? "positive" : "negative";
   const pct5Cls = t.pct5Day >= 0 ? "positive" : "negative";
@@ -1560,6 +1572,7 @@ function renderTickerCard(t: TickerAnalysis): string {
       <div><dt>${STR.tickerMacd}</dt><dd>${fmtNum(t.macd, 3)} / ${fmtNum(t.macdSignal, 3)}</dd></div>
     </dl>
     ${signals ? `<div class="ticker-signals">${signals}</div>` : ""}
+    ${driver ? `<p class="ticker-driver"><span class="ticker-driver-label">${STR.tickerDriver}</span>${escapeHtml(driver)}</p>` : ""}
   </article>`;
 }
 
@@ -1614,10 +1627,15 @@ function renderCryptoWidgets(t: TradingSection): string {
 
 function renderTradingPanel(trading: TradingSection): string {
   const tickers = trading.tickers;
+  // 异动归因只对科技巨头生成，模型找不到对应新闻时不会给，所以这里是稀疏的
+  const driverBySymbol = new Map(
+    (trading.drivers ?? []).map((d) => [d.symbol, d.reason]),
+  );
   const groupCounts: Record<AssetGroup, number> = {
-    "exit-window": 0,
-    "tech-signal": 0,
-    "valuation-anchor": 0,
+    "cn-market": 0,
+    "us-market": 0,
+    "tech-giants": 0,
+    fx: 0,
   };
   for (const t of tickers) groupCounts[t.group as AssetGroup] = (groupCounts[t.group as AssetGroup] ?? 0) + 1;
 
@@ -1630,7 +1648,7 @@ function renderTradingPanel(trading: TradingSection): string {
     const groupTickers = tickers.filter((t) => t.group === g);
     // 原版这里给加密货币分组挂了恐慌贪婪指数等小组件；本 fork 已无加密分组。
     return `<div class="trading-group-content${i === 0 ? " active" : ""}" data-group="${g}">
-      ${groupTickers.length === 0 ? `<p class="empty">${STR.emptyGroup}</p>` : groupTickers.map(renderTickerCard).join("")}
+      ${groupTickers.length === 0 ? `<p class="empty">${STR.emptyGroup}</p>` : groupTickers.map((t) => renderTickerCard(t, driverBySymbol.get(t.symbol))).join("")}
     </div>`;
   }).join("");
 
