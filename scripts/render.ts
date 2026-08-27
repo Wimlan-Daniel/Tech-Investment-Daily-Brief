@@ -61,7 +61,14 @@ async function main() {
   const dateDir = path.join(OUTPUT_DIR, date);
   fs.mkdirSync(dateDir, { recursive: true });
   const base = path.join(dateDir, date);
-  fs.writeFileSync(`${base}.html`, renderHtml(report, raw, date), "utf8");
+  const html = renderHtml(report, raw, date);
+  fs.writeFileSync(`${base}.html`, html, "utf8");
+  // 同步更新归档，否则调完样式后归档里还是旧版本
+  const ARCHIVE_DIR = "每日资讯留档";
+  fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+  const archivePath = path.join(ARCHIVE_DIR, `${date} 前沿科技投资简报.html`);
+  fs.writeFileSync(archivePath, html, "utf8");
+  console.log(`[render] 已同步归档: ${archivePath}`);
   if (process.env.OUTPUT_MARKDOWN === "true") {
     fs.writeFileSync(`${base}.md`, renderMarkdown(report, date), "utf8");
     console.log(`[render] wrote ${base}.{html,md}`);

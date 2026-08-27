@@ -34,6 +34,17 @@ import { todayKey } from "../lib/utils";
 
 const OUTPUT_DIR = "daily_reports";
 
+/**
+ * 人看的归档目录。
+ *
+ * daily_reports/ 里除了网页还有两个 JSON 边车文件（报告结构 + 全部抓取条目），
+ * 那是给 scripts/render.ts 和 regen-* 工具复用数据的，人不需要看。所以每天
+ * 额外把网页复制一份到这里，用「日期 + 名称」命名，按文件名排序就是按日期排序，
+ * 双击即可打开，也方便直接发给别人。
+ */
+const ARCHIVE_DIR = "每日资讯留档";
+const ARCHIVE_TITLE = "前沿科技投资简报";
+
 async function fetchAll(): Promise<ArticleInput[]> {
   const articles: ArticleInput[] = [];
   const enabled = sources.filter((s) => s.enabled !== false);
@@ -311,7 +322,17 @@ async function main() {
     JSON.stringify({ date, articles }, null, 2),
     "utf8",
   );
-  fs.writeFileSync(`${base}.html`, renderHtml(report, raw, date), "utf8");
+  const html = renderHtml(report, raw, date);
+  fs.writeFileSync(`${base}.html`, html, "utf8");
+
+  // 归档一份给人看的：每日资讯留档/2026-08-27 前沿科技投资简报.html
+  fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+  const archivePath = path.join(
+    ARCHIVE_DIR,
+    `${date} ${ARCHIVE_TITLE}.html`,
+  );
+  fs.writeFileSync(archivePath, html, "utf8");
+  console.log(`[daily] 已归档: ${archivePath}`);
   if (process.env.OUTPUT_MARKDOWN === "true") {
     fs.writeFileSync(`${base}.md`, renderMarkdown(report, date), "utf8");
     console.log(`[daily] wrote ${base}.{json,html,md,articles.json}`);
