@@ -7,6 +7,7 @@ import { enrichFinanceNewsSummaries } from "../lib/ai/enrich";
 import { validateBackendCredentials } from "../lib/ai/llm";
 import type { ArticleInput } from "../lib/ai/pipeline";
 import { sources, REPORT_LOCALE } from "../lib/sources/registry";
+import { ALL_CATEGORIES, type Category } from "../lib/sources/types";
 import {
   MERGED_SUBGROUP_LIMITS,
   isSportsArticle,
@@ -31,23 +32,13 @@ const OUTPUT_DIR = "daily_reports";
 async function main() {
   validateBackendCredentials();
 
-  const target = process.argv[2];
+  // 本 fork 每个板块只有一个合并列表，所以参数直接就是板块名，不再有 :subcategory
+  const category = (process.argv[2] ?? "") as Category;
   const date = process.argv[3] || todayKey();
-  if (!target || !target.includes(":")) {
+  if (!ALL_CATEGORIES.includes(category)) {
     throw new Error(
-      `Usage: tsx scripts/regen-enrich.ts <category:subcategory> [date]`,
+      `用法: tsx scripts/regen-enrich.ts <板块> [日期]\n可选板块: ${ALL_CATEGORIES.join(" | ")}`,
     );
-  }
-  const [category, subcategory] = target.split(":") as [
-    "tech" | "finance" | "politics",
-    string,
-  ];
-  if (
-    category !== "tech" &&
-    category !== "finance" &&
-    category !== "politics"
-  ) {
-    throw new Error(`Unknown category: ${category}`);
   }
 
   const sidecarPath = path.join(OUTPUT_DIR, date, `${date}-articles.json`);
@@ -59,20 +50,18 @@ async function main() {
     articles: ArticleInput[];
   };
 
-  const subSources = sources.filter(
-    (s) =>
-      s.category === category &&
-      s.subcategory === subcategory &&
-      s.enabled !== false,
+  // 与 scripts/daily.ts 的 enrichCategory 保持一致：按【文章的板块】筛选，
+  // 而不是按信源配置里的 category——后者在分类之后已经失效。
+  const enabledIds = new Set(
+    sources.filter((s) => s.enabled !== false).map((s) => s.id),
   );
-  const enabledIds = new Set(subSources.map((s) => s.id));
   const sameLocaleIds = new Set(
-    subSources.filter((s) => (s.lang ?? "en") === REPORT_LOCALE).map((s) => s.id),
+    sources.filter((s) => (s.lang ?? "en") === REPORT_LOCALE).map((s) => s.id),
   );
-  const limit = MERGED_SUBGROUP_LIMITS[`${category}:${subcategory}`] ?? 12;
+  const limit = MERGED_SUBGROUP_LIMITS[`${category}:main`] ?? 12;
   const top = data.articles
-    .filter((a) => enabledIds.has(a.sourceId))
-    .filter((a) => category !== "politics" || !isSportsArticle(a.title))
+    .filter((a) => a.category === category && enabledIds.has(a.sourceId))
+    .filter((a) => !isSportsArticle(a.title))
     .sort((a, b) => {
       const at = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
       const bt = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
@@ -84,7 +73,7 @@ async function main() {
     .filter((a) => !sameLocaleIds.has(a.sourceId))
     .filter((a) => !a.summary && !(a as { cnSummary?: string }).cnSummary);
   console.log(
-    `[regen-enrich] ${target}: top ${top.length}, missing summary on ${missing.length}`,
+    `[regen-enrich] ${category}：展示 ${top.length} 条，其中 ${missing.length} 条缺摘要`,
   );
   if (missing.length === 0) {
     console.log("[regen-enrich] nothing to do.");

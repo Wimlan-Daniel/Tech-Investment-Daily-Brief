@@ -41,6 +41,6 @@ export async function fetchHackerNews(
         ? stripHtml(it.text).slice(0, 300)
         : `${it.score ?? 0} points · ${it.descendants ?? 0} comments`,
       publishedAt: it.time ? new Date(it.time * 1000) : undefined,
-      category: "tech" as const,
+      category: "frontier-tech" as const,
     }));
 }

@@ -72,7 +72,7 @@ export async function fetchGithubTrending(
       excerpt: description.slice(0, 300),
       meta,
       // intentionally no publishedAt — see file header.
-      category: "tech",
+      category: "frontier-tech",
     });
   });
 

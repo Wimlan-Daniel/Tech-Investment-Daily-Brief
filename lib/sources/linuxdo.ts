@@ -76,6 +76,6 @@ export async function fetchLinuxDo(
         300,
       ),
       publishedAt: item.isoDate ? new Date(item.isoDate) : undefined,
-      category: "tech" as const,
+      category: "frontier-tech" as const,
     }));
 }

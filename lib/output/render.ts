@@ -5,7 +5,7 @@ import type {
   TradingSection,
 } from "../ai/pipeline";
 import type { WatchlistPick } from "../ai/trading-commentary";
-import { REPORT_LOCALE } from "../sources/registry";
+import { REPORT_LOCALE, sources as REGISTRY } from "../sources/registry";
 import { getReportTz } from "../utils";
 import type { Category, SourceDef } from "../sources/types";
 import { V2EX_OFF_TOPIC_RE } from "../sources/v2ex";
@@ -24,17 +24,19 @@ import {
  * this object so adding a third locale = adding one more table.
  */
 const TEXTS_ZH = {
-  siteTitle: "一级市场 · 前沿科技简报",
-  catTech: "前沿科技",
-  catFinance: "一级市场",
-  catPolitics: "宏观政策",
-  catTrading: "二级参照",
-  catCommunity: "深度观察",
-  subVcCn: "国内创投",
-  subVcGlobal: "海外创投",
-  subAiCn: "中文科技媒体",
-  subAiGlobal: "海外科技媒体",
-  subCnDeep: "商业深度",
+  siteTitle: "前沿科技 · 投资简报",
+  catDigest: "每日简报",
+  catFrontierTech: "前沿技术",
+  catTechBusiness: "科技商业",
+  catChinaVc: "中国一级市场",
+  catCapitalMarkets: "资本市场",
+  catGlobalBusiness: "全球商业",
+  catTrading: "环境指标",
+  subMain: "全部",
+  tierFirst: "第一手",
+  tierMedia: "媒体报道",
+  digestWhy: "为何重要",
+  digestEmpty: "今日简报生成失败或无内容。下方各板块的原始列表仍然可用。",
   subAiNews: "AI 媒体",
   subTrendingPapers: "热门论文",
   subXViral: "X 推文",
@@ -78,17 +80,19 @@ const TEXTS_ZH = {
 };
 
 const TEXTS_EN: typeof TEXTS_ZH = {
-  siteTitle: "Venture · Frontier Tech Brief",
-  catTech: "Frontier Tech",
-  catFinance: "Venture",
-  catPolitics: "Macro",
-  catTrading: "Public Comps",
-  catCommunity: "Deep Dives",
-  subVcCn: "China VC",
-  subVcGlobal: "Global VC",
-  subAiCn: "Chinese Tech Media",
-  subAiGlobal: "Global Tech Media",
-  subCnDeep: "Business Deep Dives",
+  siteTitle: "Frontier Tech · Investor Brief",
+  catDigest: "Daily Brief",
+  catFrontierTech: "Frontier Tech",
+  catTechBusiness: "Tech Business",
+  catChinaVc: "China Private Markets",
+  catCapitalMarkets: "Capital Markets",
+  catGlobalBusiness: "Global Business",
+  catTrading: "Environment",
+  subMain: "All",
+  tierFirst: "First-party",
+  tierMedia: "Media",
+  digestWhy: "Why it matters",
+  digestEmpty: "Today's brief could not be generated. The raw lists below are still available.",
   subAiNews: "AI Media",
   subTrendingPapers: "Trending Papers",
   subXViral: "X Viral",
@@ -160,16 +164,23 @@ export type RawByCategory = Record<Category, SubGroup[]>;
 // ----- labels & ordering -----
 
 const CATEGORY_LABELS: Record<Category, string> = {
-  tech: STR.catTech,
-  finance: STR.catFinance,
-  politics: STR.catPolitics,
+  "frontier-tech": STR.catFrontierTech,
+  "tech-business": STR.catTechBusiness,
+  "china-vc": STR.catChinaVc,
+  "capital-markets": STR.catCapitalMarkets,
+  "global-business": STR.catGlobalBusiness,
 };
 
-const CATEGORY_DIGEST_LABELS: Record<Category, string> = {
-  tech: STR.catTech,
-  finance: STR.catFinance,
-  politics: STR.catPolitics,
-};
+/** 页面上板块的排列顺序——一级市场排在最前，它是读者的主场。 */
+const CATEGORY_ORDER: Category[] = [
+  "china-vc",
+  "frontier-tech",
+  "tech-business",
+  "capital-markets",
+  "global-business",
+];
+
+const CATEGORY_DIGEST_LABELS: Record<Category, string> = CATEGORY_LABELS;
 
 /**
  * L2 ordering per category. Categories not listed render flat (no L2 tabs).
@@ -181,24 +192,19 @@ const SUBCATEGORY_ORDER: Partial<Record<Category, string[]>> = {
   // Locale filtering at registry level decides which actually appears:
   // zh mode keeps cn-community (V2EX / LinuxDo); en mode keeps
   // overseas-community (Hacker News / r/stocks).
-  tech: ["ai-cn", "ai-global", "trending-papers", "x-viral", "github-trending", "cn-deep"],
-  finance: ["vc-cn", "vc-global"],
-  politics: ["world"],
+  // 本 fork 每个板块只渲染一个按时间合并的列表：内容归类由 AI 逐条判断
+  // （见 lib/ai/classify.ts），同一板块内再按来源切二级页签只会打散时间线。
+  "frontier-tech": ["main"],
+  "tech-business": ["main"],
+  "china-vc": ["main"],
+  "capital-markets": ["main"],
+  "global-business": ["main"],
 };
 
-const TECH_MAIN_SUBS = new Set(["ai-cn", "ai-global", "trending-papers", "x-viral", "github-trending"]);
-const TECH_COMMUNITY_SUBS = new Set(["cn-deep"]);
+
 
 const SUBCATEGORY_LABELS: Record<string, string> = {
-  "github-trending": "GitHub Trending",
-  "trending-papers": STR.subTrendingPapers,
-  "ai-cn": STR.subAiCn,
-  "ai-global": STR.subAiGlobal,
-  "cn-deep": STR.subCnDeep,
-  "vc-cn": STR.subVcCn,
-  "vc-global": STR.subVcGlobal,
-  "x-viral": STR.subXViral,
-  world: STR.subWorld,
+  main: STR.subMain,
 };
 
 /**
@@ -209,12 +215,7 @@ const SUBCATEGORY_LABELS: Record<string, string> = {
  * comfortable scroll instead of 25-30 items. Merged subgroups (blog-weekly,
  * finance:news, politics:world) ignore this — they use MERGED_SUBGROUP_LIMITS.
  */
-const SOURCE_DISPLAY_LIMITS: Record<string, number> = {
-  "tech:github-trending": 20,
-  "tech:cn-deep": 15,
-  "tech:x-viral": 20,
-  "tech:trending-papers": 20,
-};
+const SOURCE_DISPLAY_LIMITS: Record<string, number> = {};
 
 /**
  * Sources whose fetcher returns items already sorted by an engagement/heat
@@ -249,11 +250,12 @@ function displayLimitFor(
  * Exported so daily.ts can read the cap to keep enrichment in sync.
  */
 export const MERGED_SUBGROUP_LIMITS: Record<string, number> = {
-  "tech:ai-cn": 20,
-  "tech:ai-global": 10,
-  "finance:vc-cn": 22,
-  "finance:vc-global": 12,
-  "politics:world": 15,
+  // 每个板块页面展示多少条（合并后按时间倒序截取）
+  "china-vc:main": 22,
+  "frontier-tech:main": 20,
+  "tech-business:main": 20,
+  "capital-markets:main": 15,
+  "global-business:main": 15,
 };
 
 /**
@@ -295,9 +297,11 @@ export function groupRaw(
 
   type Bucket = { sourceName: string; items: ArticleInput[] };
   const buckets: Record<Category, Map<string, Bucket>> = {
-    tech: new Map(),
-    finance: new Map(),
-    politics: new Map(),
+    "frontier-tech": new Map(),
+    "tech-business": new Map(),
+    "china-vc": new Map(),
+    "capital-markets": new Map(),
+    "global-business": new Map(),
   };
   // Pre-seed empty buckets for every enabled source so per-source-tabbed
   // subcategories (e.g. cn-community) still render a tab for sources that
@@ -313,7 +317,8 @@ export function groupRaw(
 
   for (const a of articles) {
     if (!enabledIds.has(a.sourceId)) continue;
-    if (a.category === "politics" && isSportsArticle(a.title)) continue;
+    // 体育内容不属于任何板块；分类器通常已判 drop，这里再兜一层。
+    if (isSportsArticle(a.title)) continue;
     if (
       (a.sourceId === "v2ex-hot" || a.sourceId === "linuxdo") &&
       V2EX_OFF_TOPIC_RE.test(a.title)
@@ -358,7 +363,13 @@ export function groupRaw(
     });
   }
 
-  const out: RawByCategory = { tech: [], finance: [], politics: [] };
+  const out: RawByCategory = {
+    "frontier-tech": [],
+    "tech-business": [],
+    "china-vc": [],
+    "capital-markets": [],
+    "global-business": [],
+  };
 
   for (const cat of Object.keys(buckets) as Category[]) {
     const order = SUBCATEGORY_ORDER[cat];
@@ -434,6 +445,19 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/**
+ * sourceId → 信源层级。读者明确要求"第一手为主、优质二手补充"，所以每条都标出来，
+ * 让他一眼分辨这条是官方原始发布还是媒体转述。
+ */
+const TIER_BY_SOURCE = new Map(REGISTRY.map((s) => [s.id, s.tier ?? "media"]));
+
+function tierBadge(tier: "first" | "media" | undefined): string {
+  if (tier === "first") {
+    return `<span class="tier tier-first">${STR.tierFirst}</span>`;
+  }
+  return `<span class="tier tier-media">${STR.tierMedia}</span>`;
+}
+
 function formatDate(d: Date | undefined): string {
   if (!d) return "";
   try {
@@ -465,11 +489,12 @@ function renderArticleHtml(a: ArticleInput, showSource = false): string {
   const time = formatDate(a.publishedAt);
   const sourceLabel = showSource && a.source ? escapeHtml(a.source) : "";
   const metaLine = [sourceLabel, time].filter(Boolean).join(" · ");
-  // News-style summary label for finance/politics, project-intro style for GH/tech.
-  const newsy = a.category === "finance" || a.category === "politics";
-  const summaryLabel = newsy ? STR.summaryLabelNews : STR.summaryLabelIntro;
+  // 前沿技术板块多为论文/开源项目，用"介绍"更贴切；其余板块是新闻，用"摘要"。
+  const summaryLabel =
+    a.category === "frontier-tech" ? STR.summaryLabelIntro : STR.summaryLabelNews;
+  const badge = tierBadge(TIER_BY_SOURCE.get(a.sourceId));
   return `<article class="article">
-  <h3 class="article-title"><a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></h3>
+  <h3 class="article-title">${badge}<a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></h3>
   ${meta ? `<p class="article-stats">${meta}</p>` : ""}
   ${metaLine ? `<p class="article-meta">${metaLine}</p>` : ""}
   ${excerpt ? `<p class="article-excerpt">${excerpt}</p>` : ""}
@@ -515,6 +540,61 @@ function renderSubContent(category: Category, sub: SubGroup, isActive: boolean):
   </div>`;
 }
 
+/**
+ * 每日简报页——本 fork 新建的功能。
+ *
+ * 上游其实每天都在花 LLM 调用生成简报（hero_headline / briefs / overview），
+ * 但 renderHtml 从来没有渲染它，只有 Markdown 输出会带上，而 Markdown 默认还
+ * 不生成。也就是说这份简报每天生成、每天被丢掉。这里把它接到网页第一页上。
+ *
+ * 与下方各板块的原始列表相比，这一页的增量是 why 字段——"这件事为什么今天重要"，
+ * 那是读者真正付钱买的判断，不是新闻本身。
+ */
+function renderDigestPanel(report: DailyReport): string {
+  const briefs = report.top_briefs ?? [];
+  const overview = report.daily_overview
+    ? `<p class="digest-overview">${escapeHtml(report.daily_overview)}</p>`
+    : "";
+  const hero = report.hero_headline
+    ? `<h2 class="digest-hero">${escapeHtml(report.hero_headline)}</h2>`
+    : "";
+  const note = report.editor_note
+    ? `<aside class="digest-note"><span class="digest-note-label">${STR.mdEditorNote}</span>${escapeHtml(report.editor_note)}</aside>`
+    : "";
+  const kw =
+    report.keywords && report.keywords.length > 0
+      ? `<div class="keywords">${report.keywords
+          .map((k) => `<span class="kw">#${escapeHtml(k)}</span>`)
+          .join("")}</div>`
+      : "";
+
+  if (briefs.length === 0 && !overview) {
+    return `<p class="empty">${STR.digestEmpty}</p>`;
+  }
+
+  const cards = briefs
+    .map((b, i) => {
+      const cat = CATEGORY_LABELS[b.category as Category];
+      const imp = Number.isFinite(b.importance) ? Number(b.importance) : 0;
+      const impClass = imp >= 8 ? "high" : imp >= 6 ? "mid" : "low";
+      return `<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">${i + 1}</span>
+      ${cat ? `<span class="digest-cat">${escapeHtml(cat)}</span>` : ""}
+      ${tierBadge(b.tier)}
+      <span class="digest-imp digest-imp-${impClass}">${STR.mdImportance} ${imp}</span>
+    </div>
+    <h3 class="digest-title"><a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(b.title)}</a></h3>
+    <p class="digest-source">${escapeHtml(b.source ?? "")}</p>
+    ${b.summary ? `<p class="digest-summary">${escapeHtml(b.summary)}</p>` : ""}
+    ${b.why ? `<p class="digest-why"><span class="digest-why-label">${STR.digestWhy}</span>${escapeHtml(b.why)}</p>` : ""}
+  </article>`;
+    })
+    .join("\n");
+
+  return `${hero}${overview}${kw}<div class="digest-list">${cards}</div>${note}`;
+}
+
 function renderRawCategoryPanel(
   category: Category,
   subs: SubGroup[],
@@ -546,24 +626,14 @@ export function renderHtml(
 ): string {
   const trading = report.trading;
 
-  // Split tech raw subgroups: "tech" L1 panel (github-trending + ai-news)
-  // vs. "community" L1 panel (cn-community). Keeps the registry simple
-  // (V2EX/LinuxDo still live under category=tech) while exposing the
-  // forums as their own top-level tab per UX preference.
-  const techMainSubs = raw.tech.filter((s) => TECH_MAIN_SUBS.has(s.id));
-  const techCommunitySubs = raw.tech.filter((s) => TECH_COMMUNITY_SUBS.has(s.id));
-
   const sumItems = (subs: SubGroup[]) =>
     subs.reduce(
       (n, sg) => n + sg.sources.reduce((m, s) => m + s.items.length, 0),
       0,
     );
-  const counts = {
-    tech: sumItems(techMainSubs),
-    finance: sumItems(raw.finance),
-    politics: sumItems(raw.politics),
-    community: sumItems(techCommunitySubs),
-  };
+  const counts = Object.fromEntries(
+    CATEGORY_ORDER.map((c) => [c, sumItems(raw[c] ?? [])]),
+  ) as Record<Category, number>;
 
   return `<!doctype html>
 <html lang="${REPORT_LOCALE === "en" ? "en" : "zh-CN"}">
@@ -819,6 +889,114 @@ export function renderHtml(
     line-height: 1.7;
     color: var(--fg);
   }
+  /* ===== 每日简报页 ===== */
+  .digest-hero {
+    font-size: 1.45rem;
+    line-height: 1.4;
+    font-weight: 650;
+    margin: 0.2rem 0 0.9rem;
+    letter-spacing: -0.01em;
+  }
+  .digest-overview {
+    font-size: 0.98rem;
+    line-height: 1.85;
+    color: var(--fg-soft);
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    padding: 0.9rem 1.1rem;
+    margin: 0 0 1.1rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .kw {
+    background: var(--card);
+    color: var(--muted);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+  }
+  .digest-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 0.4rem 0 1.4rem; }
+  .digest-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 0.95rem 1.05rem;
+  }
+  .digest-card-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
+  }
+  .digest-rank {
+    background: var(--accent);
+    color: var(--accent-fg);
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .digest-cat {
+    background: var(--card);
+    color: var(--fg-soft);
+    padding: 0.14rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 500;
+  }
+  .digest-imp { padding: 0.14rem 0.5rem; border-radius: 4px; font-size: 0.72rem; margin-left: auto; }
+  .digest-imp-high { background: var(--rank-high-bg); color: var(--rank-high-fg); }
+  .digest-imp-mid  { background: var(--rank-mid-bg);  color: var(--rank-mid-fg); }
+  .digest-imp-low  { background: var(--rank-low-bg);  color: var(--rank-low-fg); }
+  .digest-title { font-size: 1.02rem; line-height: 1.5; margin: 0 0 0.25rem; font-weight: 600; }
+  .digest-title a { color: var(--fg); text-decoration: none; }
+  .digest-title a:hover { color: var(--link); text-decoration: underline; }
+  .digest-source { font-size: 0.76rem; color: var(--muted); margin: 0 0 0.45rem; }
+  .digest-summary { font-size: 0.9rem; line-height: 1.75; color: var(--fg-soft); margin: 0 0 0.5rem; }
+  .digest-why {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--fg);
+    background: var(--card);
+    padding: 0.55rem 0.75rem;
+    border-radius: 5px;
+    margin: 0;
+  }
+  .digest-why-label {
+    font-weight: 650;
+    margin-right: 0.4rem;
+    color: var(--accent);
+  }
+  .digest-note {
+    border-top: 1px solid var(--rule);
+    padding-top: 0.9rem;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--fg-soft);
+  }
+  .digest-note-label { font-weight: 650; margin-right: 0.4rem; color: var(--fg); }
+
+  /* ===== 信源层级标注 ===== */
+  .tier {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-right: 0.45rem;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .tier-first { background: #dcfce7; color: #166534; }
+  .tier-media { background: var(--card); color: var(--muted); }
+  @media (prefers-color-scheme: dark) {
+    .tier-first { background: #14532d; color: #bbf7d0; }
+  }
+
   .keywords { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.5rem; }
   .keyword {
     background: var(--card);
@@ -1211,26 +1389,18 @@ export function renderHtml(
   </header>
 
   <nav class="tabs" role="tablist">
-    <button class="tab active" data-tab="finance">${CATEGORY_LABELS.finance}<span class="count">${counts.finance}</span></button>
-    <button class="tab" data-tab="tech">${CATEGORY_LABELS.tech}<span class="count">${counts.tech}</span></button>
-    ${techCommunitySubs.length > 0 ? `<button class="tab" data-tab="community">${STR.catCommunity}<span class="count">${counts.community}</span></button>` : ""}
+    <button class="tab active" data-tab="digest">${STR.catDigest}<span class="count">${report.top_briefs.length}</span></button>
+    ${CATEGORY_ORDER.map((c) => `<button class="tab" data-tab="${c}">${CATEGORY_LABELS[c]}<span class="count">${counts[c]}</span></button>`).join("\n    ")}
     ${trading ? `<button class="tab" data-tab="trading">${STR.catTrading}<span class="count">${trading.tickers.length}</span></button>` : ""}
-    <button class="tab" data-tab="politics">${CATEGORY_LABELS.politics}<span class="count">${counts.politics}</span></button>
   </nav>
 
-  <section class="panel active" data-panel="finance">
-    ${renderRawCategoryPanel("finance", raw.finance)}
+  <section class="panel active" data-panel="digest">
+    ${renderDigestPanel(report)}
   </section>
-  <section class="panel" data-panel="tech">
-    ${renderRawCategoryPanel("tech", techMainSubs)}
-  </section>
-  ${techCommunitySubs.length > 0 ? `<section class="panel" data-panel="community">
-    ${renderRawCategoryPanel("tech", techCommunitySubs)}
-  </section>` : ""}
+  ${CATEGORY_ORDER.map((c) => `<section class="panel" data-panel="${c}">
+    ${renderRawCategoryPanel(c, raw[c] ?? [])}
+  </section>`).join("\n  ")}
   ${trading ? `<section class="panel" data-panel="trading">${renderTradingPanel(trading)}</section>` : ""}
-  <section class="panel" data-panel="politics">
-    ${renderRawCategoryPanel("politics", raw.politics)}
-  </section>
 
   <footer>
     ${STR.footer}
@@ -1501,14 +1671,15 @@ function renderTradingPanel(trading: TradingSection): string {
 
 // ----- markdown -----
 
-function renderBriefMarkdown(b: BriefItem): string {
+function renderBriefMarkdown(b: BriefItem, rank: number): string {
   const importance = Number.isFinite(b.importance) ? b.importance : 0;
-  return `### [${b.title}](${b.url})\n${b.source} · ${STR.mdImportance} ${importance}/10\n\n${b.summary}\n`;
-}
-
-function renderSectionMarkdown(title: string, briefs: BriefItem[]): string {
-  if (briefs.length === 0) return "";
-  return `## ${title}\n\n${briefs.map(renderBriefMarkdown).join("\n")}\n`;
+  const cat = CATEGORY_DIGEST_LABELS[b.category as Category] ?? "";
+  const tier = b.tier === "first" ? STR.tierFirst : STR.tierMedia;
+  const meta = [cat, tier, b.source, `${STR.mdImportance} ${importance}/10`]
+    .filter(Boolean)
+    .join(" · ");
+  const why = b.why ? `\n**${STR.digestWhy}**：${b.why}\n` : "";
+  return `### ${rank}. [${b.title}](${b.url})\n${meta}\n\n${b.summary}\n${why}`;
 }
 
 export function renderMarkdown(report: DailyReport, date: string): string {
@@ -1518,21 +1689,13 @@ export function renderMarkdown(report: DailyReport, date: string): string {
   if (report.daily_overview) {
     blocks.push(`## ${STR.mdTodayOverview}\n\n${report.daily_overview}\n`);
   }
-  blocks.push(
-    renderSectionMarkdown(CATEGORY_DIGEST_LABELS.tech, report.tech_briefs),
-  );
-  blocks.push(
-    renderSectionMarkdown(
-      CATEGORY_DIGEST_LABELS.finance,
-      report.finance_briefs,
-    ),
-  );
-  blocks.push(
-    renderSectionMarkdown(
-      CATEGORY_DIGEST_LABELS.politics,
-      report.politics_briefs,
-    ),
-  );
+  if (report.top_briefs.length > 0) {
+    blocks.push(
+      `## ${STR.catDigest}\n\n${report.top_briefs
+        .map((b, i) => renderBriefMarkdown(b, i + 1))
+        .join("\n")}\n`,
+    );
+  }
   if (report.editor_note) {
     blocks.push(`## ${STR.mdEditorNote}\n\n${report.editor_note}\n`);
   }

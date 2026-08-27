@@ -20,5 +20,6 @@ export async function fetchSource(source: SourceDef): Promise<RawArticle[]> {
   if (source.id === "huggingface-papers") return fetchHuggingfacePapers(source.id, source.keywords);
   return fetchRss(source.id, source.url, source.category, {
     useCurl: source.useCurl,
+    fallbackUrls: source.fallbackUrls,
   });
 }

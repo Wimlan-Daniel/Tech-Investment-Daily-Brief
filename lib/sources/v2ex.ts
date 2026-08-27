@@ -103,6 +103,6 @@ export async function fetchV2ex(
     url: topic.url,
     excerpt: `${topic.replies} 回复 · ${nodeTitle} 节点`,
     publishedAt: topic.created ? new Date(topic.created * 1000) : undefined,
-    category: "tech" as const,
+    category: "frontier-tech" as const,
   }));
 }

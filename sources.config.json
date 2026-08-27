@@ -1,382 +1,650 @@
 [
   {
-    "id": "36kr-newsflash",
-    "name": "36氪 快讯",
+    "id": "openai",
+    "name": "OpenAI 官方",
     "type": "rss",
-    "url": "https://rsshub.rssforever.com/36kr/newsflashes",
-    "category": "finance",
-    "subcategory": "vc-cn",
+    "url": "https://openai.com/blog/rss.xml",
+    "category": "tech-business",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手。发布、产品、政策公告的原始出处。"
+  },
+  {
+    "id": "deepmind",
+    "name": "Google DeepMind 官方",
+    "type": "rss",
+    "url": "https://deepmind.google/blog/rss.xml",
+    "category": "tech-business",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手。"
+  },
+  {
+    "id": "google-research",
+    "name": "Google Research 官方",
+    "type": "rss",
+    "url": "https://research.google/blog/rss/",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手，偏研究成果。"
+  },
+  {
+    "id": "msr",
+    "name": "Microsoft Research",
+    "type": "rss",
+    "url": "https://www.microsoft.com/en-us/research/feed/",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手，更新较慢（周级）。"
+  },
+  {
+    "id": "nvidia",
+    "name": "NVIDIA 官方",
+    "type": "rss",
+    "url": "https://blogs.nvidia.com/feed/",
+    "category": "tech-business",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手。算力与硬件风向的原始出处。"
+  },
+  {
+    "id": "mistral",
+    "name": "Mistral AI 官方",
+    "type": "rss",
+    "url": "https://mistral.ai/rss.xml",
+    "category": "tech-business",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手，欧洲开源模型代表。"
+  },
+  {
+    "id": "waymo",
+    "name": "Waymo 官方",
+    "type": "rss",
+    "url": "https://waymo.com/blog/rss.xml",
+    "category": "tech-business",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手。自动驾驶规模化落地的少数公开数据来源。"
+  },
+  {
+    "id": "huggingface-blog",
+    "name": "HuggingFace 博客",
+    "type": "rss",
+    "url": "https://huggingface.co/blog/feed.xml",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手，开源模型生态。"
+  },
+  {
+    "id": "cmu-ri",
+    "name": "CMU 机器人研究所",
+    "type": "rss",
+    "url": "https://www.ri.cmu.edu/feed/",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手。具身智能与机器人本体研究重镇。"
+  },
+  {
+    "id": "mit-news-ai",
+    "name": "MIT News 人工智能",
+    "type": "rss",
+    "url": "https://news.mit.edu/rss/topic/artificial-intelligence2",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手，机构官方发布。"
+  },
+  {
+    "id": "arxiv-robotics",
+    "name": "arXiv 机器人 (cs.RO)",
+    "type": "rss",
+    "url": "http://export.arxiv.org/rss/cs.RO",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手论文。日均 77 篇，取前 30，靠 AI 分类再筛。"
+  },
+  {
+    "id": "huggingface-papers",
+    "name": "HuggingFace 热门论文",
+    "type": "api",
+    "url": "https://huggingface.co/api/daily_papers",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "keywords": [
+      "agent",
+      "reasoning",
+      "robotic",
+      "embodied",
+      "world model",
+      "multimodal",
+      "efficient",
+      "inference",
+      "VLA",
+      "manipulation"
+    ],
+    "notes": "第一手论文，社区投票筛过，噪音远小于 arXiv 原始流。keywords 按一级市场热门赛道调过。"
+  },
+  {
+    "id": "gov-cn",
+    "name": "国务院政策",
+    "type": "rss",
+    "url": "https://www.gov.cn/pushinfo/v150203/rss.xml",
+    "category": "global-business",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh"
+    ],
+    "useCurl": true,
     "lang": "zh",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "一级市场融资快讯主力源。36氪官方 RSS 已下线，走 RSSHub 公共镜像。若失效，把域名换成 https://hub.slarker.me 或 https://rsshub.ktachibana.party，路径不变。"
+    "notes": "第一手。产业政策原文出处，多数条目与科技无关，靠 AI 分类剔除。"
   },
   {
-    "id": "36kr-vc",
-    "name": "36氪 创投主题",
+    "id": "stats-gov-cn",
+    "name": "国家统计局",
     "type": "rss",
-    "url": "https://rsshub.rssforever.com/36kr/motif/327686782977",
-    "category": "finance",
-    "subcategory": "vc-cn",
+    "url": "https://www.stats.gov.cn/sj/zxfb/rss.xml",
+    "category": "capital-markets",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh"
+    ],
+    "useCurl": true,
     "lang": "zh",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "36氪创投频道长文，比快讯有深度。同样走 RSSHub 镜像。"
-  },
-  {
-    "id": "36kr-hot",
-    "name": "36氪 热榜",
-    "type": "rss",
-    "url": "https://rsshub.rssforever.com/36kr/hot-list",
-    "category": "finance",
-    "subcategory": "vc-cn",
-    "lang": "zh",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "当日阅读热度排序，用来判断哪些事件在国内创投圈真的被讨论。"
-  },
-  {
-    "id": "cyzone",
-    "name": "创业邦",
-    "type": "rss",
-    "url": "https://rsshub.rssforever.com/cyzone",
-    "category": "finance",
-    "subcategory": "vc-cn",
-    "lang": "zh",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "早期项目报道。出稿量小（日均 5 条左右），属于补充源。"
-  },
-  {
-    "id": "techcrunch-venture",
-    "name": "TechCrunch 创投",
-    "type": "rss",
-    "url": "https://techcrunch.com/category/venture/feed/",
-    "category": "finance",
-    "subcategory": "vc-global",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "海外融资事件第一落点，只订阅 venture 分类，不含消费科技噪音。"
-  },
-  {
-    "id": "crunchbase-news",
-    "name": "Crunchbase News",
-    "type": "rss",
-    "url": "https://news.crunchbase.com/feed/",
-    "category": "finance",
-    "subcategory": "vc-global",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "融资数据库官方媒体，赛道级统计和榜单较多。"
-  },
-  {
-    "id": "the-information",
-    "name": "The Information",
-    "type": "rss",
-    "url": "https://www.theinformation.com/feed",
-    "category": "finance",
-    "subcategory": "vc-global",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "付费墙媒体，RSS 只给标题和导语，但标题本身就是重要信号（独家爆料多）。"
+    "notes": "第一手宏观数据。注意日期格式非标准（2026-08-27 03:00:01），可能解析不出时间。"
   },
   {
     "id": "sequoia",
     "name": "红杉资本",
     "type": "rss",
     "url": "https://www.sequoiacap.com/feed/",
-    "category": "finance",
-    "subcategory": "vc-global",
+    "category": "china-vc",
+    "tier": "first",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
     "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "头部机构自己的投资论述，更新慢（周级），但每篇都值得看。"
+    "notes": "第一手。机构自己的投资论述，周级更新。"
   },
   {
-    "id": "ycombinator-blog",
+    "id": "ycombinator",
     "name": "Y Combinator",
     "type": "rss",
     "url": "https://www.ycombinator.com/blog/rss",
-    "category": "finance",
-    "subcategory": "vc-global",
+    "category": "china-vc",
+    "tier": "first",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
     "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "更新很慢（月级），主要看它的 RFS（征集创业方向）信号。"
+    "notes": "第一手。主要看 RFS 征集方向的信号，月级更新。"
   },
-
+  {
+    "id": "lightspeed",
+    "name": "Lightspeed 光速",
+    "type": "rss",
+    "url": "https://lsvp.com/feed/",
+    "category": "china-vc",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "第一手，机构观点。"
+  },
   {
     "id": "qbitai",
     "name": "量子位",
     "type": "rss",
     "url": "https://www.qbitai.com/feed",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
+    "category": "tech-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "国内 AI 报道质量最稳的一家，经常首发国内 AI 公司融资。"
+    "lang": "zh",
+    "notes": "国内 AI 报道质量最稳的一家，常首发国内 AI 公司融资。"
   },
   {
     "id": "leiphone",
     "name": "雷峰网",
     "type": "rss",
     "url": "https://www.leiphone.com/feed",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
+    "category": "tech-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "硬科技 / 智能驾驶 / 机器人报道偏多，对硬科技赛道有用。"
+    "lang": "zh",
+    "notes": "硬科技 / 智能驾驶 / 机器人报道偏多。"
   },
   {
     "id": "geekpark",
     "name": "极客公园",
     "type": "rss",
     "url": "https://www.geekpark.net/rss",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
+    "category": "tech-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "产品和创始人视角的报道。"
+    "lang": "zh",
+    "notes": "产品与创始人视角。"
   },
   {
     "id": "tmtpost",
     "name": "钛媒体",
     "type": "rss",
     "url": "https://www.tmtpost.com/rss.xml",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
+    "category": "tech-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "科技商业深度，偶有一级市场独家。"
+    "lang": "zh",
+    "notes": "科技商业深度。"
   },
   {
     "id": "infoq-cn",
     "name": "InfoQ 中国",
     "type": "rss",
     "url": "https://www.infoq.cn/feed",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
+    "category": "frontier-tech",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "偏工程落地视角，判断技术是否真的可用时有参考价值。"
+    "lang": "zh",
+    "notes": "工程落地视角，判断技术是否真的可用时有参考价值。"
   },
   {
     "id": "solidot",
     "name": "Solidot 奇客",
     "type": "rss",
     "url": "https://www.solidot.org/index.rss",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
+    "category": "frontier-tech",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
+    "lang": "zh",
     "notes": "中文短讯，覆盖海外科技新闻，信息密度高。"
   },
   {
-    "id": "oschina",
-    "name": "开源中国",
+    "id": "huxiu",
+    "name": "虎嗅",
     "type": "rss",
-    "url": "https://www.oschina.net/news/rss",
-    "category": "tech",
-    "subcategory": "ai-cn",
-    "lang": "zh",
-    "enabled": false,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "日均 50 条，多为版本发布公告，噪音偏大。默认关闭，想要更多开源动态可改成 true。"
-  },
-
-  {
-    "id": "huggingface-blog",
-    "name": "HuggingFace 博客",
-    "type": "rss",
-    "url": "https://huggingface.co/blog/feed.xml",
-    "category": "tech",
-    "subcategory": "ai-global",
+    "url": "https://rss.huxiu.com/",
+    "category": "global-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "开源模型生态动向。"
+    "lang": "zh",
+    "notes": "商业深度长文。注意用 rss.huxiu.com，www.huxiu.com/rss/0.xml 已失效。"
   },
   {
-    "id": "mit-tech-review-ai",
+    "id": "36kr-newsflash",
+    "name": "36氪 快讯",
+    "type": "rss",
+    "url": "https://rsshub.rssforever.com/36kr/newsflashes",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh"
+    ],
+    "useCurl": true,
+    "lang": "zh",
+    "notes": "36氪官方 RSS 已下线，只能走 RSSHub 公共镜像，而镜像会被上游间歇性封锁（实测同一地址上午可用、下午 503）。已配 4 个镜像自动切换，抓不到会依次重试。4 个全挂时当天该源为空，不影响其他源。 内容里混大量 A 股财报快讯，靠 AI 分类拆开。",
+    "fallbackUrls": [
+      "https://rsshub.ktachibana.party/36kr/newsflashes",
+      "https://hub.slarker.me/36kr/newsflashes",
+      "https://rss.injahow.cn/36kr/newsflashes"
+    ]
+  },
+  {
+    "id": "36kr-hot",
+    "name": "36氪 热榜",
+    "type": "rss",
+    "url": "https://rsshub.rssforever.com/36kr/hot-list",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh"
+    ],
+    "useCurl": true,
+    "lang": "zh",
+    "notes": "36氪官方 RSS 已下线，只能走 RSSHub 公共镜像，而镜像会被上游间歇性封锁（实测同一地址上午可用、下午 503）。已配 4 个镜像自动切换，抓不到会依次重试。4 个全挂时当天该源为空，不影响其他源。",
+    "fallbackUrls": [
+      "https://rsshub.ktachibana.party/36kr/hot-list",
+      "https://hub.slarker.me/36kr/hot-list",
+      "https://rss.injahow.cn/36kr/hot-list"
+    ]
+  },
+  {
+    "id": "techcrunch-venture",
+    "name": "TechCrunch 创投",
+    "type": "rss",
+    "url": "https://techcrunch.com/category/venture/feed/",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "海外融资事件第一落点，只订阅 venture 分类。"
+  },
+  {
+    "id": "crunchbase-news",
+    "name": "Crunchbase News",
+    "type": "rss",
+    "url": "https://news.crunchbase.com/feed/",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "融资数据库官方媒体，赛道级统计与榜单较多。"
+  },
+  {
+    "id": "the-information",
+    "name": "The Information",
+    "type": "rss",
+    "url": "https://www.theinformation.com/feed",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "付费墙媒体，RSS 只给标题和导语，但独家爆料多，标题本身就是信号。"
+  },
+  {
+    "id": "mit-tech-review",
     "name": "MIT 科技评论",
     "type": "rss",
     "url": "https://www.technologyreview.com/feed/",
-    "category": "tech",
-    "subcategory": "ai-global",
+    "category": "frontier-tech",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
     "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "技术判断和产业分析，深度好。"
+    "notes": "技术判断与产业分析。"
   },
   {
     "id": "venturebeat-ai",
     "name": "VentureBeat AI",
     "type": "rss",
     "url": "https://venturebeat.com/category/ai/feed/",
-    "category": "tech",
-    "subcategory": "ai-global",
+    "category": "tech-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
     "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "企业级 AI 落地和融资报道。"
+    "notes": "企业级 AI 落地与融资报道。"
   },
-
-  {
-    "id": "huggingface-papers",
-    "name": "HuggingFace 热门论文",
-    "type": "api",
-    "url": "https://huggingface.co/api/daily_papers",
-    "category": "tech",
-    "subcategory": "trending-papers",
-    "enabled": true,
-    "locales": ["zh", "en"],
-    "keywords": ["agent", "reasoning", "robotic", "embodied", "world model", "multimodal", "efficient", "inference"],
-    "notes": "社区投票筛过的论文，比 arXiv 原始流噪音小得多。keywords 按一级市场热门赛道调过：具身智能 / Agent / 世界模型 / 推理效率。"
-  },
-  {
-    "id": "arxiv-robotics",
-    "name": "arXiv 机器人",
-    "type": "rss",
-    "url": "http://export.arxiv.org/rss/cs.RO",
-    "category": "tech",
-    "subcategory": "trending-papers",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "具身智能 / 机器人是当前一级市场热门赛道，日均 77 篇，取前 20。"
-  },
-  {
-    "id": "arxiv-ai",
-    "name": "arXiv 人工智能",
-    "type": "rss",
-    "url": "http://export.arxiv.org/rss/cs.AI",
-    "category": "tech",
-    "subcategory": "trending-papers",
-    "enabled": false,
-    "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "日均 350+ 篇，取前 20 基本等于随机抽样，信噪比差。默认关闭。"
-  },
-
   {
     "id": "attentionvc-ai",
     "name": "X 推文 (AttentionVC)",
     "type": "api",
     "url": "https://reply-vc-90459984647.us-central1.run.app/v1/articles/leaderboard?window=3d&category=ai&lang=en&limit=30",
-    "category": "tech",
-    "subcategory": "x-viral",
+    "category": "tech-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
-    "locales": ["zh", "en"],
-    "notes": "由一家 VC 维护的 AI 圈推特热度榜，同行在看什么的直接信号。"
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "notes": "一家 VC 维护的 AI 圈推特热度榜，同行在看什么的直接信号。"
   },
   {
     "id": "github-trending",
     "name": "GitHub Trending",
     "type": "scrape",
     "url": "https://github.com/trending",
-    "category": "tech",
-    "subcategory": "github-trending",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
     "enabled": true,
-    "locales": ["zh", "en"],
-    "notes": "开源热度往往领先商业化 6-12 个月，用于捕捉早期技术趋势。"
-  },
-
-  {
-    "id": "huxiu",
-    "name": "虎嗅",
-    "type": "rss",
-    "url": "https://rss.huxiu.com/",
-    "category": "tech",
-    "subcategory": "cn-deep",
-    "lang": "zh",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "商业深度长文，日均 55 篇。注意用的是 rss.huxiu.com，www.huxiu.com/rss/0.xml 那个老地址已经连不上。"
-  },
-
-  {
-    "id": "stats-gov-cn",
-    "name": "国家统计局",
-    "type": "rss",
-    "url": "https://www.stats.gov.cn/sj/zxfb/rss.xml",
-    "category": "politics",
-    "subcategory": "world",
-    "lang": "zh",
-    "enabled": true,
-    "useCurl": true,
-    "locales": ["zh"],
-    "notes": "官方经济数据首发。注意：该源日期格式是 '2026-08-27 03:00:01'，不是标准 RSS 格式，rss-parser 可能解析不出时间，导致排序靠后。内容仍会进报告。"
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "notes": "开源热度常领先商业化 6-12 个月，用于捕捉早期技术趋势。"
   },
   {
     "id": "wallstreetcn",
     "name": "华尔街见闻",
     "type": "rss",
     "url": "https://dedicated.wallstreetcn.com/rss.xml",
-    "category": "politics",
-    "subcategory": "world",
-    "lang": "zh",
+    "category": "capital-markets",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "中文宏观和市场解读，日均 60 条。api.wallstreetcn.com 那个地址返回的不是 XML，别用。"
+    "lang": "zh",
+    "notes": "中文宏观与市场解读。api.wallstreetcn.com 返回的不是 XML，别用。"
   },
   {
     "id": "eastmoney",
     "name": "东方财富",
     "type": "rss",
     "url": "https://rss.eastmoney.com/rss_partener.xml",
-    "category": "politics",
-    "subcategory": "world",
-    "lang": "zh",
+    "category": "capital-markets",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "A股与政策面消息，日均 95 条，中美科技管制类新闻这里出得快。"
+    "lang": "zh",
+    "notes": "A股与政策面消息，中美科技管制类新闻出得快。"
   },
   {
     "id": "bbc-world",
     "name": "BBC World",
     "type": "rss",
     "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
-    "category": "politics",
-    "subcategory": "world",
+    "category": "global-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": true,
+    "locales": [
+      "zh",
+      "en"
+    ],
     "useCurl": true,
-    "locales": ["zh", "en"],
-    "notes": "保留一个国际源，用于覆盖出口管制 / 地缘政治这类影响退出环境的事件。会被 AI 翻成中文摘要。"
+    "notes": "保留一个国际源，覆盖出口管制 / 地缘政治这类影响退出环境的事件。"
+  },
+  {
+    "id": "36kr-vc",
+    "name": "36氪 创投主题",
+    "type": "rss",
+    "url": "https://rsshub.rssforever.com/36kr/motif/327686782977",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "locales": [
+      "zh"
+    ],
+    "useCurl": true,
+    "lang": "zh",
+    "notes": "36氪官方 RSS 已下线，只能走 RSSHub 公共镜像，而镜像会被上游间歇性封锁（实测同一地址上午可用、下午 503）。已配 4 个镜像自动切换，抓不到会依次重试。4 个全挂时当天该源为空，不影响其他源。 之前因单地址超时关闭，现有备用切换故重新启用。",
+    "fallbackUrls": [
+      "https://rsshub.ktachibana.party/36kr/motif/327686782977",
+      "https://hub.slarker.me/36kr/motif/327686782977",
+      "https://rss.injahow.cn/36kr/motif/327686782977"
+    ]
   },
   {
     "id": "dw-chinese",
     "name": "DW 中文",
     "type": "rss",
     "url": "https://rss.dw.com/rdf/rss-chi-all",
-    "category": "politics",
-    "subcategory": "world",
-    "lang": "zh",
+    "category": "global-business",
+    "tier": "media",
+    "subcategory": "main",
     "enabled": false,
+    "locales": [
+      "zh"
+    ],
     "useCurl": true,
-    "locales": ["zh"],
-    "notes": "2026-08-27 实测该源返回空列表（无 item），先关掉。以后可能恢复，届时改 true 即可。"
+    "lang": "zh",
+    "notes": "2026-08-27 实测返回空列表（无 item）。以后可能恢复，届时改 true。"
+  },
+  {
+    "id": "arxiv-ai",
+    "name": "arXiv 人工智能 (cs.AI)",
+    "type": "rss",
+    "url": "http://export.arxiv.org/rss/cs.AI",
+    "category": "frontier-tech",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": false,
+    "locales": [
+      "zh",
+      "en"
+    ],
+    "useCurl": true,
+    "notes": "日均 350+ 篇，取前 30 基本等于随机抽样，信噪比差。默认关闭。"
   }
 ]

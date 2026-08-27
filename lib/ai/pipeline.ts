@@ -2,11 +2,18 @@ import { jsonrepair } from "jsonrepair";
 import { runLlm } from "./llm";
 import { extractJson } from "./json-util";
 import { SYSTEM_PROMPT_DIGEST_EN, SYSTEM_PROMPT_DIGEST_ZH } from "./prompts";
-import { REPORT_LOCALE } from "../sources/registry";
+import { REPORT_LOCALE, sources } from "../sources/registry";
 import type { Category, RawArticle } from "../sources/types";
 
 const SYSTEM_PROMPT_DIGEST =
   REPORT_LOCALE === "en" ? SYSTEM_PROMPT_DIGEST_EN : SYSTEM_PROMPT_DIGEST_ZH;
+
+/** sourceId → 信源层级。让简报里的每条都能标出是官方发布还是媒体报道。 */
+const TIER_BY_SOURCE = new Map(sources.map((s) => [s.id, s.tier ?? "media"]));
+
+export function sourceTier(sourceId: string): "first" | "media" {
+  return TIER_BY_SOURCE.get(sourceId) ?? "media";
+}
 
 export interface BriefItem {
   title: string;
@@ -14,14 +21,24 @@ export interface BriefItem {
   source: string;
   summary: string;
   importance: number;
+  /** 该条属于哪个板块——简报页上给每条打板块标签用 */
+  category: Category;
+  /** 一句话说明"为什么这条今天重要"，是简报页相对原始列表的核心增量 */
+  why: string;
+  /** 信源层级，"first" 表示第一手（官方发布） */
+  tier?: "first" | "media";
 }
 
 export interface DailyReport {
   hero_headline: string;
   daily_overview: string;
-  tech_briefs: BriefItem[];
-  finance_briefs: BriefItem[];
-  politics_briefs: BriefItem[];
+  /**
+   * 每日简报：跨全部板块精选的当天最关键条目，渲染在首页第一个标签页。
+   * 上游是按板块分成三个数组，本 fork 改成一个统一列表——读者要的是
+   * "今天最重要的几件事"，而不是"每个板块各挑几条"。板块信息在每条的
+   * category 字段上，页面按标签展示。
+   */
+  top_briefs: BriefItem[];
   editor_note: string;
   keywords: string[];
   /** Optional trading-signals section, present when scripts/daily.ts ran successfully. */
@@ -44,10 +61,16 @@ export interface ArticleInput extends RawArticle {
   source: string;
 }
 
+/**
+ * 送进简报生成的候选条数上限（按板块）。这是给 LLM 的输入量，不是页面展示量。
+ * 一级市场是读者最关心的，给最多配额。
+ */
 const PER_CATEGORY_LIMIT: Record<Category, number> = {
-  tech: 25,
-  finance: 20,
-  politics: 15,
+  "china-vc": 30,
+  "frontier-tech": 25,
+  "tech-business": 25,
+  "capital-markets": 15,
+  "global-business": 15,
 };
 
 const MAX_AGE_DAYS = 14;
@@ -115,16 +138,14 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           "",
           "Your task: generate today's daily brief from the candidate news below. **The response MUST be a single valid JSON object** — starts with `{`, ends with `}`, no markdown, no code fences, no explanations.",
           "",
-          "The JSON must contain every field non-empty (briefs arrays per the system-prompt counts):",
+          "The JSON must contain every field non-empty:",
           "  - hero_headline: 10-25 word headline of the day",
-          "  - daily_overview: **150-250 word** paragraph covering tech / finance / politics signals so a reader sees the whole picture at a glance",
-          "  - tech_briefs: **3-5** tech BriefItems",
-          "  - finance_briefs: **3-5** finance BriefItems",
-          "  - politics_briefs: **2-3** politics BriefItems",
-          "  - editor_note: 30-60 word editor's note",
-          "  - keywords: 5-8 keywords",
+          "  - daily_overview: **180-260 word** paragraph threading private markets / frontier tech / capital environment",
+          "  - top_briefs: **6-8** BriefItems selected across all sections, ordered by importance",
+          "  - editor_note: 40-70 word editor's note naming today's most notable signal",
+          "  - keywords: 5-8 keywords, sectors and company names first",
           "",
-          "BriefItem fields: title, url (copied verbatim from candidate), source, summary, importance (1-10).",
+          "BriefItem fields (all required): title, url (verbatim from candidate), source, category (one of frontier-tech / tech-business / china-vc / capital-markets / global-business, copied from the candidate), tier (copied from the candidate), summary (50-100 words), why (30-50 words on why this matters today), importance (1-10).",
           "**Quote rule (important!)**: For any quotation INSIDE a JSON string, use single quotes ' or curly quotes '\" — **never** raw double quotes \", which break JSON parsing.",
           "No trailing commas.",
           "",
@@ -132,22 +153,37 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           userPayloadJson,
         ].join("\n")
       : [
-          "你的任务：根据下方候选新闻，生成一份当日简报，**响应必须是一个合法 JSON 对象**——以 `{` 开头，以 `}` 结尾，不要 markdown / 不要代码围栏 / 不要任何解释。",
+          "你的任务：从下方候选资讯中，挑出**今天最值得这位一级市场前沿科技投资人知道的 6-8 条**，生成一份简报。**响应必须是一个合法 JSON 对象**——以 `{` 开头，以 `}` 结尾，不要 markdown / 不要代码围栏 / 不要任何解释。",
           "",
-          "JSON 必须包含全部字段且不能为空（briefs 数组按 system prompt 规定的条数填充）：",
-          "  - hero_headline: 10-25 字的当日一句话头条",
-          "  - daily_overview: **150-220 字** 的当日总览段落，一段话覆盖技术 / 财经 / 时政 的核心信号，让读者一眼抓住全貌",
-          "  - tech_briefs: **3-5 条** 科技 BriefItem",
-          "  - finance_briefs: **3-5 条** 财经 BriefItem",
-          "  - politics_briefs: **2-3 条** 时政 BriefItem",
-          "  - editor_note: 30-60 字的编辑短评",
-          "  - keywords: 5-8 个关键词",
+          "JSON 必须包含全部字段且不能为空：",
+          "  - hero_headline: 10-25 字的当日一句话头条，点出今天最重要的那件事",
+          "  - daily_overview: **180-260 字** 的当日总览，按「一级市场 / 前沿科技 / 资本环境」三条线索串起来，让读者 30 秒抓住全貌",
+          "  - top_briefs: **6-8 条** BriefItem，跨板块精选，按重要性从高到低排列",
+          "  - editor_note: 40-70 字的编辑短评，点出今天最值得注意的一个信号或趋势",
+          "  - keywords: 5-8 个关键词，优先赛道名和公司名",
           "",
-          "BriefItem 字段：title、url（必须从候选条目原样选取）、source、summary、importance(1-10)。",
+          "BriefItem 字段（全部必填）：",
+          "  - title：改写后的中文标题，≤25 字，中性不标题党",
+          "  - url：必须从候选条目中原样复制，绝不编造",
+          "  - source：候选条目的 source 字段原样回填",
+          "  - category：该条的板块，必须是 frontier-tech / tech-business / china-vc / capital-markets / global-business 之一，原样沿用候选条目的 category",
+          "  - tier：原样沿用候选条目的 tier（first 或 media）",
+          "  - summary：50-100 字中文事实摘要",
+          "  - why：**30-50 字，说明这条今天为什么重要**——对哪条赛道、哪类公司、哪个判断有影响。这是简报相对原始列表的核心增量，不要写成摘要的重复。",
+          "  - importance：1-10 的整数",
+          "",
+          "选条标准（按优先级）：",
+          "  1. 中国一级市场的融资与退出事件，尤其前沿科技赛道",
+          "  2. 改变技术判断的进展——能力拐点、路线收敛、成本结构变化",
+          "  3. 头部公司的重大商业动作，可能改变竞争格局的",
+          "  4. 直接影响募资或退出环境的政策与资本市场变化",
+          "  5. 按《金融时报》头版标准值得知道的全球商业事件",
+          "同一件事被多家报道时只保留一条，选信源层级更高的那条（tier=first 优先），summary 末尾标注「（多家报道）」。",
+          "",
           "**引号规则（重要！）**：JSON 字符串内的中文引用请使用**中文全角引号**「」或者 “”，**绝对不要**用英文双引号 \" —— 那会导致 JSON 解析失败。例：写 商务部回应「内卷」 而不是 商务部回应\"内卷\"。",
           "不要使用单引号、不要末尾多余逗号。",
           "",
-          "候选新闻（JSON 数组，共 " + userPayloadJson.length + " 字符）：",
+          "候选资讯（JSON 数组，共 " + userPayloadJson.length + " 字符）：",
           userPayloadJson,
         ].join("\n");
   const { text } = await runLlm({
@@ -185,9 +221,9 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
   return {
     hero_headline: parsed.hero_headline ?? "",
     daily_overview: parsed.daily_overview ?? "",
-    tech_briefs: parsed.tech_briefs ?? [],
-    finance_briefs: parsed.finance_briefs ?? [],
-    politics_briefs: parsed.politics_briefs ?? [],
+    top_briefs: (parsed.top_briefs ?? []).filter(
+      (b) => b && typeof b.url === "string" && b.url.length > 0,
+    ),
     editor_note: parsed.editor_note ?? "",
     keywords: parsed.keywords ?? [],
   };
@@ -197,9 +233,11 @@ export async function generateDailyReport(
   articles: ArticleInput[],
 ): Promise<{ report: DailyReport; tokensUsed: number }> {
   const grouped: Record<Category, ArticleInput[]> = {
-    tech: [],
-    finance: [],
-    politics: [],
+    "frontier-tech": [],
+    "tech-business": [],
+    "china-vc": [],
+    "capital-markets": [],
+    "global-business": [],
   };
   for (const a of articles) grouped[a.category].push(a);
 
@@ -213,7 +251,8 @@ export async function generateDailyReport(
     url: a.url,
     source: a.source,
     category: a.category,
-    excerpt: (a.excerpt ?? "").slice(0, 200),
+    tier: sourceTier(a.sourceId),
+    excerpt: (a.summary ?? a.excerpt ?? "").slice(0, 220),
     published: a.publishedAt?.toISOString() ?? "",
   }));
   const userPayloadJson = JSON.stringify(userPayload);

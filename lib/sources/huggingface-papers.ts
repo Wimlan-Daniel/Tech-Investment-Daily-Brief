@@ -51,6 +51,6 @@ export async function fetchHuggingfacePapers(
         ? new Date(p.paper.publishedAt)
         : undefined,
       meta: `👍 ${p.paper.upvotes}`,
-      category: "tech" as const,
+      category: "frontier-tech" as const,
     }));
 }

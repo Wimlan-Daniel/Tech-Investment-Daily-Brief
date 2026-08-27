@@ -21,3 +21,7 @@
 
 # screenshot originals (only the cropped versions are committed)
 /docs/screenshots/originals/
+
+# 运行产物
+output/
+logs/

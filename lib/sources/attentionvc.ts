@@ -116,7 +116,7 @@ export async function fetchAttentionVc(
     url: `https://x.com/${e.author.handle}/status/${e.tweetId}`,
     excerpt: e.previewText?.replace(/\s+/g, " ").trim().slice(0, 300),
     publishedAt: e.tweetCreatedAt ? new Date(e.tweetCreatedAt) : undefined,
-    category: "tech" as const,
+    category: "tech-business" as const,
     meta: buildMeta(e),
   }));
 }

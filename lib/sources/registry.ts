@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SourceDef } from "./types";
+import { ALL_CATEGORIES } from "./types";
 
 /**
  * Source registry — loaded at module-init time from sources.config.json
@@ -24,10 +25,13 @@ import type { SourceDef } from "./types";
  * `enabled: false` entries stay in the config for visibility; disable
  * rather than delete so the "why we don't use this" history is preserved.
  *
- * Subcategory determines L2 grouping in the rendered HTML:
- *   tech    → github-trending / ai-news / x-viral (cn-community renders as L1)
- *   finance → news
- *   politics → no L2 split (subcategory omitted)
+ * 关于 category 字段（本 fork 与上游的重要差异）：
+ *   配置里写的 category 只是**兜底猜测**，不是最终归类。真正的板块归属由
+ *   lib/ai/classify.ts 在抓取之后逐条判断并覆写，因为同一个源里的内容性质
+ *   差异极大（36氪快讯里既有一级市场融资也有 A 股财报）。
+ *   这里的值只在分类失败时兜底使用。
+ *
+ * 关于 subcategory：本 fork 每个板块只渲染一个合并列表，所有源统一填 "main"。
  */
 
 export const REPORT_LOCALE: "zh" | "en" =
@@ -57,7 +61,7 @@ function loadAndValidate(): SourceDef[] {
   }
 
   const validTypes = new Set(["rss", "api", "scrape"]);
-  const validCategories = new Set(["tech", "finance", "politics"]);
+  const validCategories = new Set(ALL_CATEGORIES as string[]);
   const seenIds = new Set<string>();
 
   for (let i = 0; i < parsed.length; i++) {
