@@ -2,6 +2,8 @@ import { fetchAttentionVc } from "./attentionvc";
 import { fetch36krNewsflash } from "./kr36";
 import { fetchChinaVenture } from "./chinaventure";
 import { fetchPedataReports } from "./pedata";
+import { fetchIheima } from "./iheima";
+import { fetchTheCapital } from "./thecapital";
 import { fetchGithubTrending } from "./github-trending";
 import { fetchHackerNews } from "./hackernews";
 import { fetchHuggingfacePapers } from "./huggingface-papers";
@@ -21,6 +23,9 @@ export async function fetchSource(source: SourceDef): Promise<RawArticle[]> {
     return fetchChinaVenture(source.id, source.category);
   if (source.id === "pedata")
     return fetchPedataReports(source.id, source.category);
+  if (source.id === "iheima") return fetchIheima(source.id, source.category);
+  if (source.id === "thecapital")
+    return fetchTheCapital(source.id, source.category);
   if (source.id === "hackernews") return fetchHackerNews(source.id);
   if (source.id === "github-trending") return fetchGithubTrending(source.id);
   if (source.id === "v2ex-hot") return fetchV2ex(source.id);

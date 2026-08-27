@@ -461,6 +461,36 @@
     "notes": "一级市场统计数据。标题本身就是数据（「本周投资、退出、并购事件共265起，涉及金额1974.62亿元」），周报每周更新、月报每月更新。www.pedata.cn 是 Vue 单页应用抓不到，free.pedata.cn 才是服务端渲染的。拿不到明细，但总量趋势足够判断市场冷热。见 lib/sources/pedata.ts。"
   },
   {
+    "id": "iheima",
+    "name": "i黑马",
+    "type": "scrape",
+    "url": "https://www.iheima.com/",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "lang": "zh",
+    "locales": [
+      "zh"
+    ],
+    "notes": "用户常看的创投媒体，公众号内容与网站基本同步。无 RSS，直抓首页静态 HTML。首页不带发布时间，条目 publishedAt 为空，会排在有时间的条目之后，但仍参与分类与简报选条。见 lib/sources/iheima.ts。"
+  },
+  {
+    "id": "thecapital",
+    "name": "融中财经",
+    "type": "scrape",
+    "url": "https://www.thecapital.com.cn/",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "lang": "zh",
+    "locales": [
+      "zh"
+    ],
+    "notes": "《融资中国》杂志官网。内容偏机构动态、基金募集、LP/GP 关系，是 36氪和投中覆盖较薄的角度。必须抓首页——/news 子页是纯前端路由抓不到内容。见 lib/sources/thecapital.ts。"
+  },
+  {
     "id": "techcrunch-venture",
     "name": "TechCrunch 创投",
     "type": "rss",
