@@ -491,6 +491,21 @@
     "notes": "《融资中国》杂志官网。内容偏机构动态、基金募集、LP/GP 关系，是 36氪和投中覆盖较薄的角度。必须抓首页——/news 子页是纯前端路由抓不到内容。见 lib/sources/thecapital.ts。"
   },
   {
+    "id": "yicai",
+    "name": "第一财经",
+    "type": "scrape",
+    "url": "https://www.yicai.com/news/",
+    "category": "capital-markets",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "lang": "zh",
+    "locales": [
+      "zh"
+    ],
+    "notes": "老牌财经媒体，宏观政策、产业深度、A股解读齐全。官方 RSS 已下线（/rss/ 返回 404），直抓 /news/ 列表页——首页 1.1MB 混着大量轮播广告，列表页是纯资讯流且标题/摘要/时间齐全。时间是混合格式（相对时间 + MM-DD HH:MM），两种都解析。见 lib/sources/yicai.ts。"
+  },
+  {
     "id": "techcrunch-venture",
     "name": "TechCrunch 创投",
     "type": "rss",
