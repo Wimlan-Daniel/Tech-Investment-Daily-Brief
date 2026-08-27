@@ -1,4 +1,7 @@
 import { fetchAttentionVc } from "./attentionvc";
+import { fetch36krNewsflash } from "./kr36";
+import { fetchChinaVenture } from "./chinaventure";
+import { fetchPedataReports } from "./pedata";
 import { fetchGithubTrending } from "./github-trending";
 import { fetchHackerNews } from "./hackernews";
 import { fetchHuggingfacePapers } from "./huggingface-papers";
@@ -12,6 +15,12 @@ import type { RawArticle, SourceDef } from "./types";
  * Add a new branch here when introducing a non-RSS fetcher.
  */
 export async function fetchSource(source: SourceDef): Promise<RawArticle[]> {
+  if (source.id === "36kr-newsflash")
+    return fetch36krNewsflash(source.id, source.category);
+  if (source.id === "chinaventure")
+    return fetchChinaVenture(source.id, source.category);
+  if (source.id === "pedata")
+    return fetchPedataReports(source.id, source.category);
   if (source.id === "hackernews") return fetchHackerNews(source.id);
   if (source.id === "github-trending") return fetchGithubTrending(source.id);
   if (source.id === "v2ex-hot") return fetchV2ex(source.id);

@@ -397,8 +397,8 @@
   {
     "id": "36kr-newsflash",
     "name": "36氪 快讯",
-    "type": "rss",
-    "url": "https://rsshub.rssforever.com/36kr/newsflashes",
+    "type": "scrape",
+    "url": "https://www.36kr.com/newsflashes",
     "category": "china-vc",
     "tier": "media",
     "subcategory": "main",
@@ -406,14 +406,8 @@
     "locales": [
       "zh"
     ],
-    "useCurl": true,
     "lang": "zh",
-    "notes": "36氪官方 RSS 已下线，只能走 RSSHub 公共镜像，而镜像会被上游间歇性封锁（实测同一地址上午可用、下午 503）。已配 4 个镜像自动切换，抓不到会依次重试。4 个全挂时当天该源为空，不影响其他源。 内容里混大量 A 股财报快讯，靠 AI 分类拆开。",
-    "fallbackUrls": [
-      "https://rsshub.ktachibana.party/36kr/newsflashes",
-      "https://hub.slarker.me/36kr/newsflashes",
-      "https://rss.injahow.cn/36kr/newsflashes"
-    ]
+    "notes": "直抓页面内嵌的 window.initialState，不再依赖 RSSHub 公共镜像（那些镜像会被 36氪间歇性封锁）。必须用带 www 的域名，不带 www 只返回 SPA 空壳。内容里混大量 A 股财报快讯，靠 AI 分类拆开。见 lib/sources/kr36.ts。"
   },
   {
     "id": "36kr-hot",
@@ -435,6 +429,36 @@
       "https://hub.slarker.me/36kr/hot-list",
       "https://rss.injahow.cn/36kr/hot-list"
     ]
+  },
+  {
+    "id": "chinaventure",
+    "name": "投中网",
+    "type": "scrape",
+    "url": "https://www.chinaventure.com.cn/index.html",
+    "category": "china-vc",
+    "tier": "media",
+    "subcategory": "main",
+    "enabled": true,
+    "lang": "zh",
+    "locales": [
+      "zh"
+    ],
+    "notes": "国内一级市场核心媒体。无 RSS，RSSHub 路由常年 503，故直抓首页静态 HTML。信噪比高于 36氪快讯——基本都是融资事件与机构动态，没有 A 股财报噪音。发布时间取自 URL 里的日期段，只精确到天。见 lib/sources/chinaventure.ts。"
+  },
+  {
+    "id": "pedata",
+    "name": "清科研究中心",
+    "type": "scrape",
+    "url": "https://free.pedata.cn/",
+    "category": "china-vc",
+    "tier": "first",
+    "subcategory": "main",
+    "enabled": true,
+    "lang": "zh",
+    "locales": [
+      "zh"
+    ],
+    "notes": "一级市场统计数据。标题本身就是数据（「本周投资、退出、并购事件共265起，涉及金额1974.62亿元」），周报每周更新、月报每月更新。www.pedata.cn 是 Vue 单页应用抓不到，free.pedata.cn 才是服务端渲染的。拿不到明细，但总量趋势足够判断市场冷热。见 lib/sources/pedata.ts。"
   },
   {
     "id": "techcrunch-venture",
