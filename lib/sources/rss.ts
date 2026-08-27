@@ -26,7 +26,9 @@ async function parseOne(
   useCurl: boolean | undefined,
 ): Promise<Awaited<ReturnType<typeof parser.parseString>>> {
   if (useCurl) {
-    const xml = await curlFetch(url, CURL_HEADERS);
+    // 30 秒而非默认 20：实测 TechCrunch / Crunchbase 这类站点在网络拥塞时
+    // 会卡到 20 秒以上，白白丢掉一个本来能用的源。
+    const xml = await curlFetch(url, CURL_HEADERS, 30);
     return parser.parseString(xml);
   }
   return parser.parseURL(url);
@@ -50,21 +52,29 @@ export async function fetchRss(
   const candidates = [url, ...(options.fallbackUrls ?? [])];
   let lastError: unknown;
   let feed: Awaited<ReturnType<typeof parser.parseString>> | undefined;
-  for (const [i, candidate] of candidates.entries()) {
-    try {
-      const attempt = await parseOne(candidate, options.useCurl);
-      if ((attempt.items ?? []).length === 0) {
-        throw new Error("feed 解析成功但没有条目");
+  // 整个候选列表最多走两轮：第一轮全挂时等 5 秒再来一次。限流和网络抖动
+  // 大多是瞬时的，一次重试能捞回不少源。
+  outer: for (let round = 0; round < 2; round++) {
+    if (round > 0) {
+      await new Promise((r) => setTimeout(r, 5_000));
+      console.log(`[rss] ${sourceId}: 首轮全部失败，重试一次`);
+    }
+    for (const [i, candidate] of candidates.entries()) {
+      try {
+        const attempt = await parseOne(candidate, options.useCurl);
+        if ((attempt.items ?? []).length === 0) {
+          throw new Error("feed 解析成功但没有条目");
+        }
+        if (i > 0 || round > 0) {
+          console.log(
+            `[rss] ${sourceId}: 第 ${round + 1} 轮 · 地址 ${i + 1}/${candidates.length} 成功`,
+          );
+        }
+        feed = attempt;
+        break outer;
+      } catch (e) {
+        lastError = e;
       }
-      if (i > 0) {
-        console.log(
-          `[rss] ${sourceId}: 主地址失败，改用备用地址 ${i}/${candidates.length - 1} 成功`,
-        );
-      }
-      feed = attempt;
-      break;
-    } catch (e) {
-      lastError = e;
     }
   }
   if (!feed) {

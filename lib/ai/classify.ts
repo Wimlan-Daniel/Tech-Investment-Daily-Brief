@@ -22,8 +22,17 @@ import { ALL_CATEGORIES } from "../sources/types";
 /** 每批送多少条给模型。太大容易触发输出截断导致 JSON 解析失败。 */
 const CHUNK_SIZE = 60;
 
-/** 同时跑几批。每个并发都是一个独立的 claude 进程，调高会撞速率限制。 */
-const CONCURRENCY = 4;
+/**
+ * 同时跑几批。每个并发都是一个独立的 claude 进程。
+ *
+ * 实测：4 路并发会被限流打爆——第 1 批直接返回 API Error，第 2-4 批全部
+ * 300 秒超时；而串行时每批稳定 100-170 秒。2 路是速度与稳定的折中。
+ * 出现大面积超时就往下调到 1。
+ */
+const CONCURRENCY = 2;
+
+/** 单批失败后的重试次数。分类失败意味着这一批内容全部落到兜底板块，值得重试。 */
+const RETRIES = 2;
 
 /** 分类失败时的兜底板块——宁可进这里也不要丢内容。 */
 const FALLBACK: Category = "global-business";
@@ -123,33 +132,46 @@ export async function classifyArticles(
       desc: (a.summary ?? a.excerpt ?? "").slice(0, 160),
       from: a.sourceId,
     }));
-    try {
-      const { text } = await runLlm({
-        systemPrompt: SYSTEM_PROMPT,
-        userPrompt: [
-          `下面是 ${payload.length} 条待分类资讯，请为每一条给出板块。`,
-          JSON.stringify(payload),
-          "",
-          `再次强调：输出的 items 数组必须刚好 ${payload.length} 条，i 原样回填。`,
-        ].join("\n"),
-        timeoutMs: 300_000,
-      });
-      const parsed = JSON.parse(extractJson(text)) as ClassifyResult;
-      let hits = 0;
-      for (const it of parsed.items ?? []) {
-        if (typeof it?.i !== "number" || typeof it?.c !== "string") continue;
-        if (!VALID.has(it.c)) continue;
-        verdict.set(it.i, it.c);
-        hits++;
+    for (let attempt = 0; attempt <= RETRIES; attempt++) {
+      try {
+        const { text } = await runLlm({
+          systemPrompt: SYSTEM_PROMPT,
+          userPrompt: [
+            `下面是 ${payload.length} 条待分类资讯，请为每一条给出板块。`,
+            JSON.stringify(payload),
+            "",
+            `再次强调：输出的 items 数组必须刚好 ${payload.length} 条，i 原样回填。`,
+          ].join("\n"),
+          timeoutMs: 300_000,
+        });
+        const parsed = JSON.parse(extractJson(text)) as ClassifyResult;
+        let hits = 0;
+        for (const it of parsed.items ?? []) {
+          if (typeof it?.i !== "number" || typeof it?.c !== "string") continue;
+          if (!VALID.has(it.c)) continue;
+          verdict.set(it.i, it.c);
+          hits++;
+        }
+        console.log(
+          `[classify] 批次 ${batchNo + 1} 完成（${++done}/${chunks.length}）：${hits}/${payload.length} 条有结果`,
+        );
+        return;
+      } catch (e) {
+        const last = attempt === RETRIES;
+        if (last) {
+          // 重试用尽——这批条目走兜底路径保留下来，不丢内容
+          console.warn(
+            `[classify] 批次 ${batchNo + 1} 最终失败（${++done}/${chunks.length}），该批保留原板块：${String(e).slice(0, 160)}`,
+          );
+          return;
+        }
+        // 退避后重试。限流通常是瞬时的，等一会儿就好。
+        const waitMs = 20_000 * (attempt + 1);
+        console.warn(
+          `[classify] 批次 ${batchNo + 1} 第 ${attempt + 1} 次失败，${waitMs / 1000}s 后重试：${String(e).slice(0, 120)}`,
+        );
+        await new Promise((r) => setTimeout(r, waitMs));
       }
-      console.log(
-        `[classify] 批次 ${batchNo + 1} 完成（${++done}/${chunks.length}）：${hits}/${payload.length} 条有结果`,
-      );
-    } catch (e) {
-      // 单批失败不影响其他批；这批的条目会走兜底路径保留下来
-      console.warn(
-        `[classify] 批次 ${batchNo + 1} 失败（${++done}/${chunks.length}），该批保留原板块：${String(e).slice(0, 160)}`,
-      );
     }
   };
 

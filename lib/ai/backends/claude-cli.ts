@@ -38,7 +38,16 @@ export function runClaudeCli({
 
   return new Promise((resolve, reject) => {
     const child = spawn(cli, args, {
-      shell: true,
+      // 只有 Windows 需要 shell（要靠它解析 claude.cmd）。在 macOS / Linux 上
+      // 开 shell 是个陷阱：Node 会把 args 拼成一条命令字符串交给 /bin/sh，
+      // **完全不做转义**。systemPrompt 里只要有换行、双引号、$、反引号、括号，
+      // 就会被 shell 当成语法解析——轻则 prompt 被截断，重则引号不配对导致
+      // sh 挂起等输入，最后整个调用超时。
+      //
+      // 实测症状：stderr 刷出一堆「/bin/sh: line N: <中文 prompt 片段>: command
+      // not found」，末尾 syntax error: unexpected end of file，然后 300 秒超时。
+      // 不开 shell 时参数直接传给 execve，没有任何解析，问题消失。
+      shell: process.platform === "win32",
       stdio: ["pipe", "pipe", "pipe"],
     });
 
