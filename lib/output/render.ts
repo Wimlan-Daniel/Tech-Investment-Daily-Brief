@@ -6,6 +6,7 @@ import type {
 } from "../ai/pipeline";
 import type { WatchlistPick } from "../ai/trading-commentary";
 import { REPORT_LOCALE, sources as REGISTRY } from "../sources/registry";
+import { BOARDS, boardLabel, boardLimit } from "../../boards.config";
 import { getReportTz } from "../utils";
 import type { Category, SourceDef } from "../sources/types";
 import { V2EX_OFF_TOPIC_RE } from "../sources/v2ex";
@@ -26,11 +27,6 @@ import {
 const TEXTS_ZH = {
   siteTitle: "前沿科技 · 投资简报",
   catDigest: "每日简报",
-  catFrontierTech: "前沿技术",
-  catTechBusiness: "科技商业",
-  catChinaVc: "中国一级市场",
-  catCapitalMarkets: "资本市场",
-  catGlobalBusiness: "全球商业",
   catTrading: "数据指标",
   subMain: "全部",
   tierFirst: "第一手",
@@ -83,11 +79,6 @@ const TEXTS_ZH = {
 const TEXTS_EN: typeof TEXTS_ZH = {
   siteTitle: "Frontier Tech · Investor Brief",
   catDigest: "Daily Brief",
-  catFrontierTech: "Frontier Tech",
-  catTechBusiness: "Tech Business",
-  catChinaVc: "China Private Markets",
-  catCapitalMarkets: "Capital Markets",
-  catGlobalBusiness: "Global Business",
   catTrading: "Market Data",
   subMain: "All",
   tierFirst: "First-party",
@@ -165,22 +156,14 @@ export type RawByCategory = Record<Category, SubGroup[]>;
 
 // ----- labels & ordering -----
 
-const CATEGORY_LABELS: Record<Category, string> = {
-  "frontier-tech": STR.catFrontierTech,
-  "tech-business": STR.catTechBusiness,
-  "china-vc": STR.catChinaVc,
-  "capital-markets": STR.catCapitalMarkets,
-  "global-business": STR.catGlobalBusiness,
-};
+// 板块的名字、顺序、条数统统来自 boards.config.ts —— 想增删板块或改条数
+// 只改那个文件，这里不需要动。
+const CATEGORY_LABELS = Object.fromEntries(
+  BOARDS.map((b) => [b.id, boardLabel(b.id, REPORT_LOCALE)]),
+) as Record<Category, string>;
 
-/** 页面上板块的排列顺序——一级市场排在最前，它是读者的主场。 */
-const CATEGORY_ORDER: Category[] = [
-  "china-vc",
-  "frontier-tech",
-  "tech-business",
-  "capital-markets",
-  "global-business",
-];
+/** 页面上板块的排列顺序 = boards.config.ts 里数组的顺序 */
+const CATEGORY_ORDER: Category[] = BOARDS.map((b) => b.id);
 
 const CATEGORY_DIGEST_LABELS: Record<Category, string> = CATEGORY_LABELS;
 
@@ -194,13 +177,9 @@ const SUBCATEGORY_ORDER: Partial<Record<Category, string[]>> = {
   // Locale filtering at registry level decides which actually appears:
   // zh mode keeps cn-community (V2EX / LinuxDo); en mode keeps
   // overseas-community (Hacker News / r/stocks).
-  // 本 fork 每个板块只渲染一个按时间合并的列表：内容归类由 AI 逐条判断
+  // 每个板块只渲染一个按时间合并的列表：内容归类由 AI 逐条判断
   // （见 lib/ai/classify.ts），同一板块内再按来源切二级页签只会打散时间线。
-  "frontier-tech": ["main"],
-  "tech-business": ["main"],
-  "china-vc": ["main"],
-  "capital-markets": ["main"],
-  "global-business": ["main"],
+  ...Object.fromEntries(BOARDS.map((b) => [b.id, ["main"]])),
 };
 
 
@@ -252,12 +231,8 @@ function displayLimitFor(
  * Exported so daily.ts can read the cap to keep enrichment in sync.
  */
 export const MERGED_SUBGROUP_LIMITS: Record<string, number> = {
-  // 每个板块页面展示多少条（合并后按时间倒序截取）
-  "china-vc:main": 22,
-  "frontier-tech:main": 20,
-  "tech-business:main": 20,
-  "capital-markets:main": 15,
-  "global-business:main": 22,
+  // 每个板块页面展示多少条 —— 数值定义在 boards.config.ts 的 limit 字段
+  ...Object.fromEntries(BOARDS.map((b) => [`${b.id}:main`, boardLimit(b.id)])),
 };
 
 /**

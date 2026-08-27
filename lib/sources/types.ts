@@ -1,24 +1,18 @@
-/**
- * 报告的五个板块。这里的取值同时是 sources.config.json 里 category 字段的合法值。
- *
- * 重要：源配置里写的 category 只是**兜底猜测**，真正的归类由 lib/ai/classify.ts
- * 在抓取之后逐条判断并覆写。原因是同一个源里内容性质差异极大——36氪快讯里既有
- * 一级市场融资，也有 A 股财报快讯，按来源分板块分不开。
- */
-export type Category =
-  | "frontier-tech" // 前沿技术：技术本身的进展，论文、能力突破、路线之争
-  | "tech-business" // 科技商业：前沿科技的泛商业进展，发布、产品、客户、产能、公司动作
-  | "china-vc" // 中国一级市场：融资、基金、退出、政策，兼顾美国等海外关键信息
-  | "capital-markets" // 资本市场：中国及全球股市
-  | "global-business"; // 全球商业：按金融时报头版标准筛选的重大商业事件
+import type { BoardId } from "../../boards.config";
+import { BOARD_IDS } from "../../boards.config";
 
-export const ALL_CATEGORIES: Category[] = [
-  "frontier-tech",
-  "tech-business",
-  "china-vc",
-  "capital-markets",
-  "global-business",
-];
+/**
+ * 板块类型。**取值由 boards.config.ts 定义**，想增删板块改那个文件即可，
+ * 这里会自动跟着变。
+ *
+ * 注意：源配置里写的 category 只是**兜底猜测**，真正的归类由
+ * lib/ai/classify.ts 在抓取之后逐条判断并覆写——同一个源里内容性质差异
+ * 极大（36氪快讯里既有一级市场融资，也有 A 股财报快讯）。
+ */
+export type Category = BoardId;
+
+export const ALL_CATEGORIES: Category[] = BOARD_IDS;
+
 export type SourceType = "rss" | "api" | "scrape";
 
 export interface SourceDef {
