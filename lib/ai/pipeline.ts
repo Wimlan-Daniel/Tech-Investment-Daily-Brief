@@ -125,7 +125,10 @@ function selectRoundRobin(
   return out;
 }
 
-async function callOnce(userPayloadJson: string): Promise<DailyReport> {
+async function callOnce(
+  userPayloadJson: string,
+  prevBlock: string,
+): Promise<DailyReport> {
   // Claude Code CLI's built-in system prompt biases the model toward
   // conversational markdown output. Anchor the format expectation in the
   // user message (instruction recency wins) *and* explicitly demand every
@@ -145,10 +148,11 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           "  - editor_note: 40-70 word editor's note naming today's most notable signal",
           "  - keywords: 5-8 keywords, sectors and company names first",
           "",
-          "BriefItem fields (all required): title, url (verbatim from candidate), source, category (one of frontier-tech / tech-business / china-vc / capital-markets / global-business, copied from the candidate), tier (copied from the candidate), summary (60-110 words covering the 5W elements present in the source), importance (1-10, scored on the absolute scale in the system prompt, independent of section).",
+          "BriefItem fields (all required): title (18-28 chars, information-dense: actor + action + amount + purpose/outcome — never a bare stub), url (verbatim from candidate), source, category (one of frontier-tech / tech-business / china-vc / capital-markets / global-business, copied from the candidate), tier (copied from the candidate), summary (60-110 words covering the 5W elements present in the source), importance (1-10, scored on the absolute scale in the system prompt, independent of section).",
           "**Quote rule (important!)**: For any quotation INSIDE a JSON string, use single quotes ' or curly quotes '\" — **never** raw double quotes \", which break JSON parsing.",
           "No trailing commas.",
           "",
+          prevBlock,
           `Candidate news (JSON array, ${userPayloadJson.length} chars):`,
           userPayloadJson,
         ].join("\n")
@@ -163,7 +167,7 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           "  - keywords: 5-8 个关键词，优先赛道名和公司名",
           "",
           "BriefItem 字段（全部必填）：",
-          "  - title：改写后的中文标题，≤25 字，中性不标题党",
+          "  - title：改写后的中文标题，18-28 字。不标题党的前提下**塞进尽可能多的关键事实**（主体、动作、金额、目的或结果），宁可贴近字数上限，不要写成干瘪短句。好例：「Anthropic据悉450亿美元锁定AI算力备战IPO」（主体+金额+动作+目的俱全）；差例：「Anthropic据悉锁定450亿美元算力」（丢了目的，信息量骤减）",
           "  - url：必须从候选条目中原样复制，绝不编造",
           "  - source：候选条目的 source 字段原样回填",
           "  - category：该条的板块，必须是 frontier-tech / tech-business / china-vc / capital-markets / global-business 之一，原样沿用候选条目的 category",
@@ -182,12 +186,17 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           "**引号规则（重要！）**：JSON 字符串内的中文引用请使用**中文全角引号**「」或者 “”，**绝对不要**用英文双引号 \" —— 那会导致 JSON 解析失败。例：写 商务部回应「内卷」 而不是 商务部回应\"内卷\"。",
           "不要使用单引号、不要末尾多余逗号。",
           "",
+          prevBlock,
           "候选资讯（JSON 数组，共 " + userPayloadJson.length + " 字符）：",
           userPayloadJson,
         ].join("\n");
   const { text } = await runLlm({
     systemPrompt: SYSTEM_PROMPT_DIGEST,
     userPrompt,
+    // 简报是全流程最大的一次调用（400+ 条候选 + 昨日清单），实测常规耗时
+    // 120-300 秒。默认 180 秒超时线其实一直是靠外层 retry 才撑过去的，
+    // 这里直接放宽，别再赌重试。
+    timeoutMs: 480_000,
   });
   const cleaned = extractJson(text);
   let parsed: Partial<DailyReport>;
@@ -230,6 +239,13 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
 
 export async function generateDailyReport(
   articles: ArticleInput[],
+  /**
+   * 昨天简报已报过的事件标题。判重的唯一依据——模型对清单里的事件默认
+   * 跳过（有实质新进展才重新入选），清单外的事件不因文章日期旧而降分。
+   * 之前用「发布日期旧就减 2 分」判重，会误伤读者从没见过的消息，
+   * 用户明确要求改为只和昨日简报比对。
+   */
+  previousBriefTitles: string[] = [],
 ): Promise<{ report: DailyReport; tokensUsed: number }> {
   const grouped: Record<Category, ArticleInput[]> = {
     "frontier-tech": [],
@@ -256,9 +272,18 @@ export async function generateDailyReport(
   }));
   const userPayloadJson = JSON.stringify(userPayload);
 
+  const prevBlock =
+    previousBriefTitles.length > 0
+      ? (REPORT_LOCALE === "en"
+          ? "Events already briefed YESTERDAY (dedup list — skip unless there is a substantive new development, and then state what is new):\n"
+          : "昨日简报已报过的事件（判重清单——除非有实质新进展否则不要再选；重新入选必须写明新进展）：\n") +
+        previousBriefTitles.map((t) => `  - ${t}`).join("\n") +
+        "\n"
+      : "";
+
   let report: DailyReport;
   try {
-    report = await callOnce(userPayloadJson);
+    report = await callOnce(userPayloadJson, prevBlock);
   } catch (firstErr) {
     // One retry — claude CLI occasionally wraps in narration on the first
     // pass but obeys when the same prompt is repeated.
@@ -267,7 +292,7 @@ export async function generateDailyReport(
         firstErr instanceof Error ? firstErr.message : String(firstErr)
       }`,
     );
-    report = await callOnce(userPayloadJson);
+    report = await callOnce(userPayloadJson, prevBlock);
   }
 
   // Max subscription has no per-call token meter — we expose 0 for schema

@@ -35,6 +35,37 @@ import { todayKey } from "../lib/utils";
 const OUTPUT_DIR = "daily_reports";
 
 /**
+ * 找最近一期简报的条目标题，作为今天的判重清单。
+ *
+ * 判重只和「读者实际看过的简报」比对，不看文章发布日期——按日期打折会误伤
+ * 从没上过榜的消息（读者没见过，对他就是新的）。取最近一期而不是严格的昨天：
+ * 周末停跑或某天失败时，跳过的那几天不该让判重失效。
+ */
+function loadPreviousBriefTitles(todayDate: string): string[] {
+  try {
+    const dirs = fs
+      .readdirSync(OUTPUT_DIR)
+      .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < todayDate)
+      .sort()
+      .reverse();
+    for (const d of dirs) {
+      const f = path.join(OUTPUT_DIR, d, `${d}.json`);
+      if (!fs.existsSync(f)) continue;
+      const j = JSON.parse(fs.readFileSync(f, "utf8")) as {
+        top_briefs?: { title?: string }[];
+      };
+      const titles = (j.top_briefs ?? [])
+        .map((b) => b?.title)
+        .filter((t): t is string => Boolean(t));
+      if (titles.length > 0) return titles;
+    }
+  } catch {
+    // 判重清单拿不到不该阻断整个流程——没有清单时模型按全新消息处理
+  }
+  return [];
+}
+
+/**
  * 人看的归档目录。
  *
  * daily_reports/ 里除了网页还有两个 JSON 边车文件（报告结构 + 全部抓取条目），
@@ -322,7 +353,13 @@ async function main() {
 
   console.log(`[daily] generating digest with ${getModelTag()}…`);
   const t0 = Date.now();
-  const { report } = await generateDailyReport(articles);
+  const previousTitles = loadPreviousBriefTitles(date);
+  if (previousTitles.length > 0) {
+    console.log(
+      `[daily] 昨日已报清单：${previousTitles.length} 条，用于判重（重复事件除非有新进展否则不再选入）`,
+    );
+  }
+  const { report } = await generateDailyReport(articles, previousTitles);
   if (trading) report.trading = trading;
   console.log(`[daily] digest ready in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 
