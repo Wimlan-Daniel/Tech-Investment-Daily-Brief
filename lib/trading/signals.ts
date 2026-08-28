@@ -51,17 +51,21 @@ export interface TickerAnalysis {
   signals: Signal[];
 }
 
+/**
+ * 信号的展示文案。读者不熟悉二级市场术语（原话："死叉、金叉、多头排列这类
+ * 表述我看不懂"），所以先说人话，术语放括号里给懂的人对照。
+ */
 const SIGNAL_LABELS: Record<SignalType, string> = {
-  "golden-cross": "金叉(SMA50↑SMA200)",
-  "death-cross": "死叉(SMA50↓SMA200)",
-  "macd-bull-cross": "MACD 金叉",
-  "macd-bear-cross": "MACD 死叉",
-  "rsi-overbought": "RSI 超买",
-  "rsi-oversold": "RSI 超卖",
-  "near-52w-high": "接近 52 周高",
-  "near-52w-low": "接近 52 周低",
-  "above-sma50-sma200": "多头排列",
-  "below-sma50-sma200": "空头排列",
+  "golden-cross": "中期走势转强（金叉）",
+  "death-cross": "中期走势转弱（死叉）",
+  "macd-bull-cross": "短期动能转强",
+  "macd-bear-cross": "短期动能转弱",
+  "rsi-overbought": "短期涨得偏快，注意回调",
+  "rsi-oversold": "短期跌得偏多，可能反弹",
+  "near-52w-high": "接近一年最高",
+  "near-52w-low": "接近一年最低",
+  "above-sma50-sma200": "站在中长期均价上方，走势偏强",
+  "below-sma50-sma200": "跌破中长期均价，走势偏弱",
 };
 
 export function analyzeTicker(

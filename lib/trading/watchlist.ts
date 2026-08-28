@@ -73,8 +73,8 @@ export const WATCHLIST: TickerDef[] = [
   { symbol: "TSLA", displayName: "特斯拉", displayNameEn: "Tesla", group: "tech-giants" },
   { symbol: "0700.HK", displayName: "腾讯控股", displayNameEn: "Tencent", group: "tech-giants" },
   { symbol: "BABA", displayName: "阿里巴巴", displayNameEn: "Alibaba", group: "tech-giants" },
-  // === 汇率：募资成本与出海结算 ===
+  // === 汇率：全部以人民币为基准（用户要求，美元兑日元这类交叉盘对他无意义）===
   { symbol: "USDCNY=X", displayName: "美元 / 人民币", displayNameEn: "USD / CNY", group: "fx" },
-  { symbol: "USDJPY=X", displayName: "美元 / 日元", displayNameEn: "USD / JPY", group: "fx" },
-  { symbol: "USDSGD=X", displayName: "美元 / 新加坡元", displayNameEn: "USD / SGD", group: "fx" },
+  { symbol: "JPYCNY=X", displayName: "日元 / 人民币", displayNameEn: "JPY / CNY", group: "fx" },
+  { symbol: "SGDCNY=X", displayName: "新加坡元 / 人民币", displayNameEn: "SGD / CNY", group: "fx" },
 ];

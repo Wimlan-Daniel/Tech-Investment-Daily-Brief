@@ -71,7 +71,11 @@ async function enrichGhTrending(articles: ArticleInput[]): Promise<void> {
   const summaries = await enrichGithubTrendingSummaries(gh);
   for (const a of gh) {
     const s = summaries.get(a.url);
-    if (s) a.summary = s;
+    if (s) {
+      a.summary = s.summary;
+      // 英文条目会带翻译好的中文标题；中文条目该字段为空
+      if (s.titleZh) a.title = s.titleZh;
+    }
   }
   console.log(
     `[daily] enrichment done in ${((Date.now() - t0) / 1000).toFixed(1)}s, matched ${summaries.size}/${gh.length}`,
@@ -105,7 +109,11 @@ async function enrichXViral(articles: ArticleInput[]): Promise<void> {
   );
   for (const a of xPosts) {
     const s = summaries.get(a.url);
-    if (s) a.summary = s;
+    if (s) {
+      a.summary = s.summary;
+      // 英文条目会带翻译好的中文标题；中文条目该字段为空
+      if (s.titleZh) a.title = s.titleZh;
+    }
   }
   console.log(
     `[daily] enrichment done in ${((Date.now() - t0) / 1000).toFixed(1)}s, matched ${summaries.size}/${xPosts.length}`,
@@ -131,7 +139,11 @@ async function enrichTrendingPapers(articles: ArticleInput[]): Promise<void> {
   );
   for (const a of papers) {
     const s = summaries.get(a.url);
-    if (s) a.summary = s;
+    if (s) {
+      a.summary = s.summary;
+      // 英文条目会带翻译好的中文标题；中文条目该字段为空
+      if (s.titleZh) a.title = s.titleZh;
+    }
   }
   console.log(
     `[daily] enrichment done in ${((Date.now() - t0) / 1000).toFixed(1)}s, matched ${summaries.size}/${papers.length}`,
@@ -159,11 +171,6 @@ async function enrichCategory(
   const enabledIds = new Set(
     sources.filter((s) => s.enabled !== false).map((s) => s.id),
   );
-  const sameLocaleIds = new Set(
-    sources
-      .filter((s) => (s.lang ?? "en") === REPORT_LOCALE)
-      .map((s) => s.id),
-  );
   const limit = MERGED_SUBGROUP_LIMITS[`${category}:main`] ?? 12;
   const top = articles
     .filter((a) => a.category === category && enabledIds.has(a.sourceId))
@@ -173,9 +180,15 @@ async function enrichCategory(
         (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0),
     )
     .slice(0, limit);
-  const toEnrich = top.filter((a) => !sameLocaleIds.has(a.sourceId));
+  // 中文源同样要过 AI——它们的 excerpt 只是原文开头截取，不是摘要，直接展示
+  // 会显得敷衍（用户原话）。真正跳过的只有两类：
+  //   1. 已有摘要的（GitHub Trending / 论文在前面的专用流程里处理过）
+  //   2. X 热帖（attentionvc-ai，主流程之后有保留热度排序的专用流程）
+  const toEnrich = top.filter(
+    (a) => !a.summary && a.sourceId !== "attentionvc-ai",
+  );
   if (toEnrich.length === 0) {
-    console.log(`[daily] ${category}：${top.length} 条展示，均为中文源，跳过摘要`);
+    console.log(`[daily] ${category}：${top.length} 条展示，均已有摘要，跳过`);
     return;
   }
   console.log(
@@ -185,7 +198,11 @@ async function enrichCategory(
   const summaries = await enrichFinanceNewsSummaries(toEnrich);
   for (const a of toEnrich) {
     const s = summaries.get(a.url);
-    if (s) a.summary = s;
+    if (s) {
+      a.summary = s.summary;
+      // 英文条目会带翻译好的中文标题；中文条目该字段为空
+      if (s.titleZh) a.title = s.titleZh;
+    }
   }
   console.log(
     `[daily] ${category}：摘要完成，用时 ${((Date.now() - t0) / 1000).toFixed(1)}s，命中 ${summaries.size}/${toEnrich.length}`,

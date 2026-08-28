@@ -55,29 +55,35 @@ Output STRICTLY a JSON object, no markdown:
   ]
 }`;
 
-const FINANCE_SYSTEM_PROMPT_ZH = `你是一名服务于中国一级市场（VC/PE）投资人的研究助理，为资讯条目生成**中文事实摘要**。
+const FINANCE_SYSTEM_PROMPT_ZH = `你是一名服务于中国一级市场（VC/PE）投资人的研究助理，为资讯条目生成**中文摘要**，并为英文条目**翻译标题**。
 
-输入：每条新闻有 url、title、excerpt 和 source（来源媒体名）。
+输入：每条有 url、title、excerpt 和 source（来源媒体名）。excerpt 往往只是文章开头的截取，不是完整摘要——不要照抄它。
 
-任务：根据 title + excerpt，生成一段 50-100 字的**中文摘要**：
-  - 原文是英文 → 抽出要点译成中文，不要逐字直译
-  - 原文是中文 → 凝练为信息密度更高的中文
-  - 必须保留的硬信息：**融资轮次、融资金额与币种、投资方与领投方、公司主营业务**；
-    此外还有关键数字（涨跌幅、利率、市场规模）、机构/公司/人名、地区
+任务一：为每条生成 60-110 字的中文摘要，必须覆盖**新闻五要素**里原文给出的部分：
+  - 谁（公司/机构/人物）
+  - 何时（时间点，如"8月27日"，原文有才写）
+  - 何事（发生了什么，这是核心）
+  - 关键数据（金额、轮次、涨跌幅、规模——凡原文出现必须保留）
+  - 影响对象（对谁产生影响，原文有明确指向才写）
+  读者的期待是：**只看这段话就掌握这篇资讯的重点，不需要点开原文**。
+  - 融资类条目必须写全原文给出的：轮次、金额与币种、投资方（领投方）、公司主营业务
   - 公司名和产品名保留原文，已有通行中文名的用中文（例：英伟达、红杉资本）
-  - 必须中性事实陈述，不带情绪、不标题党、不给投资建议
-  - **信息不足时宁可短，绝不编造**：原文没提估值就不写估值，没提领投方就不猜，
-    缺失要素直接省略，不要写"未披露"之类的占位词
+  - 中性事实陈述，不带情绪、不标题党、不给投资建议
+  - **信息不足宁可短，绝不编造**：原文没写的要素直接省略，不要用"未披露"占位
+
+任务二：原文标题是英文的条目，额外给出 title_zh 字段——地道、专业的中文标题，≤28 字，
+  不逐字直译（例：'Nvidia Agrees to Buy Hugging Face For \$12.9 Billion' →
+  '英伟达同意以129亿美元收购Hugging Face'）。原文标题已是中文的，省略 title_zh。
 
 输出严格 JSON 对象，不要 markdown 包裹：
 {
   "summaries": [
-    { "url": "<原 url，从输入中精确复制>", "summary": "<50-100 字中文摘要>" },
+    { "url": "<原 url，从输入中精确复制>", "summary": "<60-110 字中文摘要>", "title_zh": "<仅英文条目填写>" },
     ...
   ]
 }
 
-**引号规则（重要！）**：summary 内的引用一律用中文全角引号「」或""，**绝不**用英文双引号 \" —— 否则会导致 JSON 解析失败。`;
+**引号规则（重要！）**：字符串内的引用一律用中文全角引号「」或""，**绝不**用英文双引号 \" —— 否则会导致 JSON 解析失败。`;
 
 const FINANCE_SYSTEM_PROMPT_EN = `You are an English-language financial / world-news editor producing **factual summaries**.
 
@@ -128,7 +134,9 @@ const XVIRAL_SYSTEM_PROMPT_ZH = `你是一名中文 AI 圈编辑，为 X（Twitt
   ]
 }
 
-**引号规则（重要！）**：summary 内的引用一律用中文全角引号「」或""，**绝不**用英文双引号 \" —— 否则会导致 JSON 解析失败。`;
+**引号规则（重要！）**：summary 内的引用一律用中文全角引号「」或""，**绝不**用英文双引号 \" —— 否则会导致 JSON 解析失败。
+
+补充要求：帖子原文是英文的，额外输出 title_zh 字段——把帖子的核心主张压成 ≤28 字的中文标题。输出 JSON 的每个元素因此可含三个字段：url、summary、title_zh。`;
 
 const XVIRAL_SYSTEM_PROMPT_EN = `You are an editor producing **English summaries** of viral AI-related X (Twitter) posts.
 
@@ -183,7 +191,9 @@ const PAPERS_SYSTEM_PROMPT_ZH = `你是一名 AI 研究方向的中文编辑，�
   ]
 }
 
-**引号规则（重要！）**：summary 内的引用一律用中文全角引号「」或""，**绝不**用英文双引号 \" —— 否则会导致 JSON 解析失败。`;
+**引号规则（重要！）**：summary 内的引用一律用中文全角引号「」或""，**绝不**用英文双引号 \" —— 否则会导致 JSON 解析失败。
+
+补充要求：论文标题是英文的，额外输出 title_zh 字段——准确的中文标题翻译（≤30字，术语用业内通行译法，如 reinforcement learning→强化学习）。输出 JSON 的每个元素因此可含三个字段：url、summary、title_zh。`;
 
 const PAPERS_SYSTEM_PROMPT_EN = `You are an AI-research editor writing **English summaries** of trending HuggingFace papers.
 
@@ -226,11 +236,17 @@ const USER_PROMPT_FOOTER =
     ? `Output \`{"summaries": [{"url": ..., "summary": ...}, ...]}\` — url must be copied exactly from input.`
     : `请输出 {"summaries": [{"url": ..., "summary": ...}, ...]}，url 必须精确回填输入值。`;
 
+export interface EnrichResult {
+  summary: string;
+  /** 原文是英文时给出的中文标题；中文原文条目此字段为空 */
+  titleZh?: string;
+}
+
 async function runEnrichment(
   payload: unknown[],
   systemPrompt: string,
   scope: string,
-): Promise<Map<string, string>> {
+): Promise<Map<string, EnrichResult>> {
   // Sonnet has a strong "match input language" reflex — when items contain
   // English titles + Chinese-tinted source names (or just a Chinese-leaning
   // RLHF default), system-prompt-only language constraints get ignored. Pin
@@ -248,7 +264,7 @@ async function runEnrichment(
     USER_PROMPT_FOOTER,
   ].join("\n");
 
-  const result = new Map<string, string>();
+  const result = new Map<string, EnrichResult>();
 
   try {
     const { text } = await runLlm({
@@ -258,7 +274,9 @@ async function runEnrichment(
     });
     const cleaned = extractJson(text);
 
-    let parsed: { summaries?: Array<{ url?: string; summary?: string }> };
+    let parsed: {
+      summaries?: Array<{ url?: string; summary?: string; title_zh?: string }>;
+    };
     try {
       parsed = JSON.parse(cleaned);
     } catch {
@@ -266,7 +284,12 @@ async function runEnrichment(
     }
 
     for (const s of parsed.summaries ?? []) {
-      if (s.url && s.summary) result.set(s.url, s.summary.trim());
+      if (s.url && s.summary) {
+        result.set(s.url, {
+          summary: s.summary.trim(),
+          titleZh: s.title_zh?.trim() || undefined,
+        });
+      }
     }
 
     // Diagnostic: if we got back substantially fewer entries than asked for,
@@ -307,7 +330,7 @@ async function runEnrichment(
  */
 export async function enrichGithubTrendingSummaries(
   items: EnrichInput[],
-): Promise<Map<string, string>> {
+): Promise<Map<string, EnrichResult>> {
   if (items.length === 0) return new Map();
   const payload = items.map((it) => ({
     url: it.url,
@@ -324,7 +347,7 @@ export async function enrichGithubTrendingSummaries(
  */
 export async function enrichFinanceNewsSummaries(
   items: EnrichInput[],
-): Promise<Map<string, string>> {
+): Promise<Map<string, EnrichResult>> {
   if (items.length === 0) return new Map();
   const payload = items.map((it) => ({
     url: it.url,
@@ -342,7 +365,7 @@ export async function enrichFinanceNewsSummaries(
  */
 export async function enrichXViralSummaries(
   items: Array<EnrichInput & { author?: string }>,
-): Promise<Map<string, string>> {
+): Promise<Map<string, EnrichResult>> {
   if (items.length === 0) return new Map();
   const payload = items.map((it) => ({
     url: it.url,
@@ -360,7 +383,7 @@ export async function enrichXViralSummaries(
  */
 export async function enrichTrendingPapersSummaries(
   items: EnrichInput[],
-): Promise<Map<string, string>> {
+): Promise<Map<string, EnrichResult>> {
   if (items.length === 0) return new Map();
   const payload = items.map((it) => ({
     url: it.url,

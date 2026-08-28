@@ -23,8 +23,8 @@ export interface BriefItem {
   importance: number;
   /** 该条属于哪个板块——简报页上给每条打板块标签用 */
   category: Category;
-  /** 一句话说明"为什么这条今天重要"，是简报页相对原始列表的核心增量 */
-  why: string;
+  /** 旧版字段，已按用户要求停用；保留可选定义以兼容历史 JSON */
+  why?: string;
   /** 信源层级，"first" 表示第一手（官方发布） */
   tier?: "first" | "media";
 }
@@ -145,7 +145,7 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           "  - editor_note: 40-70 word editor's note naming today's most notable signal",
           "  - keywords: 5-8 keywords, sectors and company names first",
           "",
-          "BriefItem fields (all required): title, url (verbatim from candidate), source, category (one of frontier-tech / tech-business / china-vc / capital-markets / global-business, copied from the candidate), tier (copied from the candidate), summary (50-100 words), why (30-50 words on why this matters today), importance (1-10).",
+          "BriefItem fields (all required): title, url (verbatim from candidate), source, category (one of frontier-tech / tech-business / china-vc / capital-markets / global-business, copied from the candidate), tier (copied from the candidate), summary (60-110 words covering the 5W elements present in the source), importance (1-10).",
           "**Quote rule (important!)**: For any quotation INSIDE a JSON string, use single quotes ' or curly quotes '\" — **never** raw double quotes \", which break JSON parsing.",
           "No trailing commas.",
           "",
@@ -168,8 +168,7 @@ async function callOnce(userPayloadJson: string): Promise<DailyReport> {
           "  - source：候选条目的 source 字段原样回填",
           "  - category：该条的板块，必须是 frontier-tech / tech-business / china-vc / capital-markets / global-business 之一，原样沿用候选条目的 category",
           "  - tier：原样沿用候选条目的 tier（first 或 media）",
-          "  - summary：50-100 字中文事实摘要",
-          "  - why：**30-50 字，说明这条今天为什么重要**——对哪条赛道、哪类公司、哪个判断有影响。这是简报相对原始列表的核心增量，不要写成摘要的重复。",
+          "  - summary：60-110 字中文摘要，覆盖新闻五要素中原文给出的部分（谁 / 何时 / 何事 / 关键数据 / 影响对象），读者只看这段就能掌握重点",
           "  - importance：1-10 的整数",
           "",
           "选条标准（按优先级）：",

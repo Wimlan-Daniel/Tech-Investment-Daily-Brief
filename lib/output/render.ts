@@ -31,7 +31,7 @@ const TEXTS_ZH = {
   subMain: "全部",
   tierFirst: "第一手",
   tierMedia: "媒体报道",
-  digestWhy: "为何重要",
+  langEnBadge: "英文报道",
   tickerDriver: "异动原因",
   digestEmpty: "今日简报生成失败或无内容。下方各板块的原始列表仍然可用。",
   subAiNews: "AI 媒体",
@@ -60,15 +60,15 @@ const TEXTS_ZH = {
   widgetBtcDom: "BTC 主导率",
   widgetVolume24h: "24h 成交量",
   widgetActiveCoins: "活跃币",
-  ticker5d: "5 日",
-  tickerVs52wHigh: "距 52w 高",
+  ticker5d: "近 5 日",
+  tickerVs52wHigh: "距一年最高",
   tickerTrend: "趋势",
-  tickerMacd: "MACD / 信号",
+  tickerMacd: "动量 MACD / 信号线",
   signalToday: "今天",
   signalDaysAgoSuffix: "天前",
-  trendBullish: "多头",
-  trendBearish: "空头",
-  trendNeutral: "中性",
+  trendBullish: "偏强",
+  trendBearish: "偏弱",
+  trendNeutral: "震荡",
   mdTodayOverview: "今日总览",
   mdEditorNote: "编辑短评",
   mdTodayKeywords: "今日关键词",
@@ -83,7 +83,7 @@ const TEXTS_EN: typeof TEXTS_ZH = {
   subMain: "All",
   tierFirst: "First-party",
   tierMedia: "Media",
-  digestWhy: "Why it matters",
+  langEnBadge: "EN source",
   tickerDriver: "What moved it",
   digestEmpty: "Today's brief could not be generated. The raw lists below are still available.",
   subAiNews: "AI Media",
@@ -428,6 +428,16 @@ function escapeHtml(s: string): string {
  */
 const TIER_BY_SOURCE = new Map(REGISTRY.map((s) => [s.id, s.tier ?? "media"]));
 
+/**
+ * 原文为英文的信源。标题和摘要都已翻译成中文展示，这个标注告诉读者
+ * 点开链接看到的是英文原文。GitHub Trending 除外——仓库名不是"报道"。
+ */
+const EN_SOURCE_IDS = new Set(
+  REGISTRY.filter(
+    (s) => (s.lang ?? "en") !== "zh" && s.id !== "github-trending",
+  ).map((s) => s.id),
+);
+
 function tierBadge(tier: "first" | "media" | undefined): string {
   if (tier === "first") {
     return `<span class="tier tier-first">${STR.tierFirst}</span>`;
@@ -466,16 +476,22 @@ function renderArticleHtml(a: ArticleInput, showSource = false): string {
   const time = formatDate(a.publishedAt);
   const sourceLabel = showSource && a.source ? escapeHtml(a.source) : "";
   const metaLine = [sourceLabel, time].filter(Boolean).join(" · ");
-  // 前沿技术板块多为论文/开源项目，用"介绍"更贴切；其余板块是新闻，用"摘要"。
-  const summaryLabel =
-    a.category === "frontier-tech" ? STR.summaryLabelIntro : STR.summaryLabelNews;
   const badge = tierBadge(TIER_BY_SOURCE.get(a.sourceId));
+  const langBadge = EN_SOURCE_IDS.has(a.sourceId)
+    ? `<span class="tier tier-lang">${STR.langEnBadge}</span>`
+    : "";
+  // 有 AI 摘要（五要素）就只显示摘要——excerpt 只是原文开头的截取，
+  // 两者并排会重复且显得敷衍。摘要缺失时（如该批调用失败）才回退到 excerpt。
+  const body = summary
+    ? `<p class="article-summary">${summary}</p>`
+    : excerpt
+      ? `<p class="article-excerpt">${excerpt}</p>`
+      : "";
   return `<article class="article">
-  <h3 class="article-title">${badge}<a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></h3>
+  <h3 class="article-title">${badge}${langBadge}<a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></h3>
   ${meta ? `<p class="article-stats">${meta}</p>` : ""}
   ${metaLine ? `<p class="article-meta">${metaLine}</p>` : ""}
-  ${excerpt ? `<p class="article-excerpt">${excerpt}</p>` : ""}
-  ${summary ? `<p class="article-summary"><span class="summary-label">${summaryLabel}</span> ${summary}</p>` : ""}
+  ${body}
 </article>`;
 }
 
@@ -564,7 +580,6 @@ function renderDigestPanel(report: DailyReport): string {
     <h3 class="digest-title"><a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(b.title)}</a></h3>
     <p class="digest-source">${escapeHtml(b.source ?? "")}</p>
     ${b.summary ? `<p class="digest-summary">${escapeHtml(b.summary)}</p>` : ""}
-    ${b.why ? `<p class="digest-why"><span class="digest-why-label">${STR.digestWhy}</span>${escapeHtml(b.why)}</p>` : ""}
   </article>`;
     })
     .join("\n");
@@ -978,10 +993,12 @@ export function renderHtml(
     margin: 0.6rem 0 0;
   }
   .ticker-driver-label { font-weight: 650; margin-right: 0.4rem; color: var(--accent); }
+  .tier-lang { background: #ede9fe; color: #5b21b6; }
   .tier-first { background: #dcfce7; color: #166534; }
   .tier-media { background: var(--card); color: var(--muted); }
   @media (prefers-color-scheme: dark) {
     .tier-first { background: #14532d; color: #bbf7d0; }
+    .tier-lang { background: #3b0764; color: #ddd6fe; }
   }
 
   .keywords { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.5rem; }
@@ -1541,9 +1558,9 @@ function renderTickerCard(t: TickerAnalysis, driver?: string): string {
     <dl class="ticker-indicators">
       <div><dt>${STR.ticker5d}</dt><dd class="${pct5Cls}">${fmtPct(t.pct5Day)}</dd></div>
       <div><dt>${STR.tickerVs52wHigh}</dt><dd>${fmtPct(t.pct52WeekHigh, 1)}</dd></div>
-      <div><dt>RSI(14)</dt><dd class="rsi-${t.rsiState}">${fmtNum(t.rsi14, 1)}</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-${t.rsiState}">${fmtNum(t.rsi14, 1)}</dd></div>
       <div><dt>${STR.tickerTrend}</dt><dd class="trend-${trendCls}">${TREND_LABEL[t.trend]}</dd></div>
-      <div><dt>SMA 20 / 50 / 200</dt><dd>${fmtNum(t.sma20)} / ${fmtNum(t.sma50)} / ${fmtNum(t.sma200)}</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>${fmtNum(t.sma20)} / ${fmtNum(t.sma50)} / ${fmtNum(t.sma200)}</dd></div>
       <div><dt>${STR.tickerMacd}</dt><dd>${fmtNum(t.macd, 3)} / ${fmtNum(t.macdSignal, 3)}</dd></div>
     </dl>
     ${signals ? `<div class="ticker-signals">${signals}</div>` : ""}
@@ -1671,8 +1688,7 @@ function renderBriefMarkdown(b: BriefItem, rank: number): string {
   const meta = [cat, tier, b.source, `${STR.mdImportance} ${importance}/10`]
     .filter(Boolean)
     .join(" · ");
-  const why = b.why ? `\n**${STR.digestWhy}**：${b.why}\n` : "";
-  return `### ${rank}. [${b.title}](${b.url})\n${meta}\n\n${b.summary}\n${why}`;
+  return `### ${rank}. [${b.title}](${b.url})\n${meta}\n\n${b.summary}\n`;
 }
 
 export function renderMarkdown(report: DailyReport, date: string): string {

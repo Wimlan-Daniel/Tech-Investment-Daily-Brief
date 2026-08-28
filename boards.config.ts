@@ -46,8 +46,10 @@ export interface BoardDef {
 export const BOARDS = [
   {
     id: "china-vc",
-    label: "中国一级市场",
-    labelEn: "China Private Markets",
+    // 2026-08-28 由「中国一级市场」改名：内容早已不只中国（TechCrunch/红杉/YC 等）。
+    // id 保持 china-vc 不动——改 id 等于换板块，历史数据会对不上。
+    label: "一级市场",
+    labelEn: "Private Markets",
     limit: 22,
     definition: `未上市公司的融资事件（各轮次）、基金募集与关账、并购与退出、IPO 申报与过会、
    创投相关政策与监管、一级市场统计数据与研究报告（清科、投中、IT桔子等机构发布）。

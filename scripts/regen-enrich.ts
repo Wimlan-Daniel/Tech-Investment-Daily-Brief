@@ -90,7 +90,8 @@ async function main() {
   for (const a of data.articles) {
     const s = summaries.get(a.url);
     if (s && !a.summary && !(a as { cnSummary?: string }).cnSummary) {
-      a.summary = s;
+      a.summary = s.summary;
+      if (s.titleZh) a.title = s.titleZh;
       patched++;
     }
   }
