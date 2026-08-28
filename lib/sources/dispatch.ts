@@ -37,5 +37,6 @@ export async function fetchSource(source: SourceDef): Promise<RawArticle[]> {
   return fetchRss(source.id, source.url, source.category, {
     useCurl: source.useCurl,
     fallbackUrls: source.fallbackUrls,
+    tzFixHours: source.tzFixHours,
   });
 }

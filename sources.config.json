@@ -360,7 +360,8 @@
     ],
     "useCurl": true,
     "lang": "zh",
-    "notes": "工程落地视角，判断技术是否真的可用时有参考价值。"
+    "notes": "工程落地视角，判断技术是否真的可用时有参考价值。注意：其 RSS 把北京时间标成 GMT（实测北京 12:51 发布的文章 feed 写 12:51 GMT），tzFixHours=8 纠偏，否则显示未来时间并霸占列表顶部。",
+    "tzFixHours": 8
   },
   {
     "id": "solidot",

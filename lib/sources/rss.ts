@@ -34,6 +34,24 @@ async function parseOne(
   return parser.parseURL(url);
 }
 
+/**
+ * 两层时间修正：
+ *   1. 源级纠偏（tzFixHours）——已知把本地时间标成 GMT 的源，减去差值
+ *   2. 通用防线——纠偏后仍在未来 15 分钟以上的，压到抓取时刻。
+ *      未来时间戳会在按时间排序的合并列表里永远置顶，比时间不准更有害。
+ */
+function fixPublishedAt(
+  d: Date | undefined,
+  tzFixHours: number | undefined,
+  now: Date,
+): Date | undefined {
+  if (!d || Number.isNaN(d.getTime())) return undefined;
+  let t = d.getTime();
+  if (tzFixHours) t -= tzFixHours * 3_600_000;
+  if (t > now.getTime() + 15 * 60_000) t = now.getTime();
+  return new Date(t);
+}
+
 export async function fetchRss(
   sourceId: string,
   url: string,
@@ -42,9 +60,11 @@ export async function fetchRss(
     limit?: number;
     useCurl?: boolean;
     fallbackUrls?: string[];
+    tzFixHours?: number;
   } = {},
 ): Promise<RawArticle[]> {
   const limit = options.limit ?? 30;
+  const now = new Date();
 
   // 依次尝试主地址与备用地址，第一个能解析出条目的胜出。空结果也算失败——
   // RSSHub 镜像限流时会返回一个 HTTP 503 的 HTML 错误页，或一个 0 条目的
@@ -93,7 +113,11 @@ export async function fetchRss(
         0,
         300,
       ),
-      publishedAt: item.isoDate ? new Date(item.isoDate) : undefined,
+      publishedAt: fixPublishedAt(
+        item.isoDate ? new Date(item.isoDate) : undefined,
+        options.tzFixHours,
+        now,
+      ),
       category,
     }))
     .filter((a) => a.title && a.url);

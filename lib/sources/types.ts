@@ -22,6 +22,13 @@ export interface SourceDef {
   url: string;
   category: Category;
   /**
+   * 时区纠偏（小时）。个别源的 RSS 把本地时间填进时间戳却标成 GMT——
+   * 实测 InfoQ 中国：北京时间 12:51 发布的文章，feed 里写 "12:51 GMT"。
+   * 按标准解析会快 8 小时，显示成未来时间，还会在按时间排序的列表里
+   * 永远霸占最前。设 8 表示解析后减 8 小时。
+   */
+  tzFixHours?: number;
+  /**
    * 备用地址。主 url 抓不到内容时按顺序依次重试，任一成功即采用。
    *
    * 加这个是因为 36氪官方 RSS 已下线、只能走 RSSHub 公共镜像，而这些镜像
