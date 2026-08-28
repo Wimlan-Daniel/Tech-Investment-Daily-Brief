@@ -91,6 +91,12 @@ export interface RawArticle {
   excerpt?: string;
   publishedAt?: Date;
   /**
+   * 时间只精确到"天"。置 true 时页面只显示日期不显示时刻——用户要求：
+   * 时间要么准确、要么只写日期，不要合成一个看起来精确的时刻。
+   * publishedAt 里的时刻部分仅用于排序，不对读者展示。
+   */
+  dateOnly?: boolean;
+  /**
    * 抓取时来自源配置的兜底值；classify.ts 会在抓取后按内容覆写成真实板块。
    */
   category: Category;

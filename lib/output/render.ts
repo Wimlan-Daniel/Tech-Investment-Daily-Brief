@@ -445,11 +445,18 @@ function tierBadge(tier: "first" | "media" | undefined): string {
   return `<span class="tier tier-media">${STR.tierMedia}</span>`;
 }
 
-function formatDate(d: Date | undefined): string {
+function formatDate(d: Date | undefined, dateOnly = false): string {
   if (!d) return "";
   try {
-    // zh: "05/20 16:00"  · en: "May 20, 4:00 PM" → keep 24h en-GB style "20/05 16:00"
     const localeTag = REPORT_LOCALE === "en" ? "en-GB" : "zh-CN";
+    // 只知道日期的条目（dateOnly）不显示时刻——展示一个合成的钟点等于造假
+    if (dateOnly) {
+      return d.toLocaleString(localeTag, {
+        timeZone: getReportTz(),
+        month: "2-digit",
+        day: "2-digit",
+      });
+    }
     return d.toLocaleString(localeTag, {
       timeZone: getReportTz(),
       month: "2-digit",
@@ -473,7 +480,7 @@ function renderArticleHtml(a: ArticleInput, showSource = false): string {
   const summaryText = a.summary ?? (a as unknown as { cnSummary?: string }).cnSummary;
   const summary = summaryText ? escapeHtml(summaryText) : "";
   const meta = a.meta ? escapeHtml(a.meta) : "";
-  const time = formatDate(a.publishedAt);
+  const time = formatDate(a.publishedAt, a.dateOnly === true);
   const sourceLabel = showSource && a.source ? escapeHtml(a.source) : "";
   const metaLine = [sourceLabel, time].filter(Boolean).join(" · ");
   const badge = tierBadge(TIER_BY_SOURCE.get(a.sourceId));

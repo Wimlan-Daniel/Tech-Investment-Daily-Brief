@@ -37,8 +37,9 @@ async function parseOne(
 /**
  * 两层时间修正：
  *   1. 源级纠偏（tzFixHours）——已知把本地时间标成 GMT 的源，减去差值
- *   2. 通用防线——纠偏后仍在未来 15 分钟以上的，压到抓取时刻。
- *      未来时间戳会在按时间排序的合并列表里永远置顶，比时间不准更有害。
+ *   2. 通用防线——纠偏后仍在未来 15 分钟以上的，置空不显示。
+ *      未来时间戳会在按时间排序的合并列表里永远置顶；而压到抓取时刻
+ *      等于编造时间，用户明确不接受。
  */
 function fixPublishedAt(
   d: Date | undefined,
@@ -48,7 +49,15 @@ function fixPublishedAt(
   if (!d || Number.isNaN(d.getTime())) return undefined;
   let t = d.getTime();
   if (tzFixHours) t -= tzFixHours * 3_600_000;
-  if (t > now.getTime() + 15 * 60_000) t = now.getTime();
+  if (t > now.getTime() + 15 * 60_000) {
+    // 纠偏后仍在未来——说明这个源的时区标注有未知问题，真实时间无从得知。
+    // 用户要求：拿不到准确时间就不要编。返回 undefined，页面上只显示来源
+    // 不显示时间（代价是排序垫底）。同时告警，方便为该源补 tzFixHours。
+    console.warn(
+      `[rss] 时间戳在未来（${d.toISOString()}），已置空。该源可能需要配置 tzFixHours。`,
+    );
+    return undefined;
+  }
   return new Date(t);
 }
 

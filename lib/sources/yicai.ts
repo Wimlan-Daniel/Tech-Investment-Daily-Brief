@@ -51,19 +51,32 @@ function decode(s: string): string {
  * 「MM-DD HH:MM」没有年份，按"不晚于今天"推断年份：月日晚于今天则算上一年
  * （跨年时 12-31 的条目不会被误判成未来时间）。
  */
-function parseYicaiTime(raw: string, now: Date): Date | undefined {
+interface YicaiTime {
+  d: Date;
+  /**
+   * 精度只有小时级或天级（「3小时前」「2天前」这类相对表述换算出的时刻
+   * 误差可达一小时以上）。用户要求时间要么准确要么只写日期，所以这类
+   * 只在页面上显示日期。分钟级（「9分钟前」「刚刚」「MM-DD HH:MM」）视为准确。
+   */
+  dateOnly: boolean;
+}
+
+function parseYicaiTime(raw: string, now: Date): YicaiTime | undefined {
   const s = raw.trim();
 
   const min = s.match(/^(\d+)\s*分钟前/);
-  if (min) return new Date(now.getTime() - Number(min[1]) * 60_000);
+  if (min)
+    return { d: new Date(now.getTime() - Number(min[1]) * 60_000), dateOnly: false };
 
   const hr = s.match(/^(\d+)\s*小时前/);
-  if (hr) return new Date(now.getTime() - Number(hr[1]) * 3_600_000);
+  if (hr)
+    return { d: new Date(now.getTime() - Number(hr[1]) * 3_600_000), dateOnly: true };
 
-  if (/^刚刚/.test(s)) return new Date(now.getTime());
+  if (/^刚刚/.test(s)) return { d: new Date(now.getTime()), dateOnly: false };
 
   const day = s.match(/^(\d+)\s*天前/);
-  if (day) return new Date(now.getTime() - Number(day[1]) * 86_400_000);
+  if (day)
+    return { d: new Date(now.getTime() - Number(day[1]) * 86_400_000), dateOnly: true };
 
   const md = s.match(/^(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})/);
   if (md) {
@@ -79,9 +92,11 @@ function parseYicaiTime(raw: string, now: Date): Date | undefined {
       const prev = new Date(
         `${year}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}T${h.padStart(2, "0")}:${mi}:00+08:00`,
       );
-      return Number.isNaN(prev.getTime()) ? undefined : prev;
+      return Number.isNaN(prev.getTime())
+        ? undefined
+        : { d: prev, dateOnly: false };
     }
-    return candidate;
+    return { d: candidate, dateOnly: false };
   }
 
   return undefined;
@@ -116,7 +131,7 @@ export async function fetchYicai(
     const sp = inner.match(
       /<div class="rightspan">\s*<span>([^<]*)<\/span>/,
     );
-    const publishedAt = sp ? parseYicaiTime(decode(sp[1]), now) : undefined;
+    const t = sp ? parseYicaiTime(decode(sp[1]), now) : undefined;
 
     seen.add(href);
     out.push({
@@ -124,7 +139,8 @@ export async function fetchYicai(
       title,
       url: BASE + href,
       excerpt: excerpt.slice(0, 300),
-      publishedAt,
+      publishedAt: t?.d,
+      dateOnly: t?.dateOnly || undefined,
       category,
     });
     if (out.length >= limit) break;
