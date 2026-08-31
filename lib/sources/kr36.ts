@@ -102,7 +102,7 @@ export async function fetch36krNewsflash(
         sourceId,
         title,
         url: `https://www.36kr.com/newsflashes/${id}`,
-        excerpt: (t.widgetContent ?? "").replace(/\s+/g, " ").trim().slice(0, 300),
+        excerpt: (t.widgetContent ?? "").replace(/\s+/g, " ").trim().slice(0, 800),
         publishTime: t.publishTime,
         publishedAt: t.publishTime ? new Date(t.publishTime) : undefined,
         category,

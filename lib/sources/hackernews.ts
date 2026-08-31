@@ -38,7 +38,7 @@ export async function fetchHackerNews(
       title: it.title ?? "",
       url: it.url ?? `https://news.ycombinator.com/item?id=${it.id}`,
       excerpt: it.text
-        ? stripHtml(it.text).slice(0, 300)
+        ? stripHtml(it.text).slice(0, 800)
         : `${it.score ?? 0} points · ${it.descendants ?? 0} comments`,
       publishedAt: it.time ? new Date(it.time * 1000) : undefined,
       category: "frontier-tech" as const,

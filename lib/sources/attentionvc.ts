@@ -114,7 +114,7 @@ export async function fetchAttentionVc(
     sourceId,
     title: e.title,
     url: `https://x.com/${e.author.handle}/status/${e.tweetId}`,
-    excerpt: e.previewText?.replace(/\s+/g, " ").trim().slice(0, 300),
+    excerpt: e.previewText?.replace(/\s+/g, " ").trim().slice(0, 800),
     publishedAt: e.tweetCreatedAt ? new Date(e.tweetCreatedAt) : undefined,
     category: "tech-business" as const,
     meta: buildMeta(e),

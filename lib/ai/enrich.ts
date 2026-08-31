@@ -402,7 +402,9 @@ export async function enrichTrendingPapersSummaries(
   const payload = items.map((it) => ({
     url: it.url,
     title: it.title,
-    excerpt: (it.excerpt ?? "").slice(0, 300),
+    // 送 700 字：要求模型写 150-250 字摘要，输入却只给 300 字等于逼它抄原文。
+    // 实测 193/373 条原文在抓取时就被截到 300 字上限，信息在源头就丢了。
+    excerpt: (it.excerpt ?? "").slice(0, 700),
   }));
   return runEnrichment(payload, PROMPTS.papers, "papers summaries");
 }

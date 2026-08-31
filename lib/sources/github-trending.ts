@@ -69,7 +69,7 @@ export async function fetchGithubTrending(
       sourceId,
       title: repo,
       url: `https://github.com/${repo}`,
-      excerpt: description.slice(0, 300),
+      excerpt: description.slice(0, 800),
       meta,
       // intentionally no publishedAt — see file header.
       category: "frontier-tech",

@@ -86,7 +86,7 @@ export async function fetchTheCapital(
       sourceId,
       title,
       url: BASE + href,
-      excerpt: excerpt.slice(0, 300),
+      excerpt: excerpt.slice(0, 800),
       publishedAt,
       // 该源只提供日期，时刻是排序用的占位——页面只显示日期
       dateOnly: true,

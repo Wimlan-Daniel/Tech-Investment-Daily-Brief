@@ -118,9 +118,11 @@ export async function fetchRss(
       sourceId,
       title: (item.title ?? "").trim(),
       url: (item.link ?? "").trim(),
+      // 保留 800 字：摘要要求写 150-250 字，原文却只留 300 字等于逼模型抄原文。
+      // 实测 193/373 条正好卡在 300 字上限，说明信息在抓取阶段就被切掉了。
       excerpt: stripHtml(item.contentSnippet ?? item.content ?? "").slice(
         0,
-        300,
+        800,
       ),
       publishedAt: fixPublishedAt(
         item.isoDate ? new Date(item.isoDate) : undefined,

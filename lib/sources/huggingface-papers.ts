@@ -46,7 +46,7 @@ export async function fetchHuggingfacePapers(
       sourceId,
       title: p.paper.title,
       url: `https://huggingface.co/papers/${p.paper.id}`,
-      excerpt: (p.paper.summary ?? "").slice(0, 300),
+      excerpt: (p.paper.summary ?? "").slice(0, 800),
       publishedAt: p.paper.publishedAt
         ? new Date(p.paper.publishedAt)
         : undefined,

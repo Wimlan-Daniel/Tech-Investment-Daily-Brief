@@ -138,7 +138,7 @@ export async function fetchYicai(
       sourceId,
       title,
       url: BASE + href,
-      excerpt: excerpt.slice(0, 300),
+      excerpt: excerpt.slice(0, 800),
       publishedAt: t?.d,
       dateOnly: t?.dateOnly || undefined,
       category,
