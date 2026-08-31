@@ -23,8 +23,19 @@ export async function curlFetch(
     args.push("-H", `${k}: ${v}`);
   }
   args.push(url);
-  const { stdout } = await execFileP("curl", args, {
-    maxBuffer: 16 * 1024 * 1024,
-  });
-  return stdout;
+  try {
+    const { stdout } = await execFileP("curl", args, {
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    return stdout;
+  } catch (e) {
+    // execFile 抛出的 Error.message 只有一长串命令行，看不出失败原因。
+    // curl 的退出码和 stderr 才是关键信息（6=DNS 解析失败、7=连不上、
+    // 28=超时、35=TLS 握手失败），不带出来就没法判断是网络断了还是源挂了。
+    const err = e as { code?: number; stderr?: string };
+    const reason =
+      (err.stderr ?? "").trim() ||
+      `curl 退出码 ${err.code ?? "?"}（6=DNS失败 7=连接失败 28=超时 35=TLS失败）`;
+    throw new Error(`curl 抓取失败 ${url} —— ${reason}`);
+  }
 }

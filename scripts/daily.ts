@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { sources, REPORT_LOCALE } from "../lib/sources/registry";
+import type { SourceDef } from "../lib/sources/types";
 import { fetchSource } from "../lib/sources/dispatch";
 import {
   generateDailyReport,
@@ -79,6 +80,8 @@ const ARCHIVE_TITLE = "前沿科技投资简报";
 async function fetchAll(): Promise<ArticleInput[]> {
   const articles: ArticleInput[] = [];
   const enabled = sources.filter((s) => s.enabled !== false);
+  const failed: SourceDef[] = [];
+
   for (const source of enabled) {
     try {
       const items = await fetchSource(source);
@@ -87,8 +90,34 @@ async function fetchAll(): Promise<ArticleInput[]> {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error(`  ${source.id.padEnd(20)} FAILED — ${msg}`);
+      failed.push(source);
     }
   }
+
+  // 网络中断会造成大面积连续失败（2026-08-31 实测：机器跑到一半回睡，
+  // 后 27 个源无一幸免）。等 30 秒让网络恢复后整轮补抓一次——失败面越大
+  // 越说明是环境问题而非源本身挂了，这一轮补救的收益也就越高。
+  if (failed.length > 0) {
+    const ratio = failed.length / enabled.length;
+    console.log(
+      `\n[daily] ${failed.length}/${enabled.length} 个源失败${ratio > 0.3 ? "（失败面过大，疑似网络中断）" : ""}，30 秒后重试…`,
+    );
+    await new Promise((r) => setTimeout(r, 30_000));
+    let recovered = 0;
+    for (const source of failed) {
+      try {
+        const items = await fetchSource(source);
+        console.log(`  ${source.id.padEnd(20)} ${items.length}  (重试成功)`);
+        articles.push(...items.map((it) => ({ ...it, source: source.name })));
+        recovered++;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.error(`  ${source.id.padEnd(20)} 重试仍失败 — ${msg}`);
+      }
+    }
+    console.log(`[daily] 重试补回 ${recovered}/${failed.length} 个源\n`);
+  }
+
   return articles;
 }
 

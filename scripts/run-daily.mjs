@@ -49,7 +49,12 @@ fs.appendFileSync(logFile, `[${now()}] running npm run daily\n`);
 // `shell: true` lets us write 'npm' instead of resolving npm.cmd vs npm
 // across platforms. The downside (shell injection) is not a concern here
 // since we're not passing user-controlled args.
-const child = spawn("npm", ["run", "daily"], {
+// 用 caffeinate 包住整轮：macOS 定时任务把机器从睡眠唤醒后，若无电源断言
+// 会很快回到 DarkWake/Sleep 循环，网络随之中断。2026-08-31 实测：08:03 启动，
+// 前 15 个源正常，之后连续 27 个源全部 curl 失败，而同样的地址手动测全部 200。
+//   -i 阻止空闲睡眠  -m 阻止磁盘休眠  -s 阻止系统睡眠（接电源时生效）
+//   -w <pid> 绑定到子进程生命周期，跑完自动释放，不会永久阻止睡眠
+const child = spawn("caffeinate", ["-ims", "npm", "run", "daily"], {
   cwd: projectRoot,
   shell: true,
   stdio: ["ignore", "pipe", "pipe"],
