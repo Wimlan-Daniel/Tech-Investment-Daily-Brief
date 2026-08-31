@@ -5,6 +5,7 @@ import path from "node:path";
 
 import { sources, REPORT_LOCALE } from "../lib/sources/registry";
 import type { SourceDef } from "../lib/sources/types";
+import { mapWithConcurrency } from "../lib/utils-concurrent";
 import { fetchSource } from "../lib/sources/dispatch";
 import {
   generateDailyReport,
@@ -82,15 +83,26 @@ async function fetchAll(): Promise<ArticleInput[]> {
   const enabled = sources.filter((s) => s.enabled !== false);
   const failed: SourceDef[] = [];
 
-  for (const source of enabled) {
-    try {
-      const items = await fetchSource(source);
-      console.log(`  ${source.id.padEnd(20)} ${items.length}`);
-      articles.push(...items.map((it) => ({ ...it, source: source.name })));
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error(`  ${source.id.padEnd(20)} FAILED — ${msg}`);
+  // 并发抓取：瓶颈在对方服务器响应，不在本机，串行等于 42 次往返首尾相接。
+  // 8 路是保守值——再高对少数慢站点收益递减，还容易被当成异常流量。
+  // 代价：日志顺序不再固定，所以下面显式打印源名对齐。
+  const FETCH_CONCURRENCY = 8;
+  const results = await mapWithConcurrency(
+    enabled,
+    FETCH_CONCURRENCY,
+    async (source) => ({
+      source,
+      items: await fetchSource(source),
+    }),
+  );
+  for (const [i, r] of results.entries()) {
+    const source = enabled[i];
+    if (r instanceof Error) {
+      console.error(`  ${source.id.padEnd(20)} FAILED — ${r.message}`);
       failed.push(source);
+    } else {
+      console.log(`  ${source.id.padEnd(20)} ${r.items.length}`);
+      articles.push(...r.items.map((it) => ({ ...it, source: source.name })));
     }
   }
 
@@ -104,15 +116,18 @@ async function fetchAll(): Promise<ArticleInput[]> {
     );
     await new Promise((r) => setTimeout(r, 30_000));
     let recovered = 0;
-    for (const source of failed) {
-      try {
-        const items = await fetchSource(source);
-        console.log(`  ${source.id.padEnd(20)} ${items.length}  (重试成功)`);
-        articles.push(...items.map((it) => ({ ...it, source: source.name })));
+    const retried = await mapWithConcurrency(failed, FETCH_CONCURRENCY, async (source) => ({
+      source,
+      items: await fetchSource(source),
+    }));
+    for (const [i, r] of retried.entries()) {
+      const source = failed[i];
+      if (r instanceof Error) {
+        console.error(`  ${source.id.padEnd(20)} 重试仍失败 — ${r.message}`);
+      } else {
+        console.log(`  ${source.id.padEnd(20)} ${r.items.length}  (重试成功)`);
+        articles.push(...r.items.map((it) => ({ ...it, source: source.name })));
         recovered++;
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        console.error(`  ${source.id.padEnd(20)} 重试仍失败 — ${msg}`);
       }
     }
     console.log(`[daily] 重试补回 ${recovered}/${failed.length} 个源\n`);
@@ -363,21 +378,41 @@ async function main() {
   }
 
   // Enrich GH Trending, papers, finance news, and politics with summaries.
-  await enrichGhTrending(articles);
-  await enrichTrendingPapers(articles);
-  for (const c of ALL_CATEGORIES) {
-    await enrichCategory(articles, c);
-  }
-  await enrichXViral(articles);
-
-  // Trading signals: Yahoo fetch + indicators + commentary. Non-fatal —
-  // if it errors, we still ship the news digest.
+  // 摘要阶段并行化：这 8 个任务互不依赖（各自处理不同板块/来源的文章），
+  // 串行跑等于 8 次大模型调用排队。并发 2 是安全上限——每路都是独立的
+  // claude 进程，实测 4 路会撞速率限制（见 lib/ai/classify.ts）。
+  const ENRICH_CONCURRENCY = 2;
+  //
+  // 行情分析也并入同一个池：它和摘要互不依赖，但**必须共用并发额度**——
+  // 单独并行会让并发变成 3 路，撞限流。放进池里总并发仍是 2。
+  // 代价：行情归因拿到的新闻可能还没生成摘要，会回落到原文摘录。归因主要
+  // 依据标题，这个损失可以接受，换来省下一次串行等待。
   let trading: TradingSection | null = null;
-  try {
-    trading = await runTrading(articles);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`[daily] trading section failed: ${msg}`);
+  const enrichTasks: (() => Promise<void>)[] = [
+    // 耗时长的排前面，让它们先占住工作位，避免最后剩一个长任务单独拖尾
+    async () => {
+      try {
+        trading = await runTrading(articles);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.warn(`[daily] 行情板块失败（不影响其余内容）: ${msg}`);
+      }
+    },
+    () => enrichGhTrending(articles),
+    () => enrichTrendingPapers(articles),
+    () => enrichXViral(articles),
+    ...ALL_CATEGORIES.map((c) => () => enrichCategory(articles, c)),
+  ];
+  const enrichResults = await mapWithConcurrency(
+    enrichTasks,
+    ENRICH_CONCURRENCY,
+    (task) => task(),
+  );
+  const enrichFailed = enrichResults.filter((r) => r instanceof Error).length;
+  if (enrichFailed > 0) {
+    console.warn(
+      `[daily] ${enrichFailed}/${enrichTasks.length} 个摘要任务失败——对应条目将只显示原文摘录`,
+    );
   }
 
   console.log(`[daily] generating digest with ${getModelTag()}…`);
