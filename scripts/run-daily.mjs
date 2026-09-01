@@ -87,6 +87,10 @@ child.on("close", (code) => {
 
     // Detached so we don't block on Chrome's lifetime. Errors here are
     // cosmetic — the report exists on disk regardless.
+    // 发布到 GitHub Pages。没配远程仓库时只生成 docs/ 不推送，
+    // 所以本地部署阶段加着也无害。
+    spawnSyncShim("node", ["scripts/publish.mjs"], { cwd: projectRoot });
+
     const opener = spawn("npm", ["run", "open"], {
       cwd: projectRoot,
       shell: true,
