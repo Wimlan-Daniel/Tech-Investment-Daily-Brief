@@ -55,9 +55,6 @@ async function main() {
   const enabledIds = new Set(
     sources.filter((s) => s.enabled !== false).map((s) => s.id),
   );
-  const sameLocaleIds = new Set(
-    sources.filter((s) => (s.lang ?? "en") === REPORT_LOCALE).map((s) => s.id),
-  );
   const limit = MERGED_SUBGROUP_LIMITS[`${category}:main`] ?? 12;
   const top = data.articles
     .filter((a) => a.category === category && enabledIds.has(a.sourceId))
@@ -70,7 +67,11 @@ async function main() {
     .slice(0, limit);
 
   const missing = top
-    .filter((a) => !sameLocaleIds.has(a.sourceId))
+    // 与 daily.ts 对齐：只要没摘要就补，不再跳过中文源。
+    // 早期设计是「中文源不需要翻译成中文」，后来改成所有展示条目都生成摘要
+    // （原文摘录往往只是开头截取，信息密度不够），但这个脚本漏改了，导致
+    // 一级市场这类以中文源为主的板块补不上摘要。
+    .filter((a) => a.sourceId !== "attentionvc-ai")
     .filter((a) => !a.summary && !(a as { cnSummary?: string }).cnSummary);
   console.log(
     `[regen-enrich] ${category}：展示 ${top.length} 条，其中 ${missing.length} 条缺摘要`,

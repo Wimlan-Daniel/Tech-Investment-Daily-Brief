@@ -475,7 +475,17 @@ function formatDate(d: Date | undefined, dateOnly = false): string {
 function renderArticleHtml(a: ArticleInput, showSource = false): string {
   const title = escapeHtml(a.title);
   const url = escapeHtml(a.url);
-  const excerpt = a.excerpt ? escapeHtml(a.excerpt) : "";
+  // 原文摘录只是没有 AI 摘要时的兜底显示。抓取层保留 800 字是为了喂给模型，
+  // 直接摊在页面上会又长又乱（2026-09-01 一级市场摘要整批失败时就是如此）。
+  const EXCERPT_DISPLAY_MAX = 180;
+  const rawExcerpt = a.excerpt ?? "";
+  const excerpt = rawExcerpt
+    ? escapeHtml(
+        rawExcerpt.length > EXCERPT_DISPLAY_MAX
+          ? rawExcerpt.slice(0, EXCERPT_DISPLAY_MAX) + "…"
+          : rawExcerpt,
+      )
+    : "";
   // Backwards-compat: old sidecar JSON files may carry `cnSummary` instead.
   const summaryText = a.summary ?? (a as unknown as { cnSummary?: string }).cnSummary;
   const summary = summaryText ? escapeHtml(summaryText) : "";

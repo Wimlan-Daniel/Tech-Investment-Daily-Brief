@@ -256,10 +256,14 @@ export interface EnrichResult {
   titleZh?: string;
 }
 
+/** 整批失败后的重试次数。一次失败 = 这批条目全部没有摘要，值得重试。 */
+const ENRICH_RETRIES = 1;
+
 async function runEnrichment(
   payload: unknown[],
   systemPrompt: string,
   scope: string,
+  attempt = 0,
 ): Promise<Map<string, EnrichResult>> {
   // Sonnet has a strong "match input language" reflex — when items contain
   // English titles + Chinese-tinted source names (or just a Chinese-leaning
@@ -294,7 +298,29 @@ async function runEnrichment(
     try {
       parsed = JSON.parse(cleaned);
     } catch {
-      parsed = JSON.parse(jsonrepair(cleaned));
+      try {
+        parsed = JSON.parse(jsonrepair(cleaned));
+      } catch {
+        // jsonrepair 也救不回来时，别让整批阵亡。2026-09-01 实测：一级市场
+        // 那批返回的 JSON 在第 3423 字符处语法错误，22 条摘要全部丢失，页面
+        // 回落到显示原文摘录。逐个抠出结构完整的 {url, summary} 对象，能救
+        // 几条是几条——部分摘要远好过一条没有。
+        const salvaged: Array<{ url?: string; summary?: string; title_zh?: string }> = [];
+        const objRe =
+          /\{[^{}]*?"url"\s*:\s*"([^"]+)"[^{}]*?"summary"\s*:\s*"((?:[^"\\]|\\.)*)"[^{}]*?\}/g;
+        for (const m of cleaned.matchAll(objRe)) {
+          try {
+            salvaged.push(JSON.parse(m[0]));
+          } catch {
+            salvaged.push({ url: m[1], summary: m[2].replace(/\\"/g, '"') });
+          }
+        }
+        if (salvaged.length === 0) throw new Error("JSON 解析失败且无法抢救任何条目");
+        console.warn(
+          `[enrich] ${scope}: JSON 损坏，抢救回 ${salvaged.length}/${payload.length} 条`,
+        );
+        parsed = { summaries: salvaged };
+      }
     }
 
     for (const s of parsed.summaries ?? []) {
@@ -331,7 +357,17 @@ async function runEnrichment(
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`[enrich] ${scope} failed: ${msg}`);
+    if (attempt < ENRICH_RETRIES) {
+      // 整批失败意味着这一批条目全部没有摘要，页面会回落到显示原文摘录。
+      // 2026-09-01 实测：一级市场那批因 JSON 语法错误整批阵亡，22 条全无摘要。
+      // 模型下一次通常能返回合法 JSON，值得重试——代价只是多一次调用。
+      console.warn(
+        `[enrich] ${scope} 第 ${attempt + 1} 次失败，10s 后重试：${msg.slice(0, 120)}`,
+      );
+      await new Promise((r) => setTimeout(r, 10_000));
+      return runEnrichment(payload, systemPrompt, scope, attempt + 1);
+    }
+    console.warn(`[enrich] ${scope} 重试用尽仍失败：${msg}`);
   }
 
   return result;
