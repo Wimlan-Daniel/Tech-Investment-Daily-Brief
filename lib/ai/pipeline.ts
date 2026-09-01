@@ -197,6 +197,9 @@ async function callOnce(
     // 120-300 秒。默认 180 秒超时线其实一直是靠外层 retry 才撑过去的，
     // 这里直接放宽，别再赌重试。
     timeoutMs: 480_000,
+    // 全流程唯一需要判断力而非执行力的环节，单独用更强的模型。
+    // 环境变量 DIGEST_MODEL 可覆盖；设为 sonnet 即退回全 Sonnet。
+    model: process.env.DIGEST_MODEL?.trim() || "opus",
   });
   const cleaned = extractJson(text);
   let parsed: Partial<DailyReport>;

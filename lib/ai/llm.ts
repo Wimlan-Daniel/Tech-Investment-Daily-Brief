@@ -32,6 +32,17 @@ export interface LlmRunOptions {
   systemPrompt: string;
   userPrompt: string;
   timeoutMs?: number;
+  /**
+   * 本次调用用哪个模型，覆盖全局默认。
+   *
+   * 混合模式的依据：整条流水线里只有「生成每日简报」这一次调用需要真正的
+   * 判断力——从 400+ 条里权衡取舍、给出跨条目的关联洞察。其余 27 次都是
+   * 按明确规则做批量标注与摘要，规则已写得很细，用更强的模型收益很小、
+   * 订阅额度消耗却翻倍。所以只给简报开 Opus。
+   *
+   * 目前只有 claude-cli 后端支持；其他后端会忽略该字段。
+   */
+  model?: string;
 }
 
 export interface LlmRunResult {
