@@ -144,7 +144,7 @@ async function callOnce(
           "The JSON must contain every field non-empty:",
           "  - hero_headline: 10-25 word headline of the day",
           "  - daily_overview: **180-260 word** paragraph threading private markets / frontier tech / capital environment",
-          "  - top_briefs: **6-8** BriefItems selected across all sections, ordered by importance",
+          "  - top_briefs: **10** BriefItems selected across all sections, ordered by importance",
           "  - editor_note: 40-70 word editor's note naming today's most notable signal",
           "  - keywords: 5-8 keywords, sectors and company names first",
           "",
@@ -157,12 +157,12 @@ async function callOnce(
           userPayloadJson,
         ].join("\n")
       : [
-          "你的任务：从下方候选资讯中，挑出**今天最值得这位一级市场前沿科技投资人知道的 6-8 条**，生成一份简报。**响应必须是一个合法 JSON 对象**——以 `{` 开头，以 `}` 结尾，不要 markdown / 不要代码围栏 / 不要任何解释。",
+          "你的任务：从下方候选资讯中，挑出**今天最值得这位一级市场前沿科技投资人知道的 10 条**，生成一份简报。**响应必须是一个合法 JSON 对象**——以 `{` 开头，以 `}` 结尾，不要 markdown / 不要代码围栏 / 不要任何解释。",
           "",
           "JSON 必须包含全部字段且不能为空：",
           "  - hero_headline: 10-25 字的当日一句话头条，点出今天最重要的那件事",
           "  - daily_overview: **180-260 字** 的当日总览，按「一级市场 / 前沿科技 / 资本环境」三条线索串起来，让读者 30 秒抓住全貌",
-          "  - top_briefs: **6-8 条** BriefItem，跨板块精选，按重要性从高到低排列",
+          "  - top_briefs: **10 条** BriefItem，跨板块精选，按重要性从高到低排列",
           "  - editor_note: 40-70 字的编辑短评，点出今天最值得注意的一个信号或趋势",
           "  - keywords: 5-8 个关键词，优先赛道名和公司名",
           "",
