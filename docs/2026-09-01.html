@@ -2164,9 +2164,29 @@
   </footer>
 </main>
 <script>
+  // 支持用网址片段直接打开指定标签页，例如 …/#china-vc
+  // 两个用处：把某个板块单独分享给别人；截图工具能定位到指定页面。
+  function activateTab(target) {
+    if (!target) return false;
+    var btn = document.querySelector('.tabs > .tab[data-tab="' + target + '"]');
+    if (!btn) return false;
+    document.querySelectorAll('.tabs > .tab').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.classList.toggle('active', p.dataset.panel === target);
+    });
+    return true;
+  }
+  activateTab(location.hash.replace(/^#/, ''));
+  window.addEventListener('hashchange', function () {
+    activateTab(location.hash.replace(/^#/, ''));
+  });
+
   document.querySelectorAll('.tabs > .tab').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var target = btn.dataset.tab;
+      if (history.replaceState) history.replaceState(null, '', '#' + target);
       document.querySelectorAll('.tabs > .tab').forEach(function (b) {
         b.classList.toggle('active', b === btn);
       });
