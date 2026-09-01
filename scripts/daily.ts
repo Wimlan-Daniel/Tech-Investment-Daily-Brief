@@ -13,6 +13,7 @@ import {
 } from "../lib/ai/pipeline";
 import { getModelTag, validateBackendCredentials } from "../lib/ai/llm";
 import { classifyArticles } from "../lib/ai/classify";
+import { dedupeBySemantics } from "../lib/ai/dedupe";
 import { ALL_CATEGORIES, type Category } from "../lib/sources/types";
 import {
   enrichFinanceNewsSummaries,
@@ -418,7 +419,15 @@ async function main() {
 
   // 逐条分类：这是本 fork 的核心步骤，把内容按性质分进五个板块并剔除噪音。
   // 分类结果会覆写 article.category，下游全部依赖它。
-  const articles = await classifyArticles(deduped);
+  const classified = await classifyArticles(deduped);
+
+  // 语义判重放在分类之后、摘要之前：
+  //   · 之后 —— 可以带上板块信息，模型判断同一事件时更有依据
+  //   · 之前 —— 重复条目不会白白消耗摘要调用
+  // 标题判重（dedupeByTitle）只能合并字面相同的转载，但实测大量重复是同一
+  // 事件的不同写法：a16z 同一笔募资、香山股份同一份公告，标题完全不同，
+  // 甚至来自同一个源同一个时间戳。
+  const articles = await dedupeBySemantics(classified);
   if (articles.length === 0) {
     throw new Error("分类后没有剩余条目 — 中止");
   }
