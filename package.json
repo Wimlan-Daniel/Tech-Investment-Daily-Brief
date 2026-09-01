@@ -13,7 +13,8 @@
     "sources:check": "tsx scripts/sources.ts check",
     "deploy": "node scripts/deploy.mjs",
     "build-site": "node scripts/build-site.mjs",
-    "open": "node scripts/open-report.mjs"
+    "open": "node scripts/open-report.mjs",
+    "export-pdf": "node scripts/export-pdf.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",

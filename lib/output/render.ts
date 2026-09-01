@@ -7,6 +7,12 @@ import type {
 import type { WatchlistPick } from "../ai/trading-commentary";
 import { REPORT_LOCALE, sources as REGISTRY } from "../sources/registry";
 import { BOARDS, boardLabel, boardLimit } from "../../boards.config";
+import {
+  ABOUT_TITLE,
+  ABOUT_LEAD,
+  ABOUT_BLOCKS,
+  type AboutBlock,
+} from "../../about.config";
 import { getReportTz } from "../utils";
 import type { Category, SourceDef } from "../sources/types";
 import { V2EX_OFF_TOPIC_RE } from "../sources/v2ex";
@@ -28,6 +34,7 @@ const TEXTS_ZH = {
   siteTitle: "前沿科技 · 投资简报",
   catDigest: "每日简报",
   catTrading: "数据指标",
+  catAbout: "关于本项目",
   subMain: "全部",
   tierFirst: "第一手",
   tierMedia: "媒体报道",
@@ -80,6 +87,7 @@ const TEXTS_EN: typeof TEXTS_ZH = {
   siteTitle: "Frontier Tech · Investor Brief",
   catDigest: "Daily Brief",
   catTrading: "Market Data",
+  catAbout: "About",
   subMain: "All",
   tierFirst: "First-party",
   tierMedia: "Media",
@@ -130,6 +138,17 @@ const TEXTS_EN: typeof TEXTS_ZH = {
 };
 
 const STR = REPORT_LOCALE === "en" ? TEXTS_EN : TEXTS_ZH;
+
+/**
+ * 作品样本模式（环境变量 SAMPLE_MODE=true 开启，供 export-pdf 使用）。
+ *
+ * 完整版 38 页对「给人看的样本」来说太长。开启后：
+ *   · 「关于本项目」挪到最前，先说清这是什么再看内容
+ *   · 每个板块只展示前 SAMPLE_ITEMS 条，并注明完整版有多少条
+ *   · 打印时保留顶部标签栏——那是这份东西来自网页最直观的证据
+ */
+const SAMPLE_MODE = process.env.SAMPLE_MODE === "true";
+const SAMPLE_ITEMS = Number(process.env.SAMPLE_ITEMS) || 5;
 const ASSET_GROUP_LABELS_LOCALIZED = getAssetGroupLabels(REPORT_LOCALE);
 
 // ----- types -----
@@ -604,6 +623,45 @@ function renderDigestPanel(report: DailyReport): string {
   return `${hero}${overview}${kw}<div class="digest-list">${cards}</div>${note}`;
 }
 
+/**
+ * 「关于本项目」页。内容来自 about.config.ts，与当日资讯数据无关——
+ * 改文案只需 npm run render，不必重跑整轮。
+ */
+function renderAboutPanel(): string {
+  const md = (t: string) =>
+    escapeHtml(t).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+  const block = (b: AboutBlock): string => {
+    switch (b.type) {
+      case "heading":
+        return `<h3 class="about-h">${escapeHtml(b.text)}</h3>`;
+      case "para":
+        return `<p class="about-p">${md(b.text)}</p>`;
+      case "list":
+        return `<ol class="about-list">${b.items
+          .map((i) => `<li>${md(i)}</li>`)
+          .join("")}</ol>`;
+      case "table": {
+        const [head, ...rows] = b.rows;
+        return `<table class="about-table">
+  <thead><tr>${head.map((c) => `<th>${md(c)}</th>`).join("")}</tr></thead>
+  <tbody>${rows
+    .map((r) => `<tr>${r.map((c) => `<td>${md(c)}</td>`).join("")}</tr>`)
+    .join("")}</tbody>
+</table>`;
+      }
+      case "note":
+        return `<p class="about-note">${md(b.text)}</p>`;
+    }
+  };
+
+  return `<div class="about">
+    <h2 class="about-title">${escapeHtml(ABOUT_TITLE)}</h2>
+    <p class="about-lead">${md(ABOUT_LEAD)}</p>
+    ${ABOUT_BLOCKS.map(block).join("\n    ")}
+  </div>`;
+}
+
 function renderRawCategoryPanel(
   category: Category,
   subs: SubGroup[],
@@ -611,19 +669,39 @@ function renderRawCategoryPanel(
   if (subs.length === 0) {
     return `<p class="empty">${STR.emptyCategory}</p>`;
   }
-  if (subs.length === 1) {
-    return renderSubContent(category, subs[0], true);
+  // 样本模式下每个板块只留前几条，并在末尾说明完整版条数
+  const shown = SAMPLE_MODE
+    ? subs.map((sub) => ({
+        ...sub,
+        sources: sub.sources.map((src) => ({
+          ...src,
+          items: src.items.slice(0, SAMPLE_ITEMS),
+        })),
+      }))
+    : subs;
+  const total = subs.reduce(
+    (n, sub) => n + sub.sources.reduce((m, src) => m + src.items.length, 0),
+    0,
+  );
+  const moreNote =
+    SAMPLE_MODE && total > SAMPLE_ITEMS
+      ? `<p class="sample-more">本页共 ${total} 条，样本展示前 ${SAMPLE_ITEMS} 条</p>`
+      : "";
+
+  if (shown.length === 1) {
+    return renderSubContent(category, shown[0], true) + moreNote;
   }
-  const subTabs = subs
+  const subs2 = shown;
+  const subTabs = subs2
     .map((s, i) => {
       const count = s.sources.reduce((n, src) => n + src.items.length, 0);
       return `<button class="sub-tab${i === 0 ? " active" : ""}" data-sub="${escapeHtml(s.id)}" data-cat="${category}">${escapeHtml(s.name)}<span class="count">${count}</span></button>`;
     })
     .join("");
-  const panels = subs
+  const panels = subs2
     .map((s, i) => renderSubContent(category, s, i === 0))
     .join("\n");
-  return `<nav class="sub-tabs">${subTabs}</nav>\n<div class="sub-contents">${panels}</div>`;
+  return `<nav class="sub-tabs">${subTabs}</nav>\n<div class="sub-contents">${panels}</div>${moreNote}`;
 }
 
 // ----- top-level renderer -----
@@ -898,6 +976,113 @@ export function renderHtml(
     line-height: 1.7;
     color: var(--fg);
   }
+  .sample-more {
+    margin: 1rem 0 0;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--rule);
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* ===== 关于本项目页 ===== */
+  .about { max-width: 46rem; }
+  .about-title { font-size: 1.5rem; font-weight: 680; margin: 0.2rem 0 0.8rem; letter-spacing: -0.01em; }
+  .about-lead {
+    font-size: 1rem; line-height: 1.85; color: var(--fg-soft);
+    background: var(--card); border-left: 3px solid var(--accent);
+    padding: 0.9rem 1.1rem; margin: 0 0 1.6rem; border-radius: 0 6px 6px 0;
+  }
+  .about-h {
+    font-size: 1.06rem; font-weight: 650; margin: 1.7rem 0 0.6rem;
+    padding-bottom: 0.35rem; border-bottom: 1px solid var(--rule);
+  }
+  .about-p { font-size: 0.94rem; line-height: 1.9; color: var(--fg-soft); margin: 0 0 0.85rem; }
+  .about-list { margin: 0 0 0.9rem; padding-left: 1.3rem; }
+  .about-list li { font-size: 0.94rem; line-height: 1.85; color: var(--fg-soft); margin-bottom: 0.4rem; }
+  .about-table {
+    width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.2rem;
+    font-size: 0.88rem; display: block; overflow-x: auto;
+  }
+  .about-table th, .about-table td {
+    border: 1px solid var(--rule); padding: 0.5rem 0.7rem;
+    text-align: left; vertical-align: top; line-height: 1.7;
+  }
+  .about-table th { background: var(--card); font-weight: 620; white-space: nowrap; }
+  .about-table td:first-child { white-space: nowrap; font-weight: 550; color: var(--fg); }
+  .about-table td { color: var(--fg-soft); }
+  .about-note {
+    margin: 1.6rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--rule);
+    font-size: 0.8rem; color: var(--muted);
+  }
+
+  /* ===== 打印 / 导出 PDF =====
+     网页靠标签页切换，未激活的板块被 display:none 藏起来。直接打印会只剩
+     当前一页，其余全部消失。所以打印时把所有板块展开、隐藏交互控件，并在
+     每个板块前插入标题和分页符，让 PDF 有清晰的章节结构。 */
+  @media print {
+    /* 标签栏保留——它是这份 PDF 来自网页最直观的证据。做成静态导航条，
+       出现在每页顶部（position: fixed 在打印时会被浏览器重复到每页）。*/
+    .sub-tabs, .source-tabs, .trading-group-tab { display: none !important; }
+    .tabs {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      padding: 0 0 0.5rem;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 1.2rem;
+    }
+    .tabs .tab {
+      border: none !important;
+      background: none !important;
+      color: #999 !important;
+      font-size: 0.78rem !important;
+      padding: 0 !important;
+    }
+    .tabs .tab .count { color: #bbb !important; }
+    .panel { display: block !important; page-break-before: always; }
+    .panel:first-of-type { page-break-before: avoid; }
+    .sub-content, .source-content, .trading-group-content { display: block !important; }
+    .panel::before {
+      content: attr(data-panel-label);
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid #333;
+    }
+    .article, .digest-card, .ticker-card { page-break-inside: avoid; }
+    a { text-decoration: none; color: inherit; }
+    body { background: #fff; }
+
+    /* 压紧排版：文字量只有 9 页，但默认间距撑到 23 页。屏幕上留白是舒适，
+       打印出来就是浪费纸。收紧卡片内外边距与行高，并让行情卡片走两栏。 */
+    main { padding: 0 !important; max-width: none !important; }
+    .digest-card, .article, .ticker-card {
+      margin-bottom: 0.5rem !important;
+      padding: 0.5rem 0.65rem !important;
+    }
+    .digest-summary, .digest-why, .article-summary, .article-excerpt {
+      line-height: 1.55 !important;
+      margin-bottom: 0.3rem !important;
+    }
+    .digest-hero { font-size: 1.15rem !important; margin-bottom: 0.5rem !important; }
+    .digest-overview { padding: 0.6rem 0.8rem !important; margin-bottom: 0.7rem !important; line-height: 1.6 !important; }
+    .digest-list { gap: 0.45rem !important; }
+    .article { padding-bottom: 0.5rem !important; }
+    .about-p, .about-list li { line-height: 1.62 !important; margin-bottom: 0.4rem !important; }
+    .about-h { margin: 0.9rem 0 0.4rem !important; }
+    .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
+    .about-table td, .about-table th { padding: 0.3rem 0.5rem !important; line-height: 1.5 !important; }
+    /* 行情 19 张卡片走两栏，省掉一整页 */
+    .trading-group-content { columns: 2; column-gap: 0.8rem; }
+    .ticker-card { break-inside: avoid; }
+    .ticker-indicators { font-size: 0.72rem !important; }
+    .report-header { margin-bottom: 0.6rem !important; }
+    .report-title { font-size: 1.6rem !important; }
+  }
+
   /* ===== 每日简报页 ===== */
   .digest-hero {
     font-size: 1.45rem;
@@ -1413,15 +1598,22 @@ export function renderHtml(
     <button class="tab active" data-tab="digest">${STR.catDigest}<span class="count">${report.top_briefs.length}</span></button>
     ${CATEGORY_ORDER.map((c) => `<button class="tab" data-tab="${c}">${CATEGORY_LABELS[c]}<span class="count">${counts[c]}</span></button>`).join("\n    ")}
     ${trading ? `<button class="tab" data-tab="trading">${STR.catTrading}<span class="count">${trading.tickers.length}</span></button>` : ""}
+    <button class="tab" data-tab="about">${STR.catAbout}</button>
   </nav>
 
-  <section class="panel active" data-panel="digest">
+  ${SAMPLE_MODE ? `<section class="panel" data-panel="about" data-panel-label="${STR.catAbout}">
+    ${renderAboutPanel()}
+  </section>` : ""}
+  <section class="panel active" data-panel="digest" data-panel-label="${STR.catDigest}">
     ${renderDigestPanel(report)}
   </section>
-  ${CATEGORY_ORDER.map((c) => `<section class="panel" data-panel="${c}">
+  ${CATEGORY_ORDER.map((c) => `<section class="panel" data-panel="${c}" data-panel-label="${CATEGORY_LABELS[c]}">
     ${renderRawCategoryPanel(c, raw[c] ?? [])}
   </section>`).join("\n  ")}
-  ${trading ? `<section class="panel" data-panel="trading">${renderTradingPanel(trading)}</section>` : ""}
+  ${trading ? `<section class="panel" data-panel="trading" data-panel-label="${STR.catTrading}">${renderTradingPanel(trading)}</section>` : ""}
+  ${SAMPLE_MODE ? "" : `<section class="panel" data-panel="about" data-panel-label="${STR.catAbout}">
+    ${renderAboutPanel()}
+  </section>`}
 
   <footer>
     ${STR.footer}
