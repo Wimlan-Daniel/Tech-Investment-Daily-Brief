@@ -37,6 +37,49 @@ import { todayKey } from "../lib/utils";
 const OUTPUT_DIR = "daily_reports";
 
 /**
+ * 跨源去重：同一篇文章被多家网站转载时只保留一条。
+ *
+ * 原有判重只按 URL，但转载文章的 URL 是不同的，所以漏得干干净净。
+ * 2026-09-01 实测漏了 5 组，例如同一篇《OpenAI买几万台Mac搞强化训练》
+ * 同时出现在量子位和 36氪热榜，读者会在同一个板块里看到两遍。
+ *
+ * 保留优先级：第一手信源 > 有发布时间 > 原文更完整。理由是转载版往往
+ * 删节、改标题、丢时间戳，原发布方的版本信息更全。
+ *
+ * 只做标题完全相同的合并，不做语义近似判断——近似判断容易误伤
+ * （「A公司完成B轮融资」和「A公司融资细节披露」是两条不同的信息），
+ * 同一事件的不同报道由简报环节的「同主题合并」规则处理。
+ */
+function dedupeByTitle(articles: ArticleInput[]): ArticleInput[] {
+  const norm = (t: string) =>
+    t.replace(/[\s\u3000]+/g, "").replace(/[「」『』“”"'’‘·・…—\-—–]/g, "").toLowerCase();
+  const tierOf = new Map(
+    sources.map((s) => [s.id, s.tier === "first" ? 1 : 0]),
+  );
+  const best = new Map<string, ArticleInput>();
+  let dropped = 0;
+  for (const a of articles) {
+    const k = norm(a.title);
+    if (!k) continue;
+    const cur = best.get(k);
+    if (!cur) {
+      best.set(k, a);
+      continue;
+    }
+    dropped++;
+    const score = (x: ArticleInput) =>
+      (tierOf.get(x.sourceId) ?? 0) * 4 +
+      (x.publishedAt ? 2 : 0) +
+      Math.min((x.excerpt ?? "").length / 800, 1);
+    if (score(a) > score(cur)) best.set(k, a);
+  }
+  if (dropped > 0) {
+    console.log(`[daily] 跨源去重：合并 ${dropped} 条转载重复`);
+  }
+  return articles.filter((a) => best.get(norm(a.title)) === a);
+}
+
+/**
  * 找最近一期简报的条目标题，作为今天的判重清单。
  *
  * 判重只和「读者实际看过的简报」比对，不看文章发布日期——按日期打折会误伤
@@ -370,9 +413,12 @@ async function main() {
     );
   }
 
+  // 跨源去重放在分类之前：重复条目送去分类纯属浪费调用
+  const deduped = dedupeByTitle(recent);
+
   // 逐条分类：这是本 fork 的核心步骤，把内容按性质分进五个板块并剔除噪音。
   // 分类结果会覆写 article.category，下游全部依赖它。
-  const articles = await classifyArticles(recent);
+  const articles = await classifyArticles(deduped);
   if (articles.length === 0) {
     throw new Error("分类后没有剩余条目 — 中止");
   }
