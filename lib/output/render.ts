@@ -1075,10 +1075,26 @@ export function renderHtml(
     .about-h { margin: 0.9rem 0 0.4rem !important; }
     .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
     .about-table td, .about-table th { padding: 0.3rem 0.5rem !important; line-height: 1.5 !important; }
-    /* 行情 19 张卡片走两栏，省掉一整页 */
-    .trading-group-content { columns: 2; column-gap: 0.8rem; }
+    /* 行情 19 张卡片排成两列。
+       注意不能用 CSS columns——卡片内部的指标本身是 3 列网格，外层再套
+       多栏流式布局会让两套布局打架，实测数值与标签直接重叠。用 grid 排
+       卡片就没这个问题，每张卡片仍是独立的块。
+       同时把卡片内的指标从 3 列压到 2 列，窄栏下才排得开。 */
+    .trading-group-content {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      align-items: start;
+    }
     .ticker-card { break-inside: avoid; }
-    .ticker-indicators { font-size: 0.72rem !important; }
+    .ticker-indicators {
+      font-size: 0.7rem !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 0.2rem 0.6rem !important;
+    }
+    .ticker-indicators dt { font-size: 0.66rem !important; }
+    .ticker-head { margin-bottom: 0.3rem !important; }
+    .ticker-signals { margin-top: 0.3rem !important; }
     .report-header { margin-bottom: 0.6rem !important; }
     .report-title { font-size: 1.6rem !important; }
   }
@@ -1598,7 +1614,7 @@ export function renderHtml(
     <button class="tab active" data-tab="digest">${STR.catDigest}<span class="count">${report.top_briefs.length}</span></button>
     ${CATEGORY_ORDER.map((c) => `<button class="tab" data-tab="${c}">${CATEGORY_LABELS[c]}<span class="count">${counts[c]}</span></button>`).join("\n    ")}
     ${trading ? `<button class="tab" data-tab="trading">${STR.catTrading}<span class="count">${trading.tickers.length}</span></button>` : ""}
-    <button class="tab" data-tab="about">${STR.catAbout}</button>
+    ${SAMPLE_MODE ? "" : `<button class="tab" data-tab="about">${STR.catAbout}</button>`}
   </nav>
 
   ${SAMPLE_MODE ? `<section class="panel" data-panel="about" data-panel-label="${STR.catAbout}">
