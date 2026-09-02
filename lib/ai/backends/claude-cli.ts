@@ -109,6 +109,18 @@ export function runClaudeCli({
         finish(new Error(`claude CLI 返回 API 错误: ${head.slice(0, 160)}`));
         return;
       }
+      // 登录过期同样以退出码 0 返回一行纯文本。2026-09-02 实测：整轮 40 次
+      // 调用全部在 1 秒内"成功"返回 "Failed to authenticate: OAuth session
+      // expired..."，于是简报、摘要、行情全部为空，但流程一路绿灯跑完并把
+      // 空报告发布到了网站。必须识别成致命错误。
+      if (/^(Failed to authenticate|Not logged in|Please run \/login)/i.test(head)) {
+        finish(
+          new Error(
+            `claude 命令行未登录或登录已过期，请在终端执行 claude auth login。原始输出: ${head.slice(0, 120)}`,
+          ),
+        );
+        return;
+      }
       finish(null);
     });
 

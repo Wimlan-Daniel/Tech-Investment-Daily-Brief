@@ -13,6 +13,7 @@ import {
 } from "../lib/ai/pipeline";
 import { getModelTag, validateBackendCredentials } from "../lib/ai/llm";
 import { classifyArticles } from "../lib/ai/classify";
+import { runLlm } from "../lib/ai/llm";
 import { dedupeBySemantics } from "../lib/ai/dedupe";
 import { ALL_CATEGORIES, type Category } from "../lib/sources/types";
 import {
@@ -121,6 +122,23 @@ function loadPreviousBriefTitles(todayDate: string): string[] {
  */
 const ARCHIVE_DIR = "每日资讯留档";
 const ARCHIVE_TITLE = "前沿科技投资简报";
+
+/** 开跑前的联通性检查：一次极短的调用，失败就立即中止并给出可操作的提示。 */
+async function assertLlmUsable(): Promise<void> {
+  try {
+    const { text } = await runLlm({
+      systemPrompt: "只回复两个字：就绪",
+      userPrompt: "确认可用",
+      timeoutMs: 120_000,
+    });
+    if (!text.trim()) throw new Error("返回为空");
+    console.log("[daily] 大模型联通性检查通过");
+  } catch (e) {
+    throw new Error(
+      `大模型不可用，本轮中止：${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+}
 
 async function fetchAll(): Promise<ArticleInput[]> {
   const articles: ArticleInput[] = [];
@@ -396,6 +414,10 @@ async function main() {
 
   const date = todayKey();
   console.log(`[daily] ${date} — fetching sources…\n`);
+  // 开跑前先确认大模型可用：抓取要几分钟，等抓完才发现登录过期就白费了。
+  // 2026-09-02 实测过一次登录过期——整轮跑完才发现简报和摘要全是空的。
+  await assertLlmUsable();
+
   const fetched = await fetchAll();
   console.log(`\n[daily] total articles: ${fetched.length}`);
   if (fetched.length === 0) {
@@ -495,6 +517,17 @@ async function main() {
     JSON.stringify({ date, articles }, null, 2),
     "utf8",
   );
+  // 空简报 + 零摘要 = 这一轮的 AI 环节整体失败（多半是登录过期或限流）。
+  // 这种报告不该覆盖归档、更不该发布到网站——宁可保留昨天的，也不要让访客
+  // 看到一份「今日简报生成失败」的空页面。
+  const summarized = articles.filter((a) => a.summary).length;
+  if (report.top_briefs.length === 0 && summarized === 0) {
+    throw new Error(
+      "简报为空且无任何摘要——本轮 AI 环节整体失败，已中止写入。" +
+        "常见原因：claude 命令行登录过期（终端执行 claude auth login）或触发限流。",
+    );
+  }
+
   const html = renderHtml(report, raw, date);
   fs.writeFileSync(`${base}.html`, html, "utf8");
 
