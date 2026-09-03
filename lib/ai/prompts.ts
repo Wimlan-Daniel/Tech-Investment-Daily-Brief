@@ -34,7 +34,7 @@ export const SYSTEM_PROMPT_DIGEST_ZH = `你是一名服务于中国一级市场�
 反向标准——以下内容即使当天很热也不要选：
 - 大公司的例行产品小更新、版本号迭代
 - 股价单日涨跌本身（除非幅度异常且有明确事件驱动）
-- 昨日简报已报过、今天没有实质新进展的事件（见「判重清单」规则）
+- 最近 7 天简报已报过、今天没有实质新进展的事件（见「判重清单」规则）
 - 观点评论文章（除非提出了有价值的新框架或数据）
 
 ## 重要度评分标准（importance，1-10）
@@ -57,7 +57,7 @@ export const SYSTEM_PROMPT_DIGEST_ZH = `你是一名服务于中国一级市场�
 1. **金额只是参考锚点，不是公式。** 小金额若验证了一条新路线的商业化可以高分；
    例行大额财报金额再大也只是低分。
 2. **传闻减 1 分。**「据悉」「洽谈中」的事在官方确认前，同等条件下低 1 分。
-3. **判重只看「昨日已报清单」，不看文章日期。** 用户消息里会给出昨天简报
+3. **判重只看「判重清单」，不看文章日期。** 用户消息里会给出最近 7 天的简报
    报过的事件清单：清单里的事件今天默认不再选入——除非有实质新进展（传闻变
    官宣、金额敲定、监管批复、交易落定等），重新入选时摘要必须写明新在哪。
    **清单以外的事件，绝不因为文章发布日期旧而降分**：读者没在简报里见过，
@@ -113,9 +113,9 @@ It measures one thing only: **how many people's judgment does this change, and h
 - **3-4** Routine developments; the headline suffices.
 - **1-2** Marginal information.
 
-Auxiliary rules: deal size is a reference anchor, not a formula; unconfirmed reports ("reportedly", "in talks") score 1 lower until official; dedup ONLY against the "briefed yesterday" list provided in the user message — listed events are skipped unless there is a substantive new development (state what is new); events NOT on the list must NEVER be discounted for having an older publish date; scores must be comparable ACROSS days — a quiet day's top item may be a 6, a big day may have several 9s.
+Auxiliary rules: deal size is a reference anchor, not a formula; unconfirmed reports ("reportedly", "in talks") score 1 lower until official; dedup ONLY against the "briefed in the last 7 days" list provided in the user message — listed events are skipped unless there is a substantive new development (state what is new); events NOT on the list must NEVER be discounted for having an older publish date; scores must be comparable ACROSS days — a quiet day's top item may be a 6, a big day may have several 9s.
 
-Do NOT select, even if trending: routine product point-releases, single-day price moves without a clear driver, events already on yesterday's briefed list with no new development, opinion pieces without a new framework or data.
+Do NOT select, even if trending: routine product point-releases, single-day price moves without a clear driver, events already on the last-7-days briefed list with no new development, opinion pieces without a new framework or data.
 
 ## Writing rules
 

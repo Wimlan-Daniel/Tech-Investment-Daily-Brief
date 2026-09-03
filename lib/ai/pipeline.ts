@@ -243,10 +243,14 @@ async function callOnce(
 export async function generateDailyReport(
   articles: ArticleInput[],
   /**
-   * 昨天简报已报过的事件标题。判重的唯一依据——模型对清单里的事件默认
-   * 跳过（有实质新进展才重新入选），清单外的事件不因文章日期旧而降分。
-   * 之前用「发布日期旧就减 2 分」判重，会误伤读者从没见过的消息，
-   * 用户明确要求改为只和昨日简报比对。
+   * 最近 7 天简报已报过的事件标题（最新的在前）。判重的唯一依据——模型对
+   * 清单里的事件默认跳过（有实质新进展才重新入选），清单外的事件不因文章
+   * 日期旧而降分。
+   *
+   * 之前用「发布日期旧就减 2 分」判重，会误伤读者从没见过的消息，用户明确
+   * 要求改为只和已发布的简报比对。回溯窗口原本只有最近一期，和 7 天的候选
+   * 池窗口不匹配，导致旧文章隔几天就能再上一次头条（见 scripts/daily.ts 的
+   * loadPreviousBriefTitles 注释），已对齐为 7 天。
    */
   previousBriefTitles: string[] = [],
 ): Promise<{ report: DailyReport; tokensUsed: number }> {
@@ -278,8 +282,8 @@ export async function generateDailyReport(
   const prevBlock =
     previousBriefTitles.length > 0
       ? (REPORT_LOCALE === "en"
-          ? "Events already briefed YESTERDAY (dedup list — skip unless there is a substantive new development, and then state what is new):\n"
-          : "昨日简报已报过的事件（判重清单——除非有实质新进展否则不要再选；重新入选必须写明新进展）：\n") +
+          ? "Events already briefed in the LAST 7 DAYS (dedup list, newest first — skip unless there is a substantive new development, and then state what is new):\n"
+          : "最近 7 天的简报已报过的事件（判重清单，最新在前——除非有实质新进展否则不要再选；重新入选必须写明新进展）：\n") +
         previousBriefTitles.map((t) => `  - ${t}`).join("\n") +
         "\n"
       : "";
