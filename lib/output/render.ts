@@ -148,7 +148,22 @@ const STR = REPORT_LOCALE === "en" ? TEXTS_EN : TEXTS_ZH;
  *   · 打印时保留顶部标签栏——那是这份东西来自网页最直观的证据
  */
 const SAMPLE_MODE = process.env.SAMPLE_MODE === "true";
-const SAMPLE_ITEMS = Number(process.env.SAMPLE_ITEMS) || 5;
+const SAMPLE_ITEMS = Number(process.env.SAMPLE_ITEMS) || 8;
+
+/**
+ * 各板块单独的样本条数。
+ *
+ * 一刀切必然有的满有的空——各板块条目的摘要长度差异不小（一级市场的融资
+ * 摘要普遍比前沿技术的论文摘要长）。这组值是按实际排版逐页目测调出来的，
+ * 目标是每个板块的最后一页尽量填满，不留半页空白。
+ */
+const SAMPLE_ITEMS_BY_BOARD: Record<string, number> = {
+  "china-vc": 10,
+  "frontier-tech": 10,
+  "tech-business": 9,
+  "capital-markets": 9,
+  "global-business": 10,
+};
 const ASSET_GROUP_LABELS_LOCALIZED = getAssetGroupLabels(REPORT_LOCALE);
 
 // ----- types -----
@@ -580,7 +595,11 @@ function renderSubContent(category: Category, sub: SubGroup, isActive: boolean):
  * 那是读者真正付钱买的判断，不是新闻本身。
  */
 function renderDigestPanel(report: DailyReport): string {
-  const briefs = report.top_briefs ?? [];
+  // 样本模式下截到 8 条：实测 10 条刚好溢出到第三页且只填满 20%，
+  // 为两条内容多印一页不划算。网页版不受影响，仍是完整 10 条。
+  const SAMPLE_DIGEST = 8;
+  const all = report.top_briefs ?? [];
+  const briefs = SAMPLE_MODE ? all.slice(0, SAMPLE_DIGEST) : all;
   const overview = report.daily_overview
     ? `<p class="digest-overview">${escapeHtml(report.daily_overview)}</p>`
     : "";
@@ -600,6 +619,10 @@ function renderDigestPanel(report: DailyReport): string {
   if (briefs.length === 0 && !overview) {
     return `<p class="empty">${STR.digestEmpty}</p>`;
   }
+  const digestMore =
+    SAMPLE_MODE && all.length > briefs.length
+      ? `<p class="sample-more">本页共 ${all.length} 条，样本展示前 ${briefs.length} 条</p>`
+      : "";
 
   const cards = briefs
     .map((b, i) => {
@@ -620,7 +643,7 @@ function renderDigestPanel(report: DailyReport): string {
     })
     .join("\n");
 
-  return `${hero}${overview}${kw}<div class="digest-list">${cards}</div>${note}`;
+  return `${hero}${overview}${kw}<div class="digest-list">${cards}</div>${digestMore}${note}`;
 }
 
 /**
@@ -685,7 +708,10 @@ function renderRawCategoryPanel(
         ...sub,
         sources: sub.sources.map((src) => ({
           ...src,
-          items: src.items.slice(0, SAMPLE_ITEMS),
+          items: src.items.slice(
+            0,
+            SAMPLE_ITEMS_BY_BOARD[category] ?? SAMPLE_ITEMS,
+          ),
         })),
       }))
     : subs;
@@ -694,8 +720,8 @@ function renderRawCategoryPanel(
     0,
   );
   const moreNote =
-    SAMPLE_MODE && total > SAMPLE_ITEMS
-      ? `<p class="sample-more">本页共 ${total} 条，样本展示前 ${SAMPLE_ITEMS} 条</p>`
+    SAMPLE_MODE && total > (SAMPLE_ITEMS_BY_BOARD[category] ?? SAMPLE_ITEMS)
+      ? `<p class="sample-more">本页共 ${total} 条，样本展示前 ${SAMPLE_ITEMS_BY_BOARD[category] ?? SAMPLE_ITEMS} 条</p>`
       : "";
 
   if (shown.length === 1) {
@@ -1113,22 +1139,24 @@ export function renderHtml(
     .article { padding-bottom: 0.5rem !important; }
     /* 说明部分要收进两页：实测第三页只剩一行注脚，纯属浪费。
        再压一档行高与段距，并禁止在说明页内部分页。 */
+    /* 说明部分的目标是「正好铺满两页」——压到极限会显得局促，放太松又会
+       溢出到第三页只剩一行注脚。下面这组值是两者之间试出来的。 */
     .about-p, .about-list li {
-      line-height: 1.5 !important;
-      margin-bottom: 0.28rem !important;
-      font-size: 0.88rem !important;
+      line-height: 1.62 !important;
+      margin-bottom: 0.4rem !important;
+      font-size: 0.9rem !important;
     }
     .about-h {
-      margin: 0.65rem 0 0.28rem !important;
-      font-size: 0.98rem !important;
-      padding-bottom: 0.2rem !important;
+      margin: 0.85rem 0 0.38rem !important;
+      font-size: 1.02rem !important;
+      padding-bottom: 0.26rem !important;
     }
-    .about-title { font-size: 1.25rem !important; margin-bottom: 0.4rem !important; }
-    .about-list { margin-bottom: 0.5rem !important; }
+    .about-title { font-size: 1.35rem !important; margin-bottom: 0.5rem !important; }
+    .about-list { margin-bottom: 0.6rem !important; }
     .about-note {
-      margin-top: 0.7rem !important;
-      padding-top: 0.4rem !important;
-      font-size: 0.72rem !important;
+      margin-top: 0.9rem !important;
+      padding-top: 0.5rem !important;
+      font-size: 0.75rem !important;
     }
     .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
     .about-links { gap: 0.4rem !important; margin-bottom: 0.9rem !important; }
@@ -1137,13 +1165,13 @@ export function renderHtml(
     .about-link-label { color: #1d4ed8 !important; font-size: 0.85rem !important; }
     .about-link-url { color: #666 !important; }
     .about-table {
-      margin: 0.3rem 0 0.7rem !important;
-      font-size: 0.8rem !important;
+      margin: 0.35rem 0 0.85rem !important;
+      font-size: 0.83rem !important;
       break-inside: avoid;
     }
     .about-table td, .about-table th {
-      padding: 0.22rem 0.45rem !important;
-      line-height: 1.42 !important;
+      padding: 0.28rem 0.5rem !important;
+      line-height: 1.5 !important;
     }
     /* 行情 19 张卡片排成两列。
        注意不能用 CSS columns——卡片内部的指标本身是 3 列网格，外层再套

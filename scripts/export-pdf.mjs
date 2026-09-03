@@ -47,7 +47,7 @@ const render = spawnSync(
   ["tsx", "scripts/render.ts", date],
   {
     cwd: root,
-    env: { ...process.env, SAMPLE_MODE: "true", SAMPLE_ITEMS: process.env.SAMPLE_ITEMS ?? "5" },
+    env: { ...process.env, SAMPLE_MODE: "true", SAMPLE_ITEMS: process.env.SAMPLE_ITEMS ?? "8" },
     stdio: ["ignore", "pipe", "pipe"],
   },
 );
