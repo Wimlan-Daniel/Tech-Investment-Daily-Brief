@@ -650,6 +650,16 @@ function renderAboutPanel(): string {
     .join("")}</tbody>
 </table>`;
       }
+      case "links":
+        return `<div class="about-links">${b.items
+          .map(
+            (i) => `<a class="about-link" href="${escapeHtml(i.url)}" target="_blank" rel="noopener noreferrer">
+      <span class="about-link-label">${escapeHtml(i.label)}</span>
+      <span class="about-link-url">${escapeHtml(i.url)}</span>
+      ${i.note ? `<span class="about-link-note">${escapeHtml(i.note)}</span>` : ""}
+    </a>`,
+          )
+          .join("")}</div>`;
       case "note":
         return `<p class="about-note">${md(b.text)}</p>`;
     }
@@ -993,6 +1003,36 @@ export function renderHtml(
     background: var(--card); border-left: 3px solid var(--accent);
     padding: 0.9rem 1.1rem; margin: 0 0 1.6rem; border-radius: 0 6px 6px 0;
   }
+  .about-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+  }
+  .about-link {
+    display: block;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    background: var(--bg-elevated);
+    text-decoration: none;
+  }
+  .about-link:hover { border-color: var(--link); }
+  .about-link-label {
+    display: block; font-size: 0.9rem; font-weight: 620;
+    color: var(--link); margin-bottom: 0.15rem;
+  }
+  .about-link-url {
+    display: block; font-size: 0.72rem; color: var(--muted);
+    word-break: break-all; line-height: 1.4;
+  }
+  .about-link-note {
+    display: block; font-size: 0.75rem; color: var(--fg-soft); margin-top: 0.25rem;
+  }
+  @media (max-width: 600px) {
+    .about-links { grid-template-columns: 1fr; }
+  }
+
   .about-h {
     font-size: 1.06rem; font-weight: 650; margin: 1.7rem 0 0.6rem;
     padding-bottom: 0.35rem; border-bottom: 1px solid var(--rule);
@@ -1074,6 +1114,11 @@ export function renderHtml(
     .about-p, .about-list li { line-height: 1.62 !important; margin-bottom: 0.4rem !important; }
     .about-h { margin: 0.9rem 0 0.4rem !important; }
     .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
+    .about-links { gap: 0.4rem !important; margin-bottom: 0.9rem !important; }
+    .about-link { padding: 0.45rem 0.6rem !important; }
+    /* 打印/PDF 里链接必须看得见颜色，否则读者不知道那是可点的 */
+    .about-link-label { color: #1d4ed8 !important; font-size: 0.85rem !important; }
+    .about-link-url { color: #666 !important; }
     .about-table td, .about-table th { padding: 0.3rem 0.5rem !important; line-height: 1.5 !important; }
     /* 行情 19 张卡片排成两列。
        注意不能用 CSS columns——卡片内部的指标本身是 3 列网格，外层再套

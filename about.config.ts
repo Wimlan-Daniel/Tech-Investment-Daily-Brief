@@ -20,6 +20,7 @@ export type AboutBlock =
   | { type: "para"; text: string }
   | { type: "table"; rows: string[][] }
   | { type: "list"; items: string[] }
+  | { type: "links"; items: { label: string; url: string; note?: string }[] }
   | { type: "note"; text: string };
 
 export const ABOUT_TITLE = "前沿科技投资简报 Agent";
@@ -28,6 +29,22 @@ export const ABOUT_LEAD =
   "这是一套每天早上 8 点自动运行的资讯 Agent，从 44 个中外可靠信源抓取约 900 条资讯，用大模型逐条判断价值、剔除噪音、生成中文摘要，最后产出一份 5 分钟能读完的资讯早餐。";
 
 export const ABOUT_BLOCKS: AboutBlock[] = [
+  {
+    type: "links",
+    items: [
+      {
+        label: "在线阅读（每日自动更新）",
+        url: "https://wimlan-daniel.github.io/Tech-Investment-Daily-Brief/",
+        note: "打开即当天简报，七个板块可切换",
+      },
+      {
+        label: "源码与技术说明",
+        url: "https://github.com/Wimlan-Daniel/Tech-Investment-Daily-Brief",
+        note: "含完整实现与迭代记录",
+      },
+    ],
+  },
+
   { type: "heading", text: "项目初衷" },
   {
     type: "para",
