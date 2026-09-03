@@ -269,6 +269,36 @@
     background: var(--card); border-left: 3px solid var(--accent);
     padding: 0.9rem 1.1rem; margin: 0 0 1.6rem; border-radius: 0 6px 6px 0;
   }
+  .about-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+  }
+  .about-link {
+    display: block;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    background: var(--bg-elevated);
+    text-decoration: none;
+  }
+  .about-link:hover { border-color: var(--link); }
+  .about-link-label {
+    display: block; font-size: 0.9rem; font-weight: 620;
+    color: var(--link); margin-bottom: 0.15rem;
+  }
+  .about-link-url {
+    display: block; font-size: 0.72rem; color: var(--muted);
+    word-break: break-all; line-height: 1.4;
+  }
+  .about-link-note {
+    display: block; font-size: 0.75rem; color: var(--fg-soft); margin-top: 0.25rem;
+  }
+  @media (max-width: 600px) {
+    .about-links { grid-template-columns: 1fr; }
+  }
+
   .about-h {
     font-size: 1.06rem; font-weight: 650; margin: 1.7rem 0 0.6rem;
     padding-bottom: 0.35rem; border-bottom: 1px solid var(--rule);
@@ -347,10 +377,42 @@
     .digest-overview { padding: 0.6rem 0.8rem !important; margin-bottom: 0.7rem !important; line-height: 1.6 !important; }
     .digest-list { gap: 0.45rem !important; }
     .article { padding-bottom: 0.5rem !important; }
-    .about-p, .about-list li { line-height: 1.62 !important; margin-bottom: 0.4rem !important; }
-    .about-h { margin: 0.9rem 0 0.4rem !important; }
+    /* 说明部分要收进两页：实测第三页只剩一行注脚，纯属浪费。
+       再压一档行高与段距，并禁止在说明页内部分页。 */
+    /* 说明部分的目标是「正好铺满两页」——压到极限会显得局促，放太松又会
+       溢出到第三页只剩一行注脚。下面这组值是两者之间试出来的。 */
+    .about-p, .about-list li {
+      line-height: 1.62 !important;
+      margin-bottom: 0.4rem !important;
+      font-size: 0.9rem !important;
+    }
+    .about-h {
+      margin: 0.85rem 0 0.38rem !important;
+      font-size: 1.02rem !important;
+      padding-bottom: 0.26rem !important;
+    }
+    .about-title { font-size: 1.35rem !important; margin-bottom: 0.5rem !important; }
+    .about-list { margin-bottom: 0.6rem !important; }
+    .about-note {
+      margin-top: 0.9rem !important;
+      padding-top: 0.5rem !important;
+      font-size: 0.75rem !important;
+    }
     .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
-    .about-table td, .about-table th { padding: 0.3rem 0.5rem !important; line-height: 1.5 !important; }
+    .about-links { gap: 0.4rem !important; margin-bottom: 0.9rem !important; }
+    .about-link { padding: 0.45rem 0.6rem !important; }
+    /* 打印/PDF 里链接必须看得见颜色，否则读者不知道那是可点的 */
+    .about-link-label { color: #1d4ed8 !important; font-size: 0.85rem !important; }
+    .about-link-url { color: #666 !important; }
+    .about-table {
+      margin: 0.35rem 0 0.85rem !important;
+      font-size: 0.83rem !important;
+      break-inside: avoid;
+    }
+    .about-table td, .about-table th {
+      padding: 0.28rem 0.5rem !important;
+      line-height: 1.5 !important;
+    }
     /* 行情 19 张卡片排成两列。
        注意不能用 CSS columns——卡片内部的指标本身是 3 列网格，外层再套
        多栏流式布局会让两套布局打架，实测数值与标签直接重叠。用 grid 排
@@ -899,27 +961,27 @@
 
   
   <section class="panel active" data-panel="digest" data-panel-label="每日简报">
-    <h2 class="digest-hero">英伟达129亿美元收购Hugging Face，开源AI分发权首次易主</h2><p class="digest-overview">一级市场：月之暗面保密递表港交所，同步以500亿美元投前估值推进上市前最后一轮融资；国家人工智能产业投资基金14亿元注资可灵；清科数据显示8月投资、退出、并购共1134起、3927.31亿元。前沿技术：英伟达129亿美元收购Hugging Face，芯片厂商首次拿下开源模型分发入口；阿里Qwen3.8-Max在CodeArena前端编程榜登顶；成立8个月的墨奇获阿里、腾讯联投，估值70亿元。资本环境：日本30年期国债收益率逼近历史高位、全球长端利率齐升；韩国9190亿美元主权AI计划落地利好英伟达；中国大模型年化收入半年从40亿美元升至近130亿美元，涨价之下用量仍在放量。</p><div class="keywords"><span class="kw">#月之暗面IPO</span><span class="kw">#英伟达</span><span class="kw">#Hugging Face</span><span class="kw">#具身智能</span><span class="kw">#主权AI算力</span><span class="kw">#大模型商业化</span><span class="kw">#长端利率</span><span class="kw">#一级市场数据</span></div><div class="digest-list"><article class="digest-card">
+    <h2 class="digest-hero">月之暗面保密递表港交所，同步按500亿美元估值募最后一轮</h2><p class="digest-overview">一级市场今天的主线是退出与定价：月之暗面已保密向港交所递交A1，同时以500亿美元投前估值推进上市前最后一轮融资，接续年初智谱、MiniMax的上市窗口；清科数据显示8月境内股权市场共发生投资、退出与并购1134起，涉及3927.31亿元。具身智能仍是下注最密集的方向，成立8个月的墨奇拿到阿里、腾讯联投，估值70亿元；海外机器人感知公司Lyte以16亿美元投后估值完成1.65亿美元C轮。前沿技术出现两个方向相反的信号：阿里Qwen3.8-Max在CodeArena前端编程榜登顶，国产模型在编码能力上继续贴身追赶；而OpenAI的Astra被曝采用可隐藏推理过程的循环深度技术，模型可观测性与安全评估难度上升。资本环境方面，韩国9190亿美元级主权AI计划把算力采购与存储产能进一步锁向头部供应商，中国大模型年化收入半年内从40亿美元增至近130亿美元，且不是靠价格战换来的。</p><div class="keywords"><span class="kw">#月之暗面</span><span class="kw">#具身智能</span><span class="kw">#大模型商业化</span><span class="kw">#主权AI</span><span class="kw">#墨奇</span><span class="kw">#AfterQuery</span><span class="kw">#港股IPO</span><span class="kw">#Qwen</span></div><div class="digest-list"><article class="digest-card">
     <div class="digest-card-head">
       <span class="digest-rank">1</span>
       <span class="digest-cat">一级市场</span>
       <span class="tier tier-media">媒体报道</span>
-      <span class="digest-imp digest-imp-high">重要度 9</span>
+      <span class="digest-imp digest-imp-high">重要度 8</span>
     </div>
-    <h3 class="digest-title"><a href="http://www.geekpark.net/news/369458" target="_blank" rel="noopener noreferrer">英伟达129亿美元拿下Hugging Face，首次掌握开源AI模型分发入口</a></h3>
-    <p class="digest-source">极客公园</p>
-    <p class="digest-summary">外媒8月26日报道，英伟达与Hugging Face已达成协议，将以129亿美元收购后者。Hugging Face被称为AI界的GitHub，托管超过30万个模型，是全球开源模型的主要分发与托管平台。这是芯片厂商首次直接买下开源AI的分发入口，牵动模型托管、开发者生态与云厂商的既有分工。</p>
+    <h3 class="digest-title"><a href="https://www.huxiu.com/article/4888116.html?f=rss" target="_blank" rel="noopener noreferrer">月之暗面保密递表港交所，按500亿美元估值募上市前最后一轮</a></h3>
+    <p class="digest-source">虎嗅</p>
+    <p class="digest-summary">据晚点报道，月之暗面已以保密形式向港交所递交A1文件，正式启动港股IPO；同时公司正以500亿美元投前估值推进新一轮融资，很可能是上市前最后一轮私募。此前智谱于1月8日登陆港交所、MiniMax次日上市，独立大模型公司的资本化窗口正密集打开。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
       <span class="digest-rank">2</span>
       <span class="digest-cat">一级市场</span>
       <span class="tier tier-media">媒体报道</span>
-      <span class="digest-imp digest-imp-high">重要度 8</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
     </div>
-    <h3 class="digest-title"><a href="https://www.huxiu.com/article/4888116.html?f=rss" target="_blank" rel="noopener noreferrer">月之暗面保密递表港交所，同步以500亿美元估值推进上市前最后一轮融资</a></h3>
-    <p class="digest-source">虎嗅</p>
-    <p class="digest-summary">据晚点报道，月之暗面（Kimi）已以保密形式向港交所递交A1文件，正式启动港股IPO，同时以500亿美元投前估值推进新一轮融资，很可能是其上市前最后一轮私募。此前1月8日智谱在港交所挂牌、次日MiniMax上市，独立大模型公司的资本化窗口正被密集消耗。</p>
+    <h3 class="digest-title"><a href="http://www.geekpark.net/news/369724" target="_blank" rel="noopener noreferrer">具身智能公司墨奇估值70亿，阿里腾讯联投，自研模型主打长程执行</a></h3>
+    <p class="digest-source">极客公园</p>
+    <p class="digest-summary">成立仅8个月的具身智能公司墨奇（MORPHI）完成新一轮融资，估值达70亿元，由阿里巴巴、腾讯联合投资。其机器人MORPHI KINO在8月19日世界机器人大会上用15分钟自主完成收拾客厅、检查冰箱、取衣叠衣等七八十个连续动作，指向行业关注的长程任务执行能力，而非几十秒的抓取演示。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
@@ -928,64 +990,64 @@
       <span class="tier tier-media">媒体报道</span>
       <span class="digest-imp digest-imp-mid">重要度 7</span>
     </div>
-    <h3 class="digest-title"><a href="https://www.36kr.com/p/3966171226447107" target="_blank" rel="noopener noreferrer">中国大模型年化收入半年从40亿升至近130亿美元，涨价后用量仍大增</a></h3>
+    <h3 class="digest-title"><a href="https://www.36kr.com/p/3966171226447107" target="_blank" rel="noopener noreferrer">中国大模型年化收入半年翻三倍至130亿美元，涨价与出海驱动</a></h3>
     <p class="digest-source">36氪 创投主题</p>
-    <p class="digest-summary">2025年12月中国主要AI模型公司年化收入约40亿美元，目前已接近130亿美元，6月后增速明显提升。增长并非来自价格战：智谱API均价上涨101%，Token用量仍增40多倍；DeepSeek提价后用量未明显下滑。出海成为重要增量，MiniMax六成以上收入来自海外，Kimi海外收入已超国内。</p>
+    <p class="digest-summary">2025年12月中国主要AI模型公司年化收入约40亿美元，目前已接近130亿美元，6月后增速明显提速，且并非靠价格战：智谱今年API均价上涨101%，Token用量却增长40多倍，DeepSeek提价后用量未明显下滑。出海成为重要增量，MiniMax六成以上收入来自海外，Kimi海外收入已超国内。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
       <span class="digest-rank">4</span>
-      <span class="digest-cat">一级市场</span>
-      <span class="tier tier-media">媒体报道</span>
-      <span class="digest-imp digest-imp-mid">重要度 7</span>
-    </div>
-    <h3 class="digest-title"><a href="http://www.geekpark.net/news/369724" target="_blank" rel="noopener noreferrer">具身智能公司墨奇成立8个月估值70亿元，阿里腾讯联投并秀长程执行</a></h3>
-    <p class="digest-source">极客公园</p>
-    <p class="digest-summary">成立仅8个月的具身智能公司墨奇（MORPHI）完成新一轮融资，估值达70亿元人民币，由阿里巴巴与腾讯联合投资。8月19日世界机器人大会上，其机器人MORPHI KINO用15分钟自主完成收拾客厅、检查冰箱、取衣叠衣等七八十个连续动作且未出错，指向行业关注的长程任务执行能力。</p>
-  </article>
-<article class="digest-card">
-    <div class="digest-card-head">
-      <span class="digest-rank">5</span>
       <span class="digest-cat">科技商业</span>
       <span class="tier tier-media">媒体报道</span>
       <span class="digest-imp digest-imp-mid">重要度 7</span>
     </div>
-    <h3 class="digest-title"><a href="https://wallstreetcn.com/articles/3780930" target="_blank" rel="noopener noreferrer">韩国9190亿美元主权AI计划落地：英伟达接单，三星与海力士角色受限</a></h3>
+    <h3 class="digest-title"><a href="https://wallstreetcn.com/articles/3780930" target="_blank" rel="noopener noreferrer">韩国拟投9190亿美元建AI算力，英伟达受益、海力士产能遭锁定</a></h3>
     <p class="digest-source">华尔街见闻</p>
-    <p class="digest-summary">韩国政府7月宣布万亿美元级主权AI投资计划，拟投资9190亿美元，2029年建成8.4吉瓦数据中心算力、2035年扩至18.4吉瓦。SK集团已承诺采购2吉瓦Rubin系统，Naver签下200兆瓦订单，英伟达为主要受益方；但韩国缺乏本土前沿AI加速器供应商，三星与SK海力士主要以存储配套参与。</p>
+    <p class="digest-summary">韩国政府7月宣布万亿美元级主权AI投资计划，拟投9190亿美元，到2029年建成8.4吉瓦数据中心算力、2035年扩至18.4吉瓦。SK集团已承诺采购2吉瓦Rubin系统，Naver签下200兆瓦订单。但韩国缺乏本土前沿AI加速器供应商，据SemiAnalysis，英伟达可能已锁定SK海力士2027年部分产能。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
-      <span class="digest-rank">6</span>
+      <span class="digest-rank">5</span>
       <span class="digest-cat">全球商业</span>
       <span class="tier tier-media">媒体报道</span>
       <span class="digest-imp digest-imp-mid">重要度 7</span>
     </div>
-    <h3 class="digest-title"><a href="http://www.geekpark.net/news/369634" target="_blank" rel="noopener noreferrer">库克卸任苹果CEO，硬件工程主管特努斯9月1日正式接棒执掌公司</a></h3>
+    <h3 class="digest-title"><a href="http://www.geekpark.net/news/369634" target="_blank" rel="noopener noreferrer">库克卸任苹果CEO转任执行董事长，硬件主管特努斯正式接棒</a></h3>
     <p class="digest-source">极客公园</p>
-    <p class="digest-summary">9月1日，苹果硬件工程高级副总裁约翰·特努斯正式接任首席执行官，蒂姆·库克转任董事会执行董事长。库克自2011年起执掌苹果，在任最后一天发文向Apple社区告别。市场关注新任CEO能否延续苹果定义硬件形态的能力，以及AI战略与供应链布局的推进节奏。</p>
+    <p class="digest-summary">苹果硬件工程高级副总裁约翰·特努斯已于当地时间9月1日正式接任首席执行官，蒂姆·库克转任董事会执行董事长。库克在担任CEO的最后一天发文告别，称头衔会变但对Apple社区的热爱不变。这是苹果十五年来首次更换CEO，硬件出身的接班人选也指向公司未来的产品形态重心。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">6</span>
+      <span class="digest-cat">一级市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 6</span>
+    </div>
+    <h3 class="digest-title"><a href="https://techcrunch.com/2026/09/01/afterquery-reportedly-becomes-y-combinators-fastest-ever-unicorn-now-valued-at-3-2b/" target="_blank" rel="noopener noreferrer">AfterQuery五个月估值涨10倍至32亿美元，成YC史上最快独角兽</a></h3>
+    <p class="digest-source">TechCrunch 创投</p>
+    <p class="digest-summary">AI模型训练数据公司AfterQuery新一轮融资估值达32亿美元，成为Y Combinator历史上成长最快的独角兽。该公司今年4月刚以3亿美元估值完成3000万美元A轮，五个月内估值增长逾10倍，目前已实现盈利，由两名00后创立，为英伟达等提供训练数据。（多家报道）</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
       <span class="digest-rank">7</span>
       <span class="digest-cat">一级市场</span>
-      <span class="tier tier-media">媒体报道</span>
+      <span class="tier tier-first">第一手</span>
       <span class="digest-imp digest-imp-mid">重要度 6</span>
     </div>
-    <h3 class="digest-title"><a href="https://www.iheima.com/article-401365.html" target="_blank" rel="noopener noreferrer">AI视频生成产品可灵获国家人工智能产业投资基金14亿元注资</a></h3>
-    <p class="digest-source">i黑马</p>
-    <p class="digest-summary">AI视频生成产品可灵获得国家人工智能产业投资基金14亿元人民币注资，成为国家级基金重点支持的AI项目之一。此次注资表明视频生成方向已被纳入国家产业资本的重点配置，对该赛道后续的估值参照与跟投节奏具有指示意义。</p>
+    <h3 class="digest-title"><a href="https://free.pedata.cn/1440998437474233.html" target="_blank" rel="noopener noreferrer">清科：8月中国股权市场投资退出并购1134起，涉及金额3927亿元</a></h3>
+    <p class="digest-source">清科研究中心</p>
+    <p class="digest-summary">清科研究中心月报显示，2026年8月1日至31日，中国股权投资市场共发生投资、退出、并购事件1134起，涉及金额合计3927.31亿元。这一口径覆盖募投管退全链条，是判断当月一级市场活跃度与资金体量的基准数据。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
       <span class="digest-rank">8</span>
       <span class="digest-cat">一级市场</span>
-      <span class="tier tier-first">第一手</span>
+      <span class="tier tier-media">媒体报道</span>
       <span class="digest-imp digest-imp-mid">重要度 6</span>
     </div>
-    <h3 class="digest-title"><a href="https://free.pedata.cn/1440998437474233.html" target="_blank" rel="noopener noreferrer">清科月报：8月股权投资市场投资退出并购1134起，涉及金额3927.31亿元</a></h3>
-    <p class="digest-source">清科研究中心</p>
-    <p class="digest-summary">清科研究中心9月2日发布月度数据，2026年8月1日至31日，中国股权投资市场共发生投资、退出、并购事件1134起，涉及金额合计3927.31亿元人民币。该口径可作为观察当月一级市场活跃度与资金体量的基准参照。</p>
+    <h3 class="digest-title"><a href="https://news.crunchbase.com/venture/robotics-ai-startup-lyte-seriesc-raise-maverick/" target="_blank" rel="noopener noreferrer">机器人感知公司Lyte获1.65亿美元C轮融资，投后估值16亿美元</a></h3>
+    <p class="digest-source">Crunchbase News</p>
+    <p class="digest-summary">由前苹果工程师创立的具身智能公司Lyte完成1.65亿美元C轮融资，由Maverick Silicon领投，投后估值达16亿美元。公司专注为机器人开发传感与感知技术，属于具身智能产业链中的零部件与感知层环节。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
@@ -994,21 +1056,21 @@
       <span class="tier tier-media">媒体报道</span>
       <span class="digest-imp digest-imp-mid">重要度 6</span>
     </div>
-    <h3 class="digest-title"><a href="https://www.leiphone.com/category/industrynews/Yubz8Ft9lJUQ46S1.html" target="_blank" rel="noopener noreferrer">阿里更新Qwen3.8-Max，CodeArena前端编程1691分登顶全球总榜第一</a></h3>
-    <p class="digest-source">雷峰网</p>
-    <p class="digest-summary">9月2日阿里更新旗舰模型Qwen3.8-Max，针对编程与专业办公做了专项后训练。在聚焦前端编程能力的第三方榜单CodeArena中，新版本提升22分至1691分，位居总榜第一，领先Claude Opus 5、Kimi K3等模型，并进入该榜单的性价比帕累托前沿。</p>
+    <h3 class="digest-title"><a href="https://www.36kr.com/p/3966110738193673" target="_blank" rel="noopener noreferrer">OpenAI Astra用「循环深度」隐藏推理过程，引发失控风险担忧</a></h3>
+    <p class="digest-source">36氪 创投主题</p>
+    <p class="digest-summary">在此前Astra触及预备框架网络安全关键门槛之后，The Information援引知情人士披露新细节：该模型采用「循环深度」技术，可隐藏部分或全部推理过程。该技术能提升性能、降低成本，但使外界更难观察模型异常行为，已在OpenAI内部及行业引发担忧。对比之下，2025年1月的DeepSeek-R1曾以公开思维链著称。</p>
   </article>
 <article class="digest-card">
     <div class="digest-card-head">
       <span class="digest-rank">10</span>
-      <span class="digest-cat">资本市场</span>
+      <span class="digest-cat">前沿技术</span>
       <span class="tier tier-media">媒体报道</span>
       <span class="digest-imp digest-imp-mid">重要度 6</span>
     </div>
-    <h3 class="digest-title"><a href="https://wallstreetcn.com/articles/3780951" target="_blank" rel="noopener noreferrer">日本30年期国债拍卖成焦点，收益率4.155%逼近1999年以来最高</a></h3>
-    <p class="digest-source">华尔街见闻</p>
-    <p class="digest-summary">全球长端利率飙升之际，日本9月3日举行30年期国债拍卖，结果若疲弱冲击或外溢至全球债市。日本30年期国债收益率已升至4.155%，逼近1999年该期限推出以来高位；10年期本周首度触及3%，为三十年来最高。市场担忧首相高市早苗的扩张性财政议程，日本央行行长植田和男暗示本月会议存在加息可能。</p>
-  </article></div><aside class="digest-note"><span class="digest-note-label">编辑短评</span>今天两条线同时在收紧：模型公司抢在窗口关闭前递表上市，而开源模型的分发入口正被芯片厂商买走。上游算力与下游分发同时集中，独立模型公司的议价空间在变小。</aside>
+    <h3 class="digest-title"><a href="https://www.leiphone.com/category/industrynews/Yubz8Ft9lJUQ46S1.html" target="_blank" rel="noopener noreferrer">阿里更新Qwen3.8-Max，前端编程1691分登顶CodeArena全球第一</a></h3>
+    <p class="digest-source">雷峰网</p>
+    <p class="digest-summary">9月2日阿里更新旗舰模型Qwen3.8-Max，针对编程与专业办公做专项后训练。在聚焦前端编程能力的第三方榜单CodeArena中提升22分至1691分，居总榜第一，领先Claude Opus5、Kimi K3等模型；该榜单的性价比帕累托前沿显示其成本表现同样占优。</p>
+  </article></div><aside class="digest-note"><span class="digest-note-label">编辑短评</span>今天最值得注意的信号是定价权转移：模型公司靠涨价与出海把年化收入做到130亿美元，同时抢在窗口关闭前集体上市，一级市场对大模型的梦想溢价正在被业绩接管。</aside>
   </section>
   <section class="panel" data-panel="china-vc" data-panel-label="一级市场">
     <div class="sub-content active" data-sub-content="main" data-cat="china-vc">
@@ -2131,6 +2193,15 @@
     <div class="about">
     <h2 class="about-title">前沿科技投资简报 Agent</h2>
     <p class="about-lead">这是一套每天早上 8 点自动运行的资讯 Agent，从 44 个中外可靠信源抓取约 900 条资讯，用大模型逐条判断价值、剔除噪音、生成中文摘要，最后产出一份 5 分钟能读完的资讯早餐。</p>
+    <div class="about-links"><a class="about-link" href="https://wimlan-daniel.github.io/Tech-Investment-Daily-Brief/" target="_blank" rel="noopener noreferrer">
+      <span class="about-link-label">在线阅读（每日自动更新）</span>
+      <span class="about-link-url">https://wimlan-daniel.github.io/Tech-Investment-Daily-Brief/</span>
+      <span class="about-link-note">打开即当天简报，七个板块可切换</span>
+    </a><a class="about-link" href="https://github.com/Wimlan-Daniel/Tech-Investment-Daily-Brief" target="_blank" rel="noopener noreferrer">
+      <span class="about-link-label">源码与技术说明</span>
+      <span class="about-link-url">https://github.com/Wimlan-Daniel/Tech-Investment-Daily-Brief</span>
+      <span class="about-link-note">含完整实现与迭代记录</span>
+    </a></div>
     <h3 class="about-h">项目初衷</h3>
     <p class="about-p">做一级市场研究，信息源非常分散——融资事件在投中和 36 氪，技术进展在 arXiv 和官方博客，宏观环境在第一财经。每天挨个刷要一小时以上，噪音非常多。</p>
     <p class="about-p">现有媒体也有每日简讯合集，但它们服务的是最大公约数读者：内容按编辑部的口味筛选，赛道划分不统一，原文出处也常常要点进两三层才能找到。我想要一个更符合自己关注点、更聚焦前沿科技和一级市场、每条都能快速溯源的信息看板，所以用 Claude Code 自己搭了一个。</p>
