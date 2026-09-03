@@ -1111,15 +1111,40 @@ export function renderHtml(
     .digest-overview { padding: 0.6rem 0.8rem !important; margin-bottom: 0.7rem !important; line-height: 1.6 !important; }
     .digest-list { gap: 0.45rem !important; }
     .article { padding-bottom: 0.5rem !important; }
-    .about-p, .about-list li { line-height: 1.62 !important; margin-bottom: 0.4rem !important; }
-    .about-h { margin: 0.9rem 0 0.4rem !important; }
+    /* 说明部分要收进两页：实测第三页只剩一行注脚，纯属浪费。
+       再压一档行高与段距，并禁止在说明页内部分页。 */
+    .about-p, .about-list li {
+      line-height: 1.5 !important;
+      margin-bottom: 0.28rem !important;
+      font-size: 0.88rem !important;
+    }
+    .about-h {
+      margin: 0.65rem 0 0.28rem !important;
+      font-size: 0.98rem !important;
+      padding-bottom: 0.2rem !important;
+    }
+    .about-title { font-size: 1.25rem !important; margin-bottom: 0.4rem !important; }
+    .about-list { margin-bottom: 0.5rem !important; }
+    .about-note {
+      margin-top: 0.7rem !important;
+      padding-top: 0.4rem !important;
+      font-size: 0.72rem !important;
+    }
     .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
     .about-links { gap: 0.4rem !important; margin-bottom: 0.9rem !important; }
     .about-link { padding: 0.45rem 0.6rem !important; }
     /* 打印/PDF 里链接必须看得见颜色，否则读者不知道那是可点的 */
     .about-link-label { color: #1d4ed8 !important; font-size: 0.85rem !important; }
     .about-link-url { color: #666 !important; }
-    .about-table td, .about-table th { padding: 0.3rem 0.5rem !important; line-height: 1.5 !important; }
+    .about-table {
+      margin: 0.3rem 0 0.7rem !important;
+      font-size: 0.8rem !important;
+      break-inside: avoid;
+    }
+    .about-table td, .about-table th {
+      padding: 0.22rem 0.45rem !important;
+      line-height: 1.42 !important;
+    }
     /* 行情 19 张卡片排成两列。
        注意不能用 CSS columns——卡片内部的指标本身是 3 列网格，外层再套
        多栏流式布局会让两套布局打架，实测数值与标签直接重叠。用 grid 排
