@@ -9,6 +9,7 @@ import {
   type DailyReport,
 } from "../lib/ai/pipeline";
 import { getModelTag, validateBackendCredentials } from "../lib/ai/llm";
+import { classifyArticles } from "../lib/ai/classify";
 import { loadPreviousBriefTitles, RECENT_DAYS } from "../lib/brief-history";
 import { todayKey } from "../lib/utils";
 
@@ -28,9 +29,19 @@ const OUTPUT_DIR = "daily_reports";
  *
  * 成本：1 次调用（简报用的是 Opus），约 2-3 分钟。
  *
+ * ── --reclassify ─────────────────────────────────────────────────
+ * 分类提示词改了时加这个参数，会先把缓存里的条目重新分拣一遍再出简报。
+ * 用在「板块归类或分量打分的规则变了，想让今天这份跟上」的场合。
+ * 多花约 7 次调用、10 分钟。
+ *
+ * 有一处它救不回来：**上一轮被判 drop 的条目不在缓存里**（daily.ts 存的是
+ * 分类后保留的部分）。所以重新分拣只能改变留下来那些条目的归属与分量，
+ * 不能把之前误删的捞回来——那种情况得重跑整轮。
+ *
  * 用法：
  *   npm run regen-digest              # 今天
  *   npm run regen-digest -- 2026-09-03
+ *   npm run regen-digest -- 2026-09-03 --reclassify
  *
  * 跑完接 `npm run render <date>` 刷新网页，再按需 `npm run publish`。
  */
@@ -68,6 +79,23 @@ async function main() {
     `[regen-digest] ${date} — 用缓存的 ${articles.length} 条资讯，不重新抓取` +
       (newest ? `（最新一条发布于 ${new Date(newest).toISOString()}）` : ""),
   );
+
+  if (process.argv.includes("--reclassify")) {
+    console.log(`[regen-digest] --reclassify：重新分拣 ${articles.length} 条…`);
+    const t = Date.now();
+    const kept = await classifyArticles(articles);
+    console.log(
+      `[regen-digest] 分拣完成，耗时 ${((Date.now() - t) / 1000).toFixed(0)}s，保留 ${kept.length}/${articles.length} 条`,
+    );
+    articles.length = 0;
+    articles.push(...kept);
+    // 回写边车文件，否则 npm run render 重渲染时用的还是旧的板块归属
+    fs.writeFileSync(
+      path.join(OUTPUT_DIR, date, `${date}-articles.json`),
+      JSON.stringify({ date, articles }, null, 2),
+      "utf8",
+    );
+  }
 
   const previousTitles = loadPreviousBriefTitles(date, OUTPUT_DIR);
   console.log(
