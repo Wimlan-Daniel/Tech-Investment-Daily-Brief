@@ -101,6 +101,16 @@ export interface RawArticle {
    */
   category: Category;
   /**
+   * 分拣时顺手给的粗粒度分量，1（例行）到 5（重大），由 classify.ts 回填。
+   *
+   * 它**不是**页面上展示的 1-10 重要度——那个由简报环节单独打分。这里只是
+   * 一个排序键，用来决定「一个源当天几十条里，哪几条送进简报候选」。
+   * 之前那一步纯按时间取最新的，结果重要的事被同源的日常快讯挤掉
+   * （2026-09-04：特斯拉 Cybercab 发布会预告排在 The Information 当天第 3 新，
+   * 而 tech-business 有 129 条抢 25 个名额，每个源实际只轮得到 1 条）。
+   */
+  triageWeight?: number;
+  /**
    * LLM-generated summary in the active REPORT_LOCALE language. For zh
    * reports this is the Chinese translation/summary of an English source;
    * for en reports it'd be the English summary of a non-English source.

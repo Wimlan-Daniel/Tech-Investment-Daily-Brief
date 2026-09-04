@@ -47,7 +47,7 @@ const FALLBACK: Category = "global-business";
  */
 const SYSTEM_PROMPT = `你是一名服务于中国一级市场（VC/PE）前沿科技投资人的资讯编辑，负责把当日抓取的资讯逐条分拣到正确的板块，并剔除对他没有价值的噪音。
 
-读者画像：在中国做早中期前沿科技投资，关注人工智能、具身智能与机器人、半导体与算力、生物医药与合成生物、新能源新材料、航天与深科技。他不炒股做交易，但需要了解资本市场环境。
+读者画像：在中国做早中期前沿科技投资，关注人工智能、具身智能与机器人、智能驾驶与 Robotaxi、半导体与算力、生物医药与合成生物、新能源新材料、航天与深科技。他不炒股做交易，但需要了解资本市场环境。
 
 各板块的定义与边界：
 
@@ -61,7 +61,7 @@ ${boardDefinitionsForPrompt()}
 输出严格遵循以下 JSON，不要 markdown 包裹，不要任何前后缀说明：
 {
   "items": [
-    { "i": <输入条目的 i 值，原样回填>, "c": "<${boardIdListForPrompt()} | drop>" },
+    { "i": <输入条目的 i 值，原样回填>, "c": "<${boardIdListForPrompt()} | drop>", "w": <1-5> },
     ...
   ]
 }
@@ -70,12 +70,25 @@ ${boardDefinitionsForPrompt()}
 1. 必须为输入的**每一条**都给出结果，不能漏，不能合并，条数必须一致。
 2. i 必须严格回填输入值，不要重新编号。
 3. 每条只能归一个板块。边界模糊时，选行文重心更偏的那个，不要犹豫。
+3b. w 是这条内容的**分量**，1-5，判 drop 时填 1：
+      5 = 重大事件，改变行业格局或一条赛道的判断
+      4 = 值得专门读一读的实质进展
+      3 = 赛道内正常的一条动态
+      2 = 例行消息，扫一眼标题就够
+      1 = 边缘内容
+    它只用来决定同一个信源当天几十条里哪几条优先送进简报候选，
+    不是最终展示的重要度评分，所以给个大致档位即可，不必纠结。
+    **但要注意别被赛道热度带偏**：分量衡量的是事件本身的量级，不是它属不属于
+    当下最热的话题。又一笔 AI 融资未必比一场面向消费者的产品发布会、一条产业
+    政策落地、一款新车型量产更重要。判断标准始终是「这件事让多少人需要改变
+    判断，改变能持续多久」。实测过一次反例：特斯拉 Robotaxi 车型发布会预告
+    被判成 3，而同日四条 AI 融资全判成 5——那是跟着热度走，不是跟着量级走。
 4. 宁严勿滥：拿不准是否有价值时，倾向判 drop。读者时间有限，漏掉一条边缘内容的
    代价，远小于每天被几十条噪音淹没。
 5. 不要输出解释、理由或任何额外字段。`;
 
 interface ClassifyResult {
-  items?: { i?: number; c?: string }[];
+  items?: { i?: number; c?: string; w?: number }[];
 }
 
 const VALID = new Set<string>([...ALL_CATEGORIES, "drop"]);
@@ -93,6 +106,7 @@ export async function classifyArticles(
   if (articles.length === 0) return [];
 
   const verdict = new Map<number, string>();
+  const weights = new Map<number, number>();
   const chunks: ArticleInput[][] = [];
   for (let i = 0; i < articles.length; i += CHUNK_SIZE) {
     chunks.push(articles.slice(i, i + CHUNK_SIZE));
@@ -134,6 +148,10 @@ export async function classifyArticles(
           if (typeof it?.i !== "number" || typeof it?.c !== "string") continue;
           if (!VALID.has(it.c)) continue;
           verdict.set(it.i, it.c);
+          // w 缺失或越界就不记，取用时按默认档处理——分量只是排序键，
+          // 少了几个不影响正确性，没必要为它判整批失败。
+          const w = Number(it.w);
+          if (Number.isFinite(w) && w >= 1 && w <= 5) weights.set(it.i, w);
           hits++;
         }
         console.log(
@@ -185,6 +203,9 @@ export async function classifyArticles(
     } else {
       a.category = c as Category;
     }
+    // 没给分量的按 3（中位）算，这样它既不会被优先送进候选，
+    // 也不会被排到所有有分量的条目后面。
+    a.triageWeight = weights.get(idx) ?? 3;
     tally[a.category] = (tally[a.category] ?? 0) + 1;
     kept.push(a);
   }

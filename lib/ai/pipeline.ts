@@ -64,13 +64,18 @@ export interface ArticleInput extends RawArticle {
 /**
  * 送进简报生成的候选条数上限（按板块）。这是给 LLM 的输入量，不是页面展示量。
  * 一级市场是读者最关心的，给最多配额。
+ *
+ * 2026-09-04 上调：那天各板块进池条数是 49 / 97 / 129 / 71 / 27，而名额只有
+ * 30 / 25 / 25 / 15 / 15——tech-business 相当于 129 抢 25，砍掉八成。
+ * 配合 selectRoundRobin 改按分量排序，这里再放宽一档，让候选池不至于窄到
+ * 一个源只能进一条。代价是简报那一次调用的输入多约 20%，只此一次调用。
  */
 const PER_CATEGORY_LIMIT: Record<Category, number> = {
   "china-vc": 30,
-  "frontier-tech": 25,
-  "tech-business": 25,
-  "capital-markets": 15,
-  "global-business": 15,
+  "frontier-tech": 30,
+  "tech-business": 35,
+  "capital-markets": 20,
+  "global-business": 20,
 };
 
 const MAX_AGE_DAYS = 14;
@@ -84,9 +89,18 @@ const MAX_AGE_DAYS = 14;
  * Hacker News before GitHub Trending / Solidot / V2EX / 阮一峰 got a turn.
  *
  * Strategy: drop items older than MAX_AGE_DAYS, group by sourceId,
- * sort each bucket newest-first, then round-robin one item per source
- * until we hit the limit. Sources with fewer items naturally drop out
- * and others absorb the slack.
+ * sort each bucket, then round-robin one item per source until we hit the
+ * limit. Sources with fewer items naturally drop out and others absorb
+ * the slack.
+ *
+ * ── 桶内为什么不按时间排 ─────────────────────────────────────────
+ * 原本按「最新优先」。问题是轮转一圈通常就填满了名额，等于每个源只能进
+ * **它当天最新的那一条**，那条是不是重要完全看运气。
+ * 2026-09-04 实测：特斯拉 Cybercab 发布会预告（The Information）是那天该源
+ * 第 3 新的条目，而 tech-business 有 129 条抢 25 个名额，一轮就满，于是这条
+ * 根本没送到简报模型面前——不是模型没选它，是它压根没上桌。
+ * 改成先按 classify 阶段给的 triageWeight（1-5 分量）排，同分再按时间。
+ * 那一步本来就要逐条读一遍，顺手给个档位几乎不花额外成本。
  */
 function selectRoundRobin(
   items: ArticleInput[],
@@ -104,10 +118,11 @@ function selectRoundRobin(
     bySource.set(it.sourceId, arr);
   }
   for (const arr of bySource.values()) {
-    arr.sort(
-      (a, b) =>
-        (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0),
-    );
+    arr.sort((a, b) => {
+      const dw = (b.triageWeight ?? 3) - (a.triageWeight ?? 3);
+      if (dw !== 0) return dw;
+      return (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0);
+    });
   }
 
   const buckets = Array.from(bySource.values());
