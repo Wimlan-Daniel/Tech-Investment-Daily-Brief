@@ -172,27 +172,29 @@ function installMacOS(at) {
     <key>WorkingDirectory</key>
     <string>${projectRoot}</string>
     <!--
-      注册 4 个时段而不是 1 个，做补跑。
-      笔记本用电池深睡眠时，launchd 只能在机器某次醒来时补触发；而那种
-      唤醒往往是 DarkWake，机器几十秒后又睡回去，任务被冻在半路。
-      2026-09-04 实测：08:00 的任务在 08:14 的 DarkWake 里启动，机器立刻
-      又睡，那次 LLM 调用被冻了 34 分钟才超时中止。
-      后面 3 次是兜底：run-daily.mjs 开头会检查今天的报告在不在，在就直接
-      退出，所以正常日子它们只是空跑一下，不花额度也不动任何文件。
+      两个触发器配合，解决「机器在睡觉所以 8 点没跑成」。
+
+      StartCalendarInterval —— 正常那一次。机器醒着时准点触发。
+
+      StartInterval —— 补跑网，每 30 分钟一次。launchd 的规则是：睡眠期间
+      错过的触发会在机器**醒来时立刻**补上，所以合盖一上午、中午掀开盖子，
+      几秒内就会跑起来，不用等到下一个整点。
+      为什么不用多加几个整点：整点触发的相位固定，掀开盖子的时刻是随机的，
+      间隔触发才能保证「一开机就做」。
+
+      两道闸门在 run-daily.mjs 开头：今天的报告已存在就退出，当前时刻早于
+      计划时刻也退出（否则半夜 0 点掀盖会生成一份几乎没有当天新闻的简报，
+      还会把早上 8 点那次挡掉）。所以正常日子这 47 次补跑都是 0.04 秒空转。
     -->
     <key>StartCalendarInterval</key>
-    <array>
-${[0, 1, 2, 3]
-  .map(
-    (offset) => `        <dict>
-            <key>Hour</key>
-            <integer>${(hour + offset) % 24}</integer>
-            <key>Minute</key>
-            <integer>${minute}</integer>
-        </dict>`,
-  )
-  .join("\n")}
-    </array>
+    <dict>
+        <key>Hour</key>
+        <integer>${hour}</integer>
+        <key>Minute</key>
+        <integer>${minute}</integer>
+    </dict>
+    <key>StartInterval</key>
+    <integer>1800</integer>
     <!--
       launchd 不读 ~/.zshrc，默认 PATH 只有 /usr/bin:/bin:/usr/sbin:/sbin。
       claude CLI（以及用户目录下的 node）不在里面，不显式注入的话定时任务会
@@ -208,6 +210,9 @@ ${[0, 1, 2, 3]
         <string>${claudeCliPath}</string>
         <key>HOME</key>
         <string>${os.homedir()}</string>
+        <!-- run-daily.mjs 用它判断「现在是不是还没到点」，见那边的闸门注释 -->
+        <key>DAILY_BRIEF_EARLIEST_HOUR</key>
+        <string>${hour}</string>
     </dict>
     <key>StandardOutPath</key>
     <string>${logOut}</string>

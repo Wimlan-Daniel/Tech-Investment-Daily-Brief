@@ -44,22 +44,29 @@ const logDir = path.join(projectRoot, "logs");
 fs.mkdirSync(logDir, { recursive: true });
 const logFile = path.join(logDir, `daily-${today}.log`);
 
-// 今天的报告已经生成过就直接退出。
+// ── 两道闸门 ────────────────────────────────────────────────────
+// 定时任务除了每天 08:00 的准点触发，还挂了一个每 30 分钟的 StartInterval
+// 作为补跑网（见 scripts/install.mjs）。launchd 会把睡眠期间错过的间隔触发
+// 在**机器醒来时立刻**补上，所以合盖一上午、中午掀开盖子几秒内就会跑起来。
 //
-// 定时任务注册了 08/09/10/11 四个时段做补跑（见 scripts/install.mjs）：
-// 笔记本用电池深睡眠时，8 点那次很可能是在 DarkWake 里启动、机器随即又睡，
-// 任务被冻在半路（2026-09-04 实测，一次 LLM 调用被冻 34 分钟才超时）。
-// 正常日子 8 点就跑完了，后面三次在这里空跑退出——不花额度、不动任何文件。
+// 代价是一天要触发约 48 次，绝大多数应该什么都不做。两道闸门：
 //
-// 判断依据是 HTML 在不在：daily.ts 在简报为空且零摘要时会拒绝写文件，
-// 所以「有 HTML」等于「这一轮真的成了」，失败的轮次不会挡住补跑。
+//   闸门一：今天的报告已存在 → 退出。
+//     判断依据是 HTML 在不在——daily.ts 在简报为空且零摘要时会拒绝写文件，
+//     所以「有 HTML」正好等于「这轮真的成了」，失败的轮次不会挡住补跑。
+//
+//   闸门二：现在还没到计划时刻 → 退出。
+//     少了这道，半夜 0 点掀一下盖子就会生成一份几乎没有当天新闻的简报，
+//     而且因为闸门一，早上 8 点那次反而会被挡掉。
+//
+// 两种跳过都不写日志：一天 47 次「已跳过」会把日志淹掉，而日志是用来查
+// 「哪一轮跑了、结果如何」的。要确认今天跑没跑，看 daily_reports/<日期>/ 即可。
 const force = process.argv.includes("--force");
 const todayHtml = path.join(projectRoot, "daily_reports", today, `${today}.html`);
-if (!force && fs.existsSync(todayHtml)) {
-  fs.appendFileSync(
-    logFile,
-    `[${now()}] 今天的报告已存在，跳过本次补跑（要强制重跑加 --force）\n`,
-  );
+if (!force && fs.existsSync(todayHtml)) process.exit(0);
+
+const earliestHour = Number(process.env.DAILY_BRIEF_EARLIEST_HOUR ?? 8);
+if (!force && Number.isFinite(earliestHour) && new Date().getHours() < earliestHour) {
   process.exit(0);
 }
 
