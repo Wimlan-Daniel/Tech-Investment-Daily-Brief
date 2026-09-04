@@ -480,7 +480,7 @@
     "id": "thecapital",
     "name": "融中财经",
     "type": "scrape",
-    "url": "https://www.thecapital.com.cn/",
+    "url": "https://www.thecapital.com.cn/home/0",
     "category": "china-vc",
     "tier": "media",
     "subcategory": "main",
@@ -489,7 +489,7 @@
     "locales": [
       "zh"
     ],
-    "notes": "《融资中国》杂志官网。内容偏机构动态、基金募集、LP/GP 关系，是 36氪和投中覆盖较薄的角度。必须抓首页——/news 子页是纯前端路由抓不到内容。见 lib/sources/thecapital.ts。"
+    "notes": "《融资中国》杂志官网。内容偏机构动态、基金募集、LP/GP 关系，是 36氪和投中覆盖较薄的角度。2026-09-04 站点迁到 Nuxt 3：首页 / 只剩跳转壳子，列表改在 /home/0 的 __NUXT_DATA__ JSON 里，详情页地址也从 /newsDetail/{id} 变成 /news/{id}。见 lib/sources/thecapital.ts。"
   },
   {
     "id": "yicai",
