@@ -44,6 +44,25 @@ const logDir = path.join(projectRoot, "logs");
 fs.mkdirSync(logDir, { recursive: true });
 const logFile = path.join(logDir, `daily-${today}.log`);
 
+// 今天的报告已经生成过就直接退出。
+//
+// 定时任务注册了 08/09/10/11 四个时段做补跑（见 scripts/install.mjs）：
+// 笔记本用电池深睡眠时，8 点那次很可能是在 DarkWake 里启动、机器随即又睡，
+// 任务被冻在半路（2026-09-04 实测，一次 LLM 调用被冻 34 分钟才超时）。
+// 正常日子 8 点就跑完了，后面三次在这里空跑退出——不花额度、不动任何文件。
+//
+// 判断依据是 HTML 在不在：daily.ts 在简报为空且零摘要时会拒绝写文件，
+// 所以「有 HTML」等于「这一轮真的成了」，失败的轮次不会挡住补跑。
+const force = process.argv.includes("--force");
+const todayHtml = path.join(projectRoot, "daily_reports", today, `${today}.html`);
+if (!force && fs.existsSync(todayHtml)) {
+  fs.appendFileSync(
+    logFile,
+    `[${now()}] 今天的报告已存在，跳过本次补跑（要强制重跑加 --force）\n`,
+  );
+  process.exit(0);
+}
+
 fs.appendFileSync(logFile, `[${now()}] running npm run daily\n`);
 
 // `shell: true` lets us write 'npm' instead of resolving npm.cmd vs npm
@@ -52,9 +71,15 @@ fs.appendFileSync(logFile, `[${now()}] running npm run daily\n`);
 // 用 caffeinate 包住整轮：macOS 定时任务把机器从睡眠唤醒后，若无电源断言
 // 会很快回到 DarkWake/Sleep 循环，网络随之中断。2026-08-31 实测：08:03 启动，
 // 前 15 个源正常，之后连续 27 个源全部 curl 失败，而同样的地址手动测全部 200。
-//   -i 阻止空闲睡眠  -m 阻止磁盘休眠  -s 阻止系统睡眠（接电源时生效）
-//   -w <pid> 绑定到子进程生命周期，跑完自动释放，不会永久阻止睡眠
-const child = spawn("caffeinate", ["-ims", "npm", "run", "daily"], {
+//   -i 阻止空闲睡眠  -m 阻止磁盘休眠  -s 阻止系统睡眠（**仅接电源时生效**）
+//   -u 声明「用户处于活跃状态」
+//
+// 2026-09-04 补上 -u。那天早上机器用电池深睡眠，08:14 被定时器叫成 DarkWake，
+// 任务刚起来机器就睡回去了。-i/-m 只挡空闲睡眠，-s 在电池上根本不生效，
+// 三个加起来都拉不住一次 DarkWake。-u 会把 DarkWake 提升成完整唤醒，
+// 这是电池供电下唯一可靠的办法。
+// 副作用：屏幕会亮（合盖时无影响）。跑完断言自动释放。
+const child = spawn("caffeinate", ["-imsu", "npm", "run", "daily"], {
   cwd: projectRoot,
   shell: true,
   stdio: ["ignore", "pipe", "pipe"],

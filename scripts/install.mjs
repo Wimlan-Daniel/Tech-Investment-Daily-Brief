@@ -171,13 +171,28 @@ function installMacOS(at) {
     </array>
     <key>WorkingDirectory</key>
     <string>${projectRoot}</string>
+    <!--
+      注册 4 个时段而不是 1 个，做补跑。
+      笔记本用电池深睡眠时，launchd 只能在机器某次醒来时补触发；而那种
+      唤醒往往是 DarkWake，机器几十秒后又睡回去，任务被冻在半路。
+      2026-09-04 实测：08:00 的任务在 08:14 的 DarkWake 里启动，机器立刻
+      又睡，那次 LLM 调用被冻了 34 分钟才超时中止。
+      后面 3 次是兜底：run-daily.mjs 开头会检查今天的报告在不在，在就直接
+      退出，所以正常日子它们只是空跑一下，不花额度也不动任何文件。
+    -->
     <key>StartCalendarInterval</key>
-    <dict>
-        <key>Hour</key>
-        <integer>${hour}</integer>
-        <key>Minute</key>
-        <integer>${minute}</integer>
-    </dict>
+    <array>
+${[0, 1, 2, 3]
+  .map(
+    (offset) => `        <dict>
+            <key>Hour</key>
+            <integer>${(hour + offset) % 24}</integer>
+            <key>Minute</key>
+            <integer>${minute}</integer>
+        </dict>`,
+  )
+  .join("\n")}
+    </array>
     <!--
       launchd 不读 ~/.zshrc，默认 PATH 只有 /usr/bin:/bin:/usr/sbin:/sbin。
       claude CLI（以及用户目录下的 node）不在里面，不显式注入的话定时任务会
