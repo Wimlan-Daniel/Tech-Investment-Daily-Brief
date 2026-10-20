@@ -1,0 +1,2312 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>前沿科技 · 投资简报 · 2026-10-20</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --bg-elevated: #ffffff;
+    --fg: #18181b;
+    --fg-soft: #3f3f46;
+    --muted: #71717a;
+    --rule: #e4e4e7;
+    --card: #f4f4f5;
+    --link: #1d4ed8;
+    --accent: #18181b;
+    --accent-fg: #fafaf9;
+    --rank-high-bg: #fee2e2;
+    --rank-high-fg: #991b1b;
+    --rank-mid-bg: #fef3c7;
+    --rank-mid-fg: #92400e;
+    --rank-low-bg: #e0e7ff;
+    --rank-low-fg: #3730a3;
+    --hero-grad-from: #fafaf9;
+    --hero-grad-to: #f4f4f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0a0a;
+      --bg-elevated: #18181b;
+      --fg: #fafafa;
+      --fg-soft: #d4d4d8;
+      --muted: #a1a1aa;
+      --rule: #27272a;
+      --card: #18181b;
+      --link: #93c5fd;
+      --accent: #fafafa;
+      --accent-fg: #0a0a0a;
+      --rank-high-bg: rgba(239,68,68,0.18);
+      --rank-high-fg: #fca5a5;
+      --rank-mid-bg: rgba(245,158,11,0.18);
+      --rank-mid-fg: #fcd34d;
+      --rank-low-bg: rgba(99,102,241,0.18);
+      --rank-low-fg: #a5b4fc;
+      --hero-grad-from: #18181b;
+      --hero-grad-to: #0a0a0a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  /* ===== header ===== */
+  header.report-header { margin-bottom: 1.25rem; }
+  .eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  h1.report-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0.4rem 0 1.2rem;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .archive-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--rule);
+    padding-bottom: 1px;
+  }
+  .archive-link:hover { color: var(--accent); border-bottom-style: solid; }
+  .hero-card {
+    background: linear-gradient(135deg, var(--hero-grad-from) 0%, var(--hero-grad-to) 100%);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+    padding: 1rem 1.4rem;
+    border-radius: 0.6rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .hero-headline {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0.35rem 0 0;
+    line-height: 1.45;
+    color: var(--fg);
+  }
+  .overview-card {
+    margin: 0.7rem 0 0;
+    padding: 0.7rem 1.1rem;
+    background: var(--card);
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--muted);
+  }
+  .overview-card .eyebrow { display: block; margin-bottom: 0.3rem; }
+  .overview-text {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--fg-soft);
+  }
+
+  /* ===== primary tabs ===== */
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin: 1.25rem 0 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    flex-wrap: wrap;
+  }
+  .tab {
+    background: none;
+    border: none;
+    padding: 0.7rem 1.1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--fg); }
+  .tab.active {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+  }
+  .tab .count {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-left: 0.4rem;
+    font-weight: 400;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ===== digest (AI 简报) — compact ===== */
+  .digest-category { margin-bottom: 1.1rem; }
+  .category-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    margin: 0 0 0.55rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .category-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--fg);
+    margin: 0;
+    letter-spacing: 0.05em;
+  }
+  .category-count {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--card);
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+  }
+  .brief-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  @media (min-width: 720px) {
+    .brief-list { grid-template-columns: 1fr 1fr; }
+  }
+  .brief {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    padding: 0.7rem 0.95rem;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .brief:hover {
+    border-color: var(--muted);
+    transform: translateY(-1px);
+  }
+  .brief-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.3rem;
+  }
+  .brief-source {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .brief-rank {
+    font-size: 0.7rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .brief-rank.high { background: var(--rank-high-bg); color: var(--rank-high-fg); }
+  .brief-rank.mid  { background: var(--rank-mid-bg);  color: var(--rank-mid-fg); }
+  .brief-rank.low  { background: var(--rank-low-bg);  color: var(--rank-low-fg); }
+  .brief-title {
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin: 0 0 0.3rem;
+    line-height: 1.35;
+  }
+  .brief-title a { color: var(--fg); text-decoration: none; }
+  .brief-title a:hover { color: var(--link); text-decoration: underline; }
+  .brief-summary {
+    margin: 0;
+    color: var(--fg-soft);
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .editor-card {
+    background: var(--card);
+    border-left: 3px solid var(--muted);
+    border-radius: 0.5rem;
+    padding: 1rem 1.3rem;
+    margin: 1.5rem 0 1.2rem;
+  }
+  .editor-card .eyebrow { display: block; margin-bottom: 0.4rem; }
+  .editor-text {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--fg);
+  }
+  .sample-more {
+    margin: 1rem 0 0;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--rule);
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* ===== 关于本项目页 ===== */
+  .about { max-width: 46rem; }
+  .about-title { font-size: 1.5rem; font-weight: 680; margin: 0.2rem 0 0.8rem; letter-spacing: -0.01em; }
+  .about-lead {
+    font-size: 1rem; line-height: 1.85; color: var(--fg-soft);
+    background: var(--card); border-left: 3px solid var(--accent);
+    padding: 0.9rem 1.1rem; margin: 0 0 1.6rem; border-radius: 0 6px 6px 0;
+  }
+  .about-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+  }
+  .about-link {
+    display: block;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    background: var(--bg-elevated);
+    text-decoration: none;
+  }
+  .about-link:hover { border-color: var(--link); }
+  .about-link-label {
+    display: block; font-size: 0.9rem; font-weight: 620;
+    color: var(--link); margin-bottom: 0.15rem;
+  }
+  .about-link-url {
+    display: block; font-size: 0.72rem; color: var(--muted);
+    word-break: break-all; line-height: 1.4;
+  }
+  .about-link-note {
+    display: block; font-size: 0.75rem; color: var(--fg-soft); margin-top: 0.25rem;
+  }
+  @media (max-width: 600px) {
+    .about-links { grid-template-columns: 1fr; }
+  }
+
+  .about-h {
+    font-size: 1.06rem; font-weight: 650; margin: 1.7rem 0 0.6rem;
+    padding-bottom: 0.35rem; border-bottom: 1px solid var(--rule);
+  }
+  .about-p { font-size: 0.94rem; line-height: 1.9; color: var(--fg-soft); margin: 0 0 0.85rem; }
+  .about-list { margin: 0 0 0.9rem; padding-left: 1.3rem; }
+  .about-list li { font-size: 0.94rem; line-height: 1.85; color: var(--fg-soft); margin-bottom: 0.4rem; }
+  .about-table {
+    width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.2rem;
+    font-size: 0.88rem; display: block; overflow-x: auto;
+  }
+  .about-table th, .about-table td {
+    border: 1px solid var(--rule); padding: 0.5rem 0.7rem;
+    text-align: left; vertical-align: top; line-height: 1.7;
+  }
+  .about-table th { background: var(--card); font-weight: 620; white-space: nowrap; }
+  .about-table td:first-child { white-space: nowrap; font-weight: 550; color: var(--fg); }
+  .about-table td { color: var(--fg-soft); }
+  .about-note {
+    margin: 1.6rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--rule);
+    font-size: 0.8rem; color: var(--muted);
+  }
+
+  /* ===== 打印 / 导出 PDF =====
+     网页靠标签页切换，未激活的板块被 display:none 藏起来。直接打印会只剩
+     当前一页，其余全部消失。所以打印时把所有板块展开、隐藏交互控件，并在
+     每个板块前插入标题和分页符，让 PDF 有清晰的章节结构。 */
+  @media print {
+    /* 标签栏保留——它是这份 PDF 来自网页最直观的证据。做成静态导航条，
+       出现在每页顶部（position: fixed 在打印时会被浏览器重复到每页）。*/
+    .sub-tabs, .source-tabs, .trading-group-tab { display: none !important; }
+    .tabs {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      padding: 0 0 0.5rem;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 1.2rem;
+    }
+    .tabs .tab {
+      border: none !important;
+      background: none !important;
+      color: #999 !important;
+      font-size: 0.78rem !important;
+      padding: 0 !important;
+    }
+    .tabs .tab .count { color: #bbb !important; }
+    .panel { display: block !important; page-break-before: always; }
+    .panel:first-of-type { page-break-before: avoid; }
+    .sub-content, .source-content, .trading-group-content { display: block !important; }
+    .panel::before {
+      content: attr(data-panel-label);
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid #333;
+    }
+    .article, .digest-card, .ticker-card { page-break-inside: avoid; }
+    a { text-decoration: none; color: inherit; }
+    body { background: #fff; }
+
+    /* 压紧排版：文字量只有 9 页，但默认间距撑到 23 页。屏幕上留白是舒适，
+       打印出来就是浪费纸。收紧卡片内外边距与行高，并让行情卡片走两栏。 */
+    main { padding: 0 !important; max-width: none !important; }
+    .digest-card, .article, .ticker-card {
+      margin-bottom: 0.5rem !important;
+      padding: 0.5rem 0.65rem !important;
+    }
+    .digest-summary, .digest-why, .article-summary, .article-excerpt {
+      line-height: 1.55 !important;
+      margin-bottom: 0.3rem !important;
+    }
+    .digest-hero { font-size: 1.15rem !important; margin-bottom: 0.5rem !important; }
+    .digest-overview { padding: 0.6rem 0.8rem !important; margin-bottom: 0.7rem !important; line-height: 1.6 !important; }
+    .digest-list { gap: 0.45rem !important; }
+    .article { padding-bottom: 0.5rem !important; }
+    /* 说明部分要收进两页：实测第三页只剩一行注脚，纯属浪费。
+       再压一档行高与段距，并禁止在说明页内部分页。 */
+    /* 说明部分的目标是「正好铺满两页」——压到极限会显得局促，放太松又会
+       溢出到第三页只剩一行注脚。下面这组值是两者之间试出来的。 */
+    .about-p, .about-list li {
+      line-height: 1.62 !important;
+      margin-bottom: 0.4rem !important;
+      font-size: 0.9rem !important;
+    }
+    .about-h {
+      margin: 0.85rem 0 0.38rem !important;
+      font-size: 1.02rem !important;
+      padding-bottom: 0.26rem !important;
+    }
+    .about-title { font-size: 1.35rem !important; margin-bottom: 0.5rem !important; }
+    .about-list { margin-bottom: 0.6rem !important; }
+    .about-note {
+      margin-top: 0.9rem !important;
+      padding-top: 0.5rem !important;
+      font-size: 0.75rem !important;
+    }
+    .about-lead { padding: 0.6rem 0.8rem !important; margin-bottom: 0.8rem !important; line-height: 1.6 !important; }
+    .about-links { gap: 0.4rem !important; margin-bottom: 0.9rem !important; }
+    .about-link { padding: 0.45rem 0.6rem !important; }
+    /* 打印/PDF 里链接必须看得见颜色，否则读者不知道那是可点的 */
+    .about-link-label { color: #1d4ed8 !important; font-size: 0.85rem !important; }
+    .about-link-url { color: #666 !important; }
+    .about-table {
+      margin: 0.35rem 0 0.85rem !important;
+      font-size: 0.83rem !important;
+      break-inside: avoid;
+    }
+    .about-table td, .about-table th {
+      padding: 0.28rem 0.5rem !important;
+      line-height: 1.5 !important;
+    }
+    /* 行情 19 张卡片排成两列。
+       注意不能用 CSS columns——卡片内部的指标本身是 3 列网格，外层再套
+       多栏流式布局会让两套布局打架，实测数值与标签直接重叠。用 grid 排
+       卡片就没这个问题，每张卡片仍是独立的块。
+       同时把卡片内的指标从 3 列压到 2 列，窄栏下才排得开。 */
+    .trading-group-content {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      align-items: start;
+    }
+    .ticker-card { break-inside: avoid; }
+    .ticker-indicators {
+      font-size: 0.7rem !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 0.2rem 0.6rem !important;
+    }
+    .ticker-indicators dt { font-size: 0.66rem !important; }
+    .ticker-head { margin-bottom: 0.3rem !important; }
+    .ticker-signals { margin-top: 0.3rem !important; }
+    .report-header { margin-bottom: 0.6rem !important; }
+    .report-title { font-size: 1.6rem !important; }
+  }
+
+  /* ===== 每日简报页 ===== */
+  .digest-hero {
+    font-size: 1.45rem;
+    line-height: 1.4;
+    font-weight: 650;
+    margin: 0.2rem 0 0.9rem;
+    letter-spacing: -0.01em;
+  }
+  .digest-overview {
+    font-size: 0.98rem;
+    line-height: 1.85;
+    color: var(--fg-soft);
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    padding: 0.9rem 1.1rem;
+    margin: 0 0 1.1rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .kw {
+    background: var(--card);
+    color: var(--muted);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+  }
+  .digest-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 0.4rem 0 1.4rem; }
+  .digest-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 0.95rem 1.05rem;
+  }
+  .digest-card-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
+  }
+  .digest-rank {
+    background: var(--accent);
+    color: var(--accent-fg);
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .digest-cat {
+    background: var(--card);
+    color: var(--fg-soft);
+    padding: 0.14rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 500;
+  }
+  .digest-imp { padding: 0.14rem 0.5rem; border-radius: 4px; font-size: 0.72rem; margin-left: auto; }
+  .digest-imp-high { background: var(--rank-high-bg); color: var(--rank-high-fg); }
+  .digest-imp-mid  { background: var(--rank-mid-bg);  color: var(--rank-mid-fg); }
+  .digest-imp-low  { background: var(--rank-low-bg);  color: var(--rank-low-fg); }
+  .digest-title { font-size: 1.02rem; line-height: 1.5; margin: 0 0 0.25rem; font-weight: 600; }
+  .digest-title a { color: var(--fg); text-decoration: none; }
+  .digest-title a:hover { color: var(--link); text-decoration: underline; }
+  .digest-source { font-size: 0.76rem; color: var(--muted); margin: 0 0 0.45rem; }
+  .digest-summary { font-size: 0.9rem; line-height: 1.75; color: var(--fg-soft); margin: 0 0 0.5rem; }
+  .digest-why {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--fg);
+    background: var(--card);
+    padding: 0.55rem 0.75rem;
+    border-radius: 5px;
+    margin: 0;
+  }
+  .digest-why-label {
+    font-weight: 650;
+    margin-right: 0.4rem;
+    color: var(--accent);
+  }
+  .digest-note {
+    border-top: 1px solid var(--rule);
+    padding-top: 0.9rem;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--fg-soft);
+  }
+  .digest-note-label { font-weight: 650; margin-right: 0.4rem; color: var(--fg); }
+
+  /* ===== 信源层级标注 ===== */
+  .tier {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-right: 0.45rem;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .ticker-driver {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--fg-soft);
+    background: var(--card);
+    padding: 0.5rem 0.7rem;
+    border-radius: 5px;
+    margin: 0.6rem 0 0;
+  }
+  .ticker-driver-label { font-weight: 650; margin-right: 0.4rem; color: var(--accent); }
+  .tier-lang { background: #ede9fe; color: #5b21b6; }
+  .tier-first { background: #dcfce7; color: #166534; }
+  .tier-media { background: var(--card); color: var(--muted); }
+  @media (prefers-color-scheme: dark) {
+    .tier-first { background: #14532d; color: #bbf7d0; }
+    .tier-lang { background: #3b0764; color: #ddd6fe; }
+  }
+
+  .keywords { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.5rem; }
+  .keyword {
+    background: var(--card);
+    color: var(--fg-soft);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+  }
+
+  /* ===== L2 sub-tabs ===== */
+  .sub-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1rem 0;
+  }
+  .sub-tab {
+    background: var(--card);
+    border: 1px solid transparent;
+    padding: 0.5rem 1.05rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--fg-soft);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .sub-tab:hover { border-color: var(--muted); color: var(--fg); }
+  .sub-tab.active {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .sub-tab .count {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    margin-left: 0.4rem;
+    font-weight: 400;
+  }
+  .sub-content { display: none; }
+  .sub-content.active { display: block; }
+
+  /* ===== L3 source-tabs ===== */
+  .source-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.9rem 0 1.3rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .source-tab {
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.83rem;
+    color: var(--fg-soft);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .source-tab:hover { border-color: var(--muted); color: var(--fg); }
+  .source-tab.active {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  .source-tab .count {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    margin-left: 0.3rem;
+  }
+  .source-content { display: none; }
+  .source-content.active { display: block; }
+
+  /* ===== article cards in raw panels ===== */
+  .article {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .article:first-child { padding-top: 0; }
+  .article:last-child { border-bottom: none; }
+  .article-title {
+    font-size: 1rem;
+    margin: 0 0 0.3rem;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .article-title a { color: var(--fg); text-decoration: none; }
+  .article-title a:hover { color: var(--link); text-decoration: underline; }
+  .article-meta { color: var(--muted); font-size: 0.76rem; margin: 0 0 0.35rem; }
+  .article-stats {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin: 0 0 0.4rem;
+    font-feature-settings: "tnum";
+  }
+  .article-excerpt {
+    margin: 0;
+    color: var(--fg-soft);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .article-summary {
+    margin: 0.55rem 0 0;
+    padding: 0.6rem 0.85rem;
+    background: var(--card);
+    border-left: 2px solid var(--link);
+    border-radius: 0.3rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .summary-label {
+    display: inline-block;
+    font-size: 0.68rem;
+    color: var(--link);
+    margin-right: 0.4rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+  }
+
+  /* ===== trading panel ===== */
+  .crypto-widgets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.55rem;
+    margin: 0.4rem 0 1.2rem;
+  }
+  @media (min-width: 720px) {
+    .crypto-widgets { grid-template-columns: repeat(4, 1fr); }
+  }
+  .crypto-widget {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    padding: 0.7rem 0.85rem;
+    text-align: center;
+  }
+  .widget-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+  }
+  .widget-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+    line-height: 1.1;
+  }
+  .widget-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+  .widget-sub.positive { color: #16a34a; }
+  .widget-sub.negative { color: #dc2626; }
+  @media (prefers-color-scheme: dark) {
+    .widget-sub.positive { color: #4ade80; }
+    .widget-sub.negative { color: #fca5a5; }
+  }
+  .crypto-widget.fg-fear-extreme { border-left: 4px solid #b91c1c; }
+  .crypto-widget.fg-fear-extreme .widget-value { color: #b91c1c; }
+  .crypto-widget.fg-fear { border-left: 4px solid #d97706; }
+  .crypto-widget.fg-fear .widget-value { color: #d97706; }
+  .crypto-widget.fg-neutral { border-left: 4px solid var(--muted); }
+  .crypto-widget.fg-greed { border-left: 4px solid #65a30d; }
+  .crypto-widget.fg-greed .widget-value { color: #65a30d; }
+  .crypto-widget.fg-greed-extreme { border-left: 4px solid #16a34a; }
+  .crypto-widget.fg-greed-extreme .widget-value { color: #16a34a; }
+  @media (prefers-color-scheme: dark) {
+    .crypto-widget.fg-fear-extreme .widget-value,
+    .crypto-widget.fg-fear .widget-value { color: #fca5a5; }
+    .crypto-widget.fg-greed .widget-value,
+    .crypto-widget.fg-greed-extreme .widget-value { color: #4ade80; }
+  }
+
+  .trading-overview-card {
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.3rem;
+    background: var(--card);
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--accent);
+  }
+  .trading-overview-card .eyebrow { display: block; margin-bottom: 0.4rem; }
+  .trading-overview-text { font-size: 0.92rem; line-height: 1.75; color: var(--fg-soft); margin: 0; }
+
+  .trading-section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.8rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--fg);
+    letter-spacing: 0.05em;
+  }
+
+  /* picks (Sonnet's watchlist) */
+  .trading-picks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  @media (min-width: 720px) {
+    .trading-picks { grid-template-columns: 1fr 1fr; }
+  }
+  .trading-pick {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--muted);
+    border-radius: 0.5rem;
+    padding: 0.8rem 1rem;
+  }
+  .trading-pick.stance-bull { border-left-color: #16a34a; }
+  .trading-pick.stance-bear { border-left-color: #dc2626; }
+  .trading-pick.stance-neutral { border-left-color: var(--muted); }
+  .pick-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.45rem;
+  }
+  .pick-symbol-block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .pick-symbol { font-weight: 700; font-size: 1rem; color: var(--fg); }
+  .pick-name { color: var(--muted); font-size: 0.82rem; }
+  .pick-stance {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .pick-stance-bull { background: rgba(22,163,74,0.12); color: #16a34a; }
+  .pick-stance-bear { background: rgba(220,38,38,0.12); color: #dc2626; }
+  .pick-stance-neutral { background: var(--card); color: var(--muted); }
+  .pick-rationale { margin: 0; font-size: 0.88rem; line-height: 1.65; color: var(--fg-soft); }
+
+  /* asset-group tabs */
+  .trading-group-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.6rem 0 1.2rem;
+  }
+  .trading-group-tab {
+    background: var(--card);
+    border: 1px solid transparent;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--fg-soft);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .trading-group-tab:hover { border-color: var(--muted); color: var(--fg); }
+  .trading-group-tab.active {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .trading-group-tab .count {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    margin-left: 0.4rem;
+    font-weight: 400;
+  }
+  .trading-group-content { display: none; }
+  .trading-group-content.active { display: block; }
+
+  /* ticker cards */
+  .ticker-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 0.55rem;
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 0.7rem;
+  }
+  .ticker-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.65rem;
+  }
+  .ticker-id { min-width: 0; }
+  .ticker-symbol { margin: 0; font-size: 1rem; font-weight: 700; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; }
+  .ticker-name { margin: 0.15rem 0 0; font-size: 0.82rem; color: var(--muted); }
+  .ticker-price-block { text-align: right; flex-shrink: 0; }
+  .ticker-price { display: block; font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ticker-pct { display: inline-block; font-size: 0.82rem; font-weight: 500; margin-top: 0.15rem; font-variant-numeric: tabular-nums; }
+  .ticker-pct.positive, .positive { color: #16a34a; }
+  .ticker-pct.negative, .negative { color: #dc2626; }
+
+  .ticker-indicators {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.35rem 0.9rem;
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--fg-soft);
+  }
+  @media (min-width: 720px) {
+    .ticker-indicators { grid-template-columns: repeat(3, 1fr); }
+  }
+  .ticker-indicators > div { display: flex; gap: 0.4rem; align-items: baseline; min-width: 0; }
+  .ticker-indicators dt { color: var(--muted); font-size: 0.74rem; margin: 0; white-space: nowrap; }
+  .ticker-indicators dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 500; color: var(--fg); }
+  .trend-bullish { color: #16a34a; }
+  .trend-bearish { color: #dc2626; }
+  .trend-neutral { color: var(--muted); }
+  .rsi-overbought { color: #d97706; }
+  .rsi-oversold { color: #2563eb; }
+
+  .ticker-signals {
+    margin-top: 0.65rem;
+    padding-top: 0.55rem;
+    border-top: 1px dashed var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .signal-pill {
+    font-size: 0.72rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .signal-pill.tone-bull { background: rgba(22,163,74,0.13); color: #166534; }
+  .signal-pill.tone-bear { background: rgba(220,38,38,0.13); color: #991b1b; }
+  .signal-pill.tone-caution { background: rgba(217,119,6,0.15); color: #92400e; }
+  @media (prefers-color-scheme: dark) {
+    .signal-pill.tone-bull { color: #4ade80; }
+    .signal-pill.tone-bear { color: #fca5a5; }
+    .signal-pill.tone-caution { color: #fcd34d; }
+    .trend-bullish, .positive, .ticker-pct.positive { color: #4ade80; }
+    .trend-bearish, .negative, .ticker-pct.negative { color: #fca5a5; }
+    .rsi-overbought { color: #fcd34d; }
+    .rsi-oversold { color: #93c5fd; }
+    .trading-pick.stance-bull { border-left-color: #4ade80; }
+    .trading-pick.stance-bear { border-left-color: #fca5a5; }
+    .pick-stance-bull { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .pick-stance-bear { background: rgba(252,165,165,0.15); color: #fca5a5; }
+  }
+  .signal-age { opacity: 0.7; font-weight: 400; }
+
+  .trading-risk {
+    margin: 1.5rem 0 0;
+    padding: 0.9rem 1.2rem;
+    background: var(--card);
+    border-radius: 0.45rem;
+    border-left: 3px solid #d97706;
+  }
+  .trading-risk .eyebrow { display: block; margin-bottom: 0.35rem; }
+  .trading-risk p { margin: 0; font-size: 0.82rem; line-height: 1.65; color: var(--fg-soft); }
+
+  footer {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.1rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="report-header">
+    <span class="eyebrow">前沿科技 · 投资简报</span>
+    <h1 class="report-title">2026-10-20</h1>
+    
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="digest">每日简报<span class="count">10</span></button>
+    <button class="tab" data-tab="china-vc">一级市场<span class="count">22</span></button>
+    <button class="tab" data-tab="frontier-tech">前沿技术<span class="count">20</span></button>
+    <button class="tab" data-tab="tech-business">科技商业<span class="count">20</span></button>
+    <button class="tab" data-tab="capital-markets">资本市场<span class="count">15</span></button>
+    <button class="tab" data-tab="global-business">全球商业<span class="count">22</span></button>
+    <button class="tab" data-tab="trading">数据指标<span class="count">19</span></button>
+    <button class="tab" data-tab="about">关于本项目</button>
+  </nav>
+
+  
+  <section class="panel active" data-panel="digest" data-panel-label="每日简报">
+    <h2 class="digest-hero">OpenAI抢在Anthropic上市前推进300亿美元融资</h2><p class="digest-overview">一级市场今天两条主线：海外是OpenAI据悉以约300亿美元规模、1.4万亿美元估值抢在Anthropic十一月中旬上市前锁定承诺，Tenstorrent则以62亿美元估值拿下15亿美元、拒绝被并购继续挑战英伟达；国内是无人配送车公司新石器近4亿美元E轮创下年内自动驾驶最大单笔，存算一体芯片公司铭芯启睿超4亿元A轮并引入前Graphcore总裁卢涛，发改委同日既提出要建立未来产业投入增长与风险分担机制，又警告不能一哄而上盲目投资。前沿技术面，DeepSeek被指深度参与华为AI芯片设计，指向一条绕开英伟达的国产训练路径；奥特曼确认OpenAI亲自做人形机器人、2027年出演示原型；英伟达完成104量子比特容错模拟，把物理量子比特需求压低约九成。资本环境上，央行研究把政策利率锚切换为隔夜回购利率，中东则因以色列公开宣称要推翻伊朗政权而风险陡增。</p><div class="keywords"><span class="kw">#OpenAI</span><span class="kw">#Anthropic</span><span class="kw">#新石器</span><span class="kw">#自动驾驶</span><span class="kw">#DeepSeek</span><span class="kw">#华为AI芯片</span><span class="kw">#未来产业政策</span><span class="kw">#量子计算</span></div><div class="digest-list"><article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">1</span>
+      <span class="digest-cat">一级市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-high">重要度 8</span>
+    </div>
+    <h3 class="digest-title"><a href="https://wallstreetcn.com/articles/3783974" target="_blank" rel="noopener noreferrer">OpenAI据悉加速300亿美元融资，估值或超1.4万亿抢跑Anthropic上市</a></h3>
+    <p class="digest-source">华尔街见闻</p>
+    <p class="digest-summary">路透10月19日援引知情人士称，OpenAI正以异常快的节奏推进新一轮私募融资，规模约300亿美元，完成后估值或突破1.4万亿美元，软银、阿布扎比MGX及现有股东正洽谈参投。目标是抢在Anthropic预计11月中旬上市前锁定承诺，两家前沿实验室开始争夺同一批出资人。（多家报道）</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">2</span>
+      <span class="digest-cat">一级市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-high">重要度 8</span>
+    </div>
+    <h3 class="digest-title"><a href="https://www.36kr.com/newsflashes/4033620993921928" target="_blank" rel="noopener noreferrer">新石器完成近4亿美元E轮，博裕与国家级基金领投创年内自动驾驶最大单笔</a></h3>
+    <p class="digest-source">36氪 快讯</p>
+    <p class="digest-summary">无人配送车公司新石器宣布完成近4亿美元E轮融资，由博裕投资与一只国家级基金联合领投，阿里巴巴AEF NextGen香港基金、砺思资本、纪源资本、淡马锡旗下Vertex Growth等参投，高鹄资本任独家财务顾问。该轮为今年国内自动驾驶最大单笔融资，公司累计融资已超百亿元人民币。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">3</span>
+      <span class="digest-cat">全球商业</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-high">重要度 8</span>
+    </div>
+    <h3 class="digest-title"><a href="http://global.eastmoney.com/news/1959,202610203900900076.html" target="_blank" rel="noopener noreferrer">内塔尼亚胡下令军方与摩萨德推翻伊朗政权，中东地缘风险陡升</a></h3>
+    <p class="digest-source">东方财富</p>
+    <p class="digest-summary">10月19日晚，以色列总理内塔尼亚胡接受以第14频道采访时称，已向以军、摩萨德及军事情报局下达「推翻伊朗政权」指令，核心任务是消除伊朗对以生存威胁，并称特朗普对此态度明确。同日美国防长赫格塞思未预先公布地访以会晤，距以议会选举仅数天，油价与航运风险敞口随之上升。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">4</span>
+      <span class="digest-cat">科技商业</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
+    </div>
+    <h3 class="digest-title"><a href="https://www.theinformation.com/articles/deepseek-shaping-huaweis-ai-chips-growing-challenge-nvidia" target="_blank" rel="noopener noreferrer">DeepSeek深度参与华为AI芯片设计，中国欲绕开英伟达训练前沿模型</a></h3>
+    <p class="digest-source">The Information</p>
+    <p class="digest-summary">The Information 10月19日援引两名知情人士称，DeepSeek正与华为密切合作，参与塑造华为下一代AI芯片的设计方向。这一模型公司与芯片厂的协同，可能让中国在不依赖英伟达技术的前提下训练前沿模型，对国产算力路线的可行性判断构成实质变量。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">5</span>
+      <span class="digest-cat">一级市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
+    </div>
+    <h3 class="digest-title"><a href="https://www.36kr.com/newsflashes/4033648227373955" target="_blank" rel="noopener noreferrer">发改委将建未来产业投入增长与风险分担机制，同时警告不能一哄而上</a></h3>
+    <p class="digest-source">36氪 快讯</p>
+    <p class="digest-summary">国家发改委创新和高技术发展司副司长任中保10月20日表示，量子科技、生物制造、脑机接口、氢能与核聚变、具身智能、6G等未来产业前景显现，发改委将建立未来产业投入增长和风险分担机制，探索多元技术路线与商业模式。同场发布会另强调发展未来产业要实事求是，不能一哄而上，盲目跟风造成重大损失将严肃追责。（多家报道）</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">6</span>
+      <span class="digest-cat">科技商业</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
+    </div>
+    <h3 class="digest-title"><a href="https://www.36kr.com/p/4032719698318209" target="_blank" rel="noopener noreferrer">奥特曼确认OpenAI自研人形机器人，2027年出演示原型先攻「大脑」</a></h3>
+    <p class="digest-source">36氪 热榜</p>
+    <p class="digest-summary">OpenAI创始人兼CEO奥特曼10月19日在播客节目《Sources》中确认公司将独立开发人形机器人，称现阶段外观不值得纠结，要攻克的是驱动机器人的智能「大脑」。按其给出的时间线，OpenAI预计2027年拿出演示原型，真正进入公共场景更晚。公司同时放出19个机器人岗位，最高年薪48.5万美元。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">7</span>
+      <span class="digest-cat">资本市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
+    </div>
+    <h3 class="digest-title"><a href="https://www.yicai.com/news/103400247.html" target="_blank" rel="noopener noreferrer">央行研究把政策利率锚切换为隔夜，公开市场主要操作期限将改变</a></h3>
+    <p class="digest-source">第一财经</p>
+    <p class="digest-summary">第一财经援引权威解读称，中国人民银行将研究择机把公开市场主要操作品种的期限切换为隔夜，公开市场隔夜回购利率将相应成为主要政策利率。解读明确此举属于政策利率「换锚」，不等同于降息，涉及的是利率传导机制与市场基准的重构，关系各类资产定价基准。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">8</span>
+      <span class="digest-cat">一级市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
+    </div>
+    <h3 class="digest-title"><a href="https://techcrunch.com/2026/10/19/tenstorrent-hits-6-2b-valuation-to-scale-open-weight-ai-chips/" target="_blank" rel="noopener noreferrer">Tenstorrent融资15亿美元估值62亿，拒收购坚持开放权重AI芯片</a></h3>
+    <p class="digest-source">TechCrunch 创投</p>
+    <p class="digest-summary">TechCrunch 10月19日报道，开放权重AI芯片公司Tenstorrent完成15亿美元融资，估值达62亿美元。公司今年早些时候曾收到收购意向，但选择融资以保持独立，继续以挑战英伟达为定位扩大开放权重AI芯片业务。这为非英伟达路线的AI芯片资产提供了新的估值参照。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">9</span>
+      <span class="digest-cat">前沿技术</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 7</span>
+    </div>
+    <h3 class="digest-title"><a href="http://stock.eastmoney.com/news/11791,202610203900347658.html" target="_blank" rel="noopener noreferrer">英伟达完成104量子比特容错模拟，物理量子比特需求减约90%</a></h3>
+    <p class="digest-source">东方财富</p>
+    <p class="digest-summary">英伟达研究人员在欧洲最大超算、德国于利希中心的JUPITER上完成104量子比特容错量子计算模拟，被称为迄今对容错量子系统最全面细致的建模。该模拟验证的路径所需物理量子比特数量比此前方法减少约90%，直接压低纠错开销，涉及药物发现、金融建模与材料科学的落地时间表。</p>
+  </article>
+<article class="digest-card">
+    <div class="digest-card-head">
+      <span class="digest-rank">10</span>
+      <span class="digest-cat">一级市场</span>
+      <span class="tier tier-media">媒体报道</span>
+      <span class="digest-imp digest-imp-mid">重要度 6</span>
+    </div>
+    <h3 class="digest-title"><a href="https://www.leiphone.com/category/chips/56PWzwTNdteGx04q.html" target="_blank" rel="noopener noreferrer">铭芯启睿获超4亿元A轮，前Graphcore总裁卢涛加盟主攻RRAM与LPU</a></h3>
+    <p class="digest-source">雷峰网</p>
+    <p class="digest-summary">存算一体芯片公司铭芯启睿（MemSilicon）10月19日宣布完成超4亿元A轮融资，博原资本领投，博世创投、创领资本、米哈游、中关村科学城公司、兆易创新等跟投，小米战投、中科创星等老股东加注，资金用于RRAM产业化与新产品LPU研发。前Graphcore总裁兼大中华区总经理卢涛出任CEO兼联合创始人。（多家报道）</p>
+  </article></div><aside class="digest-note"><span class="digest-note-label">编辑短评</span>今天值得记的信号是出资方的争夺：OpenAI赶在Anthropic挂牌前抢资金，Tenstorrent宁可融资也不接收购，发改委一边设风险分担机制一边喊停盲目跟投——钱变贵了，谁拿得到钱正在重新排序。</aside>
+  </section>
+  <section class="panel" data-panel="china-vc" data-panel-label="一级市场">
+    <div class="sub-content active" data-sub-content="main" data-cat="china-vc">
+    
+    <div class="source-contents">
+      <div class="source-content active" data-source-content="_merged" data-sub="main" data-cat="china-vc">
+    <article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.yicai.com/news/103400346.html" target="_blank" rel="noopener noreferrer">不能一哄而上，国家发改委再发声</a></h3>
+  
+  <p class="article-meta">第一财经 · 10/20 11:49</p>
+  <p class="article-summary">国家发展改革委在10月份新闻发布会上再次表态，强调发展新兴产业、未来产业要实事求是，不能一哄而上、盲目投资，对因盲目跟风造成重大损失的将严肃追究责任。发改委将按国家规定做好国家级和省级专项规划衔接，推动各地结合自身比较优势布局产业，避免同质化竞争和遍地开花。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.yicai.com/news/103400370.html" target="_blank" rel="noopener noreferrer">瑞典资本为何押注瑞博生物-对话埃里克·塞林</a></h3>
+  
+  <p class="article-meta">第一财经 · 10/20 11:48</p>
+  <p class="article-summary">第一财经专访瑞典投资人埃里克·塞林，探讨瑞典资本押注生物科技公司瑞博生物的原因，但原文未进一步披露具体投资金额、轮次等细节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898870.html?f=rss" target="_blank" rel="noopener noreferrer">投资人迷上“好融风”</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:37</p>
+  <p class="article-summary">虎嗅旗下小饭桌报道，近期小红书上《中关村好融行为指南》《硅谷好融风vs五道口好融风》等帖子刷屏，总结出一套投资人偏爱的创业者「人设」：技术项目强调GitHub星数破万以吸引美元基金；形象上硅谷派穿Patagonia+Salomon扮车库创业者，五道口派穿褪色清华卫衣配旧MacBook长期泡工位；办公室摆折叠床暗示勤奋加班；团队介绍习惯写「前百度前阿里」，即使只实习三个月也算。文章借此调侃当前一级市场融资中，创始人形象包装和叙事技巧正被过度放大。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.thecapital.com.cn/news/125280" target="_blank" rel="noopener noreferrer">快狗，1块钱卖掉了股权</a></h3>
+  
+  <p class="article-meta">融中财经 · 10/20 11:37</p>
+  <p class="article-summary">同城货运平台快狗打车（曾被称为「同城货运第一股」）以1元象征性价格出售其股权，彻底退出中国内地市场，结束在内地的同城货运业务布局。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8174020.html" target="_blank" rel="noopener noreferrer">智界的独立，走到生产资质这一步</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:29</p>
+  <p class="article-summary">钛媒体报道，智界正式拿到独立生产资质，这一步使其身份上更接近一家真正的汽车制造商。但文章指出，资质只是形式条件，智界能否真正成为站得住的独立车企，最终仍取决于其销量和盈利能力。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033649031320712" target="_blank" rel="noopener noreferrer">国家发展改革委：将常态化向民营企业推介投资项目，下大力气解决拖欠民营企业账款问题</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:19</p>
+  <p class="article-summary">国家发展改革委民营经济发展局副局长刘丹10月20日在新闻发布会上表示，将常态化向民营企业推介投资项目，以「政策+项目+场景」组合拳破除隐性壁垒，推动基础设施竞争性领域向民企公平开放，支持民企参与「六张网」建设，并加大资金、数据、人才等要素供给，下大力气解决拖欠民营企业账款问题。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033648227373955" target="_blank" rel="noopener noreferrer">国家发改委：建立未来产业投入增长和风险分担机制，早日形成新的经济增长点</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:19</p>
+  <p class="article-summary">国家发展改革委创新和高技术发展司副司长任中保10月20日表示，量子科技、生物制造、脑机接口、氢能和核聚变能、具身智能、第六代移动通信等未来产业展现发展前景，发改委将建立未来产业投入增长和风险分担机制，探索多元技术路线、应用场景和商业模式，力争早日形成新的经济增长点。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033635277525895" target="_blank" rel="noopener noreferrer">国家发展改革委：发展新质生产力要实事求是，避免遍地开花</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:05</p>
+  <p class="article-summary">国家发展改革委创新和高技术发展司副司长任中保10月20日表示，各地因地制宜发展新质生产力的本质是实事求是，要防止同质化竞争；各地规划布局重大产业项目前须对本地基础条件做充分论证，坚决避免一哄而上、遍地开花，发改委将做好国家级与省级未来产业、新兴支柱产业专项规划的衔接。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033634580894848" target="_blank" rel="noopener noreferrer">国家发改委：引导地方在关键核心技术攻关、可再生能源制氢示范应用场景开拓中找准自身定位，实现错位发展</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:05</p>
+  <p class="article-summary">国家发展改革委创新和高技术发展司副司长任中保10月20日表示，针对近期氢能部分环节投资过热问题，发改委正制定方案，统筹国家战略需求、技术成熟度和要素支撑条件，合理布局重大项目，引导地方在关键核心技术攻关和可再生能源制氢示范场景中找准定位，实现错位发展。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033630794290055" target="_blank" rel="noopener noreferrer">国家发改委：持续推动场景开放，让民营企业多参与</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:03</p>
+  <p class="article-summary">国家发展改革委民营经济发展局副局长刘丹10月20日表示，将持续推动场景开放，会同有关部门、地方央国企与民营企业开展系列对接活动，推动公共场景、行业场景及重大项目场景有序开放，把场景资源转化为促进民间投资、壮大民营经济的动力。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033620993921928" target="_blank" rel="noopener noreferrer">“新石器”完成E轮近4亿美元融资</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 10:58</p>
+  <p class="article-summary">自动驾驶公司新石器宣布完成E轮融资，金额近4亿美元，由博裕投资与某国家级基金联合领投，阿里巴巴AEF NextGen香港基金、Monolith砺思资本、纪源资本、淡马锡旗下Vertex Growth、高鹄资本等参投，磊石资本、信宸资本、高成投资、云启资本、软银亚洲等老股东跟投，高鹄资本担任独家财务顾问。该轮创下今年国内自动驾驶领域最大单笔融资纪录，公司累计融资额已突破百亿元人民币，融资规模居无人配送车行业第一。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033623302657158" target="_blank" rel="noopener noreferrer">国家发展改革委：通过座谈会收集民企建议355项，已解决323项</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 10:53</p>
+  <p class="article-summary">国家发展改革委民营经济发展局副局长刘丹10月20日表示，自2023年7月发改委建立政企常态化沟通机制以来，已组织31场民营企业座谈会，面对面听取151家企业意见，累计收集民企建议355项，已解决323项，正推动解决32项，该机制已成为每月定期开展的制度性安排。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783974" target="_blank" rel="noopener noreferrer">报道：OpenAI 计划在Anthropic上市前加快融资步伐</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 10:36</p>
+  <p class="article-summary">据路透社援引知情人士消息，OpenAI正加速推进新一轮私募融资，力争在竞争对手Anthropic预计11月中旬上市前锁定投资者承诺。此轮融资规模约300亿美元，完成后公司估值或突破1.4万亿美元。软银集团、阿布扎比主权投资机构MGX及其他现有股东正就参投进行磋商。两家前沿AI实验室正日益争夺同一批投资者资源，叠加利率上升与科技股震荡的市场环境，OpenAI希望抢在Anthropic公开募股前完成融资。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033577223690118" target="_blank" rel="noopener noreferrer">谷歌前CEO施密特被曝持有Anthropic 1%股份，IPO前价值或达百亿美元级</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 10:16</p>
+  <p class="article-summary">彭博社10月19日援引知情人士报道，谷歌前CEO埃里克·施密特持有Anthropic约1%的股份，该持股源于他在2021年Anthropic A轮融资中投入的数千万美元，彼时公司估值远低于现在。若Anthropic如期于11月中旬上市，这笔持股价值或达百亿美元级别。施密特2001至2011年执掌谷歌，后任Alphabet执行董事长至2018年，离任后持续通过资本参与AI领域竞争。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033508599535497" target="_blank" rel="noopener noreferrer">全球Personal Agent Top15：它们凭什么值百亿估值？</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 10:14</p>
+  <p class="article-summary">36氪报道，旧金山AI助手公司Instinct于9月28日完成10亿美元融资，估值达100亿美元，红杉资本、Benchmark、Coatue同轮投资。该公司今年4月才注册成立，种子轮估值仅5000万美元，五个月内完成四轮融资，估值增长约200倍，目前团队仅14人。产品尚未上线、无收入，仍处邀请制阶段，其邀请链接被挂上eBay转卖，Cybernews于9月30日核实两条在售链接售价达200美元。文章认为，Personal Agent类产品的高估值源于其有望成为继PC、移动互联网之后的新一代「超级入口」。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://finance.eastmoney.com/news/1354,202610203900814090.html" target="_blank" rel="noopener noreferrer">赶在Anthropic IPO前：OpenAI据悉加速融资 估值或超1.4万亿美元</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 09:30</p>
+  <p class="article-summary">据媒体援引知情人士报道，OpenAI正急于在Anthropic预计11月中旬上市前锁定投资承诺，目前正推进一轮节奏异常快的融资，规模约300亿美元，完成后估值或超1.4万亿美元。软银集团、阿布扎比MGX及OpenAI其他现有支持者正洽谈参投。知情人士称，OpenAI希望借助新模型发布后营收快速增长的势头推进本轮融资，抢在Anthropic上市前获得先机。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.thecapital.com.cn/news/125277" target="_blank" rel="noopener noreferrer">10亿，武汉硚口设立一只人工智能基金 快狗打车拟1元出售中国内地业务，四年累计亏损超26亿元</a></h3>
+  
+  <p class="article-meta">融中财经 · 10/20 09:27</p>
+  <p class="article-summary">融中财经早报汇总两则消息：武汉市硚口区设立一只规模10亿元的人工智能产业基金；快狗打车拟以1元价格出售中国内地业务，公司四年来累计亏损已超26亿元，这家曾被称为「同城货运第一股」的平台将由此彻底退出内地市场。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.iheima.com/article-403163.html" target="_blank" rel="noopener noreferrer">宇树10月22日办物理AI大会，设具身智能创投路演</a></h3>
+  
+  <p class="article-meta">i黑马 · 10/20</p>
+  <p class="article-summary">i黑马报道，人形机器人公司宇树科技将于10月22日举办物理AI大会，会上设有具身智能创投路演环节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4032248929686151" target="_blank" rel="noopener noreferrer">顺为投了一位北大PI，想用AI“解密”人脑</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 09:00</p>
+  <p class="article-summary">36氪报道，顺为资本投资了北京大学一位PI卢萌的项目，希望借助AI技术「解密」人脑。卢萌曾在剑桥大学攻读博士并长期从事神经退行性疾病研究，2024年回国前任高级研究员，遵循传统神经科学范式搭建细胞模型与分析算法，试图借助AI推进对人脑860亿神经元构成的复杂脑网络的理解。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.chinaventure.com.cn/news/80-20261020-393681.html" target="_blank" rel="noopener noreferrer">境技智能完成种子轮融资</a></h3>
+  
+  <p class="article-meta">投中网 · 10/20</p>
+  <p class="article-summary">投中网报道，境技智能完成种子轮融资，由昊文天枢机器人科技（上海）有限公司与上海蓝云实业发展股份有限公司两家产业方联合战略投资。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://techcrunch.com/2026/10/19/tenstorrent-hits-6-2b-valuation-to-scale-open-weight-ai-chips/" target="_blank" rel="noopener noreferrer">Tenstorrent估值达62亿美元，加码开放权重AI芯片</a></h3>
+  
+  <p class="article-meta">TechCrunch 创投 · 10/20 02:37</p>
+  <p class="article-summary">TechCrunch报道，开放权重AI芯片公司Tenstorrent完成15亿美元融资，公司估值达到62亿美元。此前该公司今年早些时候曾收到收购意向，但选择融资以保持独立，继续作为英伟达的挑战者扩大开放权重AI芯片业务。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://techcrunch.com/2026/10/19/ai-assistant-startup-town-nabs-unicorn-valuation-four-months-after-launch/" target="_blank" rel="noopener noreferrer">AI助手公司Town上线四月即获独角兽估值</a></h3>
+  
+  <p class="article-meta">TechCrunch 创投 · 10/20 02:00</p>
+  <p class="article-summary">TechCrunch报道，AI助手创业公司Town上线仅四个月后即获得独角兽估值，于10月19日周一宣布完成1.08亿美元B轮融资，由Forerunner Ventures和Menlo Ventures联合领投。</p>
+</article>
+  </div>
+    </div>
+  </div>
+  </section>
+  <section class="panel" data-panel="frontier-tech" data-panel-label="前沿技术">
+    <div class="sub-content active" data-sub-content="main" data-cat="frontier-tech">
+    
+    <div class="source-contents">
+      <div class="source-content active" data-source-content="_merged" data-sub="main" data-cat="frontier-tech">
+    <article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898848.html?f=rss" target="_blank" rel="noopener noreferrer">Anthropic科学家：如果AGI三年内到来，读博士还有意义吗？</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:16</p>
+  <p class="article-summary">Anthropic科学家、扩散模型早期研究者雅沙·索尔-迪克斯坦2026年6月在斯坦福大学物理学与AI会议上发表演讲《人新世最初与最后日子里，给青年研究者的建议》，近日该演讲在社交平台X上被重新翻出并引发热议。他提出，若AGI在三年内到来，当下年轻研究者是否还有必要按传统路径读博士、规划终身教职值得重新审视，认为AI能力的快速进步不仅会改变科研方式，也可能动摇学术界沿用多年的职业发展路径。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8173675.html" target="_blank" rel="noopener noreferrer">DeepSeek新模型升级，梁文锋正在为具身智能铺路？</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:14</p>
+  <p class="article-summary">DeepSeek发布新一代模型升级，文章认为这只是DeepSeek创始人梁文锋更大布局的「开胃菜」，其后续动作可能指向具身智能领域，暗示DeepSeek正借助模型能力升级为进入具身智能赛道铺路。原文未披露具体模型参数或产品规划细节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.infoq.cn/article/ywvgVDVLsSU7r47Jk6lq?utm_source=rss&amp;utm_medium=article" target="_blank" rel="noopener noreferrer">调查发现：AI 生成代码会提升调试难度与故障发生率，并造成代码理解鸿沟</a></h3>
+  
+  <p class="article-meta">InfoQ 中国 · 10/20 11:00</p>
+  <p class="article-summary">一项调查显示，AI生成的代码在实际使用中会提升调试难度、增加故障发生率，并在开发者与代码之间造成理解鸿沟，即开发者难以像理解自己手写代码那样掌握AI生成代码的内在逻辑，增加后续维护和排错成本。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.infoq.cn/article/ZyjObqGawfurPFLBQONd?utm_source=rss&amp;utm_medium=article" target="_blank" rel="noopener noreferrer">失败一次，受益多次：测试 Agent 从记忆到持续学习的工程实践｜QCon上海</a></h3>
+  
+  <p class="article-meta">InfoQ 中国 · 10/20 10:00</p>
+  <p class="article-summary">在QCon上海大会上，有分享介绍了测试Agent从单纯记忆到持续学习的工程实践，核心理念是让测试Agent能够「失败一次，受益多次」，即把单次测试失败积累为可复用的经验，持续提升自身发现问题的能力。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.qbitai.com/2026/10/504314.html" target="_blank" rel="noopener noreferrer">Claude新模型曝光！能跳出思维定势，修Bug治标又治本</a></h3>
+  
+  <p class="article-meta">量子位 · 10/20 09:09</p>
+  <p class="article-summary">据报道，Anthropic一款新曝光的Claude模型展现出跳出思维定势修复Bug的能力，不只是打补丁式地解决单个报错，而是能深入定位并解决问题背后的根本原因，实现「治标又治本」。该模型推理与直觉判断能力据称超过现有所有已商用的Anthropic模型，具体名称尚未公开。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033427663967106" target="_blank" rel="noopener noreferrer">Claude要会「读心」了？Anthropic神秘新模型曝光</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 09:02</p>
+  <p class="article-summary">据The Information爆料，Anthropic正准备推出一款新模型，推理能力和直觉判断能力超过目前所有已商用的Anthropic模型，外界猜测可能是Claude Fable 5.5或Opus 5.6。该模型的突出特点是能理解用户未明确说出口的意图：即使用户只给出有限信息、未交代最终目标，模型也能推断真实需求，并可能在修复一个Bug时顺藤摸瓜发现背后一整类问题，主动提议一并解决。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://www.geekpark.net/news/372568" target="_blank" rel="noopener noreferrer">DeepSeek 新模型登顶开源模型榜首；国内 55% 算力用于视频和短剧？豆包发言人辟谣；微信发起公众号小说改编微短剧激励｜极客早知道</a></h3>
+  
+  <p class="article-meta">极客公园 · 10/20 09:01</p>
+  <p class="article-summary">10月19日，AI模型评测平台Arena宣布DeepSeek-V4.1-Flash-1017（Max）在Code Arena: WebDev榜单上超过Kimi K3（Max），登顶开源模型榜首，得分1670分，超过Mimo-V2.6 Flash、Muse Spark 1.3（Max）、Claude Opus 5（High）、Grok等多款模型。同期消息还包括豆包发言人回应「国内55%算力用于视频和短剧」的说法，以及微信发起公众号小说改编微短剧的激励计划，具体细节原文未展开。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033476656796548" target="_blank" rel="noopener noreferrer">Anthropic科学家：如果AGI三年内到来，读博士和终身教职规划还有意义吗？</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 08:53</p>
+  <p class="article-summary">Anthropic科学家、扩散模型早期研究者雅沙·索尔-迪克斯坦2026年6月在斯坦福大学物理学与AI会议上发表演讲《人新世最初与最后日子里，给青年研究者的建议》，近日在X平台被重新翻出引发热议。他提出若AGI三年内到来，年轻研究者是否仍应按传统路径读博士、规划终身教职值得重新审视，认为AI能力快速进步不仅改变科研方式，也可能动摇学术界沿用多年的职业发展路径。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.theinformation.com/articles/interpretability-key-physical-ai-says-world-mechanics-ceo-sonia-joseph" target="_blank" rel="noopener noreferrer">World Mechanics CEO：可解释性是物理AI的关键</a></h3>
+  
+  <p class="article-meta">The Information · 10/20 08:39</p>
+  <p class="article-summary">World Mechanics CEO Sonia Joseph提出，可解释性（机制可解释性研究）是物理AI/世界模型发展的关键。她认为「让AI理解物理世界的世界模型」和「解析AI模型内部工作机制的可解释性研究」通常被业界当作两个独立问题处理，但二者实际上紧密相关，理解模型内部机制有助于构建更可靠的物理世界模型。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.theinformation.com/articles/altman-describes-three-endgames-ai-including-one-single-firm-melts-everyone-elses-gpus" target="_blank" rel="noopener noreferrer">奥特曼描述AI三种终局，其一是「碾压所有人GPU」</a></h3>
+  
+  <p class="article-meta">The Information · 10/20 07:47</p>
+  <p class="article-summary">OpenAI CEO萨姆·奥特曼近期向员工描述了行业内讨论的三种AI安全发展「终局」方案，其中一种情形是某一家公司在能力上实现压倒性优势，「熔化掉其他所有人的GPU」。这一表态恰逢特朗普政府着手设立针对OpenAI等「超级智能」开发者的首个监管审查体系，凸显行业对AI发展路径及安全治理走向的分歧与焦虑。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://stock.eastmoney.com/news/11791,202610203900347658.html" target="_blank" rel="noopener noreferrer">容错量子计算破纪录！量子科技景气向好 这18股业绩倍增可期（名单）</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 06:23</p>
+  <p class="article-summary">英伟达研究人员利用欧洲最大超算——德国于利希超算中心的JUPITER，完成了一项破纪录的104量子比特容错量子计算模拟，是迄今为止对容错量子计算系统最全面、最具细节的建模。该模拟验证的量子计算路径所需物理量子比特数量比此前方法减少约90%，被认为有望加速量子计算在药物发现、金融建模、材料科学等领域的产业化应用。机构认为量子科技正迈向产业化关键拐点，相关催化密集，文章列出18只业绩倍增可期的量子科技概念股。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783964" target="_blank" rel="noopener noreferrer">Fable 5.5要来了？报道称Anthropic正开发新模型，主打&quot;意图推断&quot;能力</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 04:55</p>
+  <p class="article-summary">据The Information10月19日报道，Anthropic正在开发一款主打「意图推断」能力的新模型，能在用户指令含糊不清时仍推断出其真实目标，并展现更强推理能力和更具创造性的问题解决能力。报道未披露模型名称、定价及上下文窗口等具体参数。The Information联合创始人Amir Efrati在X平台发文猜测这可能是Fable 5.5。业内认为，AI助手产品的竞争焦点正从「听懂并执行指令」转向「理解意图」。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783958" target="_blank" rel="noopener noreferrer">英伟达官宣重大突破：超8000块GPU加持，创纪录量子容错计算模拟所需物理比特降九成</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 03:05</p>
+  <p class="article-summary">美东时间10月19日周一，英伟达宣布其研究人员依托德国于利希超算中心的「木星」（JUPITER）超算，调用超8000块（8192块）GPU完成了一项创纪录的104量子比特容错量子计算模拟。此次研究重点不仅是将模拟规模提升至创纪录水平，更在于对量子处理器在现实噪声环境下执行容错计算的过程进行完整建模，并验证了一种可将所需物理量子比特数量减少约90%的技术路线，有望帮助研究人员在真正制造硬件前评估优化设计，降低量子纠错资源开销，加快实用量子计算系统研发。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.technologyreview.com/2026/10/19/1147186/making-the-internet-better-for-ai-agents-might-make-it-worse-for-everyone-else/" target="_blank" rel="noopener noreferrer">为AI agent优化互联网，可能让普通用户体验变差</a></h3>
+  
+  <p class="article-meta">MIT 科技评论 · 10/20 02:22</p>
+  <p class="article-summary">文章探讨为迎合AI agent访问而对互联网基础设施进行的改造，可能反而让普通人类用户的上网体验变差。过去互联网用户可简单分为「机器人」和「人」两类，网站长期允许bot执行自动化任务，但随着AI agent数量和访问需求激增，网站针对agent做出的适配性调整正带来新的权衡与问题，原文未进一步展开具体技术细节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-first">第一手</span><span class="tier tier-lang">英文报道</span><a href="https://news.mit.edu/2026/teaching-ai-about-symmetry-could-make-prenatal-diagnosis-more-reliable-1019" target="_blank" rel="noopener noreferrer">教AI理解对称性，或让产前诊断更可靠</a></h3>
+  
+  <p class="article-meta">MIT News 人工智能 · 10/20 02:20</p>
+  <p class="article-summary">MIT与波士顿儿童医院研究人员开发出一种模型，通过向AI教授「对称性」原理，使其能够实时调整超声扫描图像以追踪胎儿运动，从而提升扫描的稳定性和可靠性。该方法有望减少因扫描质量不佳导致的重复检查，从而降低患病家庭需要多次往返医院的负担。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.technologyreview.com/2026/10/19/1147149/we-were-looking-at-it-wrong-the-explosive-claim-thats-upended-the-ai-world/" target="_blank" rel="noopener noreferrer">「我们理解错了」：颠覆AI界的爆炸性主张</a></h3>
+  
+  <p class="article-meta">MIT 科技评论 · 10/20 01:45</p>
+  <p class="article-summary">AI初创公司Goodfire研究员Nick Cammarata发表了一篇约26000字的博客文章，开篇即称「我认为自己对神经网络的本质有个好消息」，文章提出了一种关于神经网络工作原理的新观点，在AI领域引发剧烈反响，既有大量猜测性讨论，也有审慎质疑的声音，被形容为「颠覆了AI世界」的爆炸性主张。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.leiphone.com/category/private/7vTJq8gu376Dldil.html" target="_blank" rel="noopener noreferrer">射频计算：探索智能边界｜CNCC 2026</a></h3>
+  
+  <p class="article-meta">雷峰网 · 10/19 23:36</p>
+  <p class="article-summary">在CNCC 2026论坛上，「射频计算」成为探讨核心主题。论坛围绕从信号感知走向空间认知、从可编程电磁环境到无源智能系统展开，在此前两届关于射频信号信息载体、通感智能、空间计算重构探讨的基础上，进一步引入大模型、具身智能、边缘计算等前沿视角，探索射频计算与人工智能深度融合的理论与应用边界。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.qbitai.com/2026/10/504294.html" target="_blank" rel="noopener noreferrer">通研院孵化的团队，也盯上了RSI</a></h3>
+  
+  <p class="article-meta">量子位 · 10/19 22:31</p>
+  <p class="article-summary">一支由中国科学院相关通信研究院孵化的团队也开始关注RSI（递归自我改进）方向，探索的核心问题是：当AI越来越了解用户的同时，如何确保这种智能真正为用户所用、而非被平台或模型本身主导。原文未披露该团队具体产品形态或技术路线细节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.theinformation.com/articles/anthropic-readies-model-reads-users-intentions-better" target="_blank" rel="noopener noreferrer">Anthropic新模型曝光：更擅长读懂用户意图</a></h3>
+  
+  <p class="article-meta">The Information · 10/19 22:00</p>
+  <p class="article-summary">The Information报道称，最近一个月内OpenAI、Anthropic、Google已合计发布十余款新模型，且这一发布节奏预计短期内不会放缓。其中，Anthropic正准备推出一款新模型，其推理能力和直觉判断水平超过Anthropic现有的所有模型，该模型在用户指令模糊时仍能准确把握真实意图，报道未披露具体名称与发布时间。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.solidot.org/story?sid=85652" target="_blank" rel="noopener noreferrer">ESA Hera 探测器准备飞越 DART 撞击的小行星</a></h3>
+  
+  <p class="article-meta">Solidot 奇客 · 10/19 21:59</p>
+  <p class="article-summary">欧洲航天局（ESA）Hera探测器预计一个月后将与DART撞击的小行星系统交会。2022年9月，NASA「双小行星重定向测试」（DART）任务探测器撞击了双小行星系统中较小的Dimorphos（直径约151米），该系统主体Didymos直径约780米，撞击使Dimorphos轨道周期缩短约32分钟。Hera于2024年10月7日发射，此次飞越将对DART撞击效果及小行星物理特性进行近距离勘测，是人类首次行星防御测试的后续验证任务之一。</p>
+</article>
+  </div>
+    </div>
+  </div>
+  </section>
+  <section class="panel" data-panel="tech-business" data-panel-label="科技商业">
+    <div class="sub-content active" data-sub-content="main" data-cat="tech-business">
+    
+    <div class="source-contents">
+      <div class="source-content active" data-source-content="_merged" data-sub="main" data-cat="tech-business">
+    <article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033688545760388" target="_blank" rel="noopener noreferrer">押注记忆原生，MemT 1.0 破局养成系 AI 下半场</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 12:12</p>
+  <p class="article-summary">记忆张量正式发布并开源MemT 1.0记忆原生大模型。该模型与外挂检索方案不同，不是靠翻查静态备忘录，而是将记忆机制内化进底层架构，使模型能把用户反馈转化为经验并在后续主动调用，解决AI每次换新会话就遗忘调教过程的问题。该发布背景是Meta Muse、OpenAI Dots与xAI Grok Bot掀起的私人助理热潮，这类产品普遍面临无法把调教过程沉淀为长期默契的瓶颈，记忆原生被视为突破点。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898877.html?f=rss" target="_blank" rel="noopener noreferrer">字节最没存在感APP，年轻人抢着充钱</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 12:06</p>
+  <p class="article-summary">字节跳动旗下AI应用猫箱（2024年3月上线）虽知名度低，但盈利能力突出。Sensor Tower数据显示，今年Q1中国iOS市场豆包下载量、活跃用户数双料第一，但收入榜第一却是猫箱，收入超过即梦AI、Kimi等知名应用，仅iOS内购收入累计已超2200万美元（不含安卓端及广告收入）。豆包未入收入榜一个原因是商业化较晚。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8173652.html" target="_blank" rel="noopener noreferrer">字节Seed大重组：吴永辉的“大兵团”作战，与出走的联合创始人</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:59</p>
+  <p class="article-summary">字节跳动大模型团队Seed完成架构调整，由吴永辉主导推进大模型研发的工业化、规模化作战方式，调整过程中有联合创始人出走。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.yicai.com/news/103400375.html" target="_blank" rel="noopener noreferrer">AI改变外贸生意模式：从查询延伸到洽谈代理，验真等成本同步增加</a></h3>
+  
+  <p class="article-meta">第一财经 · 10/20 11:55</p>
+  <p class="article-summary">AI正在改变外贸生意模式，应用范围从信息查询延伸到洽谈代理等环节，效率提升的同时也带来验真、合规等新增成本，采购商与供应商双方都在重新核算使用AI的实际效益。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033656969582213" target="_blank" rel="noopener noreferrer">中国大模型狂吸近80万亿Token调用量，连续25周碾压美国</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 11:49</p>
+  <p class="article-summary">据每日经济新闻援引OpenRouter最新数据，上周全球AI大模型在该平台总调用量达164万亿Token，其中中国模型占79.18万亿，约为美国模型17.36万亿的四倍半，全球调用量前五席位全部由中国模型占据，中国模型周调用量已连续25周超过美国，稳居全球首位。但调用量规模虽大，其中能转化为头部厂商实际收入的比例仍是业内关注的问题。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033672035095682" target="_blank" rel="noopener noreferrer">超纯应材：5nm及以下制程刻蚀设备核心零部件已稳定量产</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:49</p>
+  <p class="article-summary">超纯应材在互动平台表示，公司5nm及以下制程刻蚀设备核心零部件已实现稳定量产。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.thecapital.com.cn/news/125281" target="_blank" rel="noopener noreferrer">郭广昌间接参股的助贷公司，转型去做物理AI</a></h3>
+  
+  <p class="article-meta">融中财经 · 10/20 11:42</p>
+  <p class="article-summary">郭广昌间接参股的助贷公司量化派正在转型进入物理AI领域，公司当前面临业绩波动与人事动荡，叠加资本光环，其转型故事能否兑现仍待观察。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898871.html?f=rss" target="_blank" rel="noopener noreferrer">这届年轻人，花钱“手搓”AI人设</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:41</p>
+  <p class="article-summary">随着AI角色扮演玩法流行，越来越多年轻用户花钱自行编写角色设定指令，让AI扮演从古代贵族公子、虚拟恋人到游戏同人角色等各类人设，通过聊天对话展开互动剧情体验，社交平台上也出现相关的人设代写、交易生态。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898868.html?f=rss" target="_blank" rel="noopener noreferrer">“不烧心”的台词，“烧心”的AI短剧</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:35</p>
+  <p class="article-summary">AI短剧中“贵是贵点，但吃了不烧心”“宁可少挣点，也不能坏了规矩”等台词走红网络，源自一类讲述坚守原则良心商家对抗黑心商贩的剧情模板。该模板因在多部AI短剧中反复复制使用，被观众一眼识破为流水线套路，“不烧心”由此成为新的套路化标签，持续消耗观众对AI内容的耐心与信任。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898861.html?f=rss" target="_blank" rel="noopener noreferrer">风口再起？AI互动影视的机会与难题</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:32</p>
+  <p class="article-summary">AI互动影视剧赛道再度兴起，番茄小说《全球冰封：我打造了末日安全屋》一度冲上站内热搜前三，芒果TV的《马上来财》上线几天播放量突破1500万。各平台加紧布局：剪映上线互动影游创作平台ICG Studio，红果推出“平行世界”AI续写功能，腾讯视频内测AIGC内容创作平台“WorkSolo”，腾讯游戏开发TDream、造化工坊等产品，互影科技、万年等影视公司也相继入局。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898859.html?f=rss" target="_blank" rel="noopener noreferrer">中国的AI，不需要“天才娇妻文学”</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:30</p>
+  <p class="article-summary">文章借田柯宇案批评部分科技媒体热衷将年轻AI研究者、创业者包装成不被世俗理解的“天才”叙事——无论是做出研究成果、拿到巨额融资，还是出现明显不符合职业道德的行为，都被归因为“天才特有的行为逻辑”，作者认为这种“天才娇妻文学”式叙事应被摒弃。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8173947.html" target="_blank" rel="noopener noreferrer">60亿颗出货后，达摩院玄铁奔赴RISC-V生态下半场</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:29</p>
+  <p class="article-summary">达摩院玄铁芯片累计出货量突破60亿颗，正在奔赴RISC-V生态建设的下半场，行业内谁能真正聚合生态力量成为焦点。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.thecapital.com.cn/news/125279" target="_blank" rel="noopener noreferrer">【独家】擎天租李可为：机器人最先落地的地方，不是抢存量而是激活增量</a></h3>
+  
+  <p class="article-meta">融中财经 · 10/20 11:29</p>
+  <p class="article-summary">擎天租CEO李可为表示，机器人目前最先落地的场景并非替代存量市场，而是激活此前未被满足的增量需求，机器人租赁已在此基础上跑出一个百亿规模的市场。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4033627785024643" target="_blank" rel="noopener noreferrer">高盛：再次大幅上调全球AI服务器预测</a></h3>
+  
+  <p class="article-meta">36氪 创投主题 · 10/20 11:24</p>
+  <p class="article-summary">高盛全球服务器团队10月18日发布报告，将全球服务器价值TAM预测在2027年、2028年分别上调31%、45%，AI服务器与通用服务器预测同步上修。报告给出因果链条：AI基础设施投资上行，带动产品组合优化与内存成本上升，进而推动CSP支出与服务器TAM大幅上修，最终使供应链各环节受益，涨价本身也被视为利好。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898854.html?f=rss" target="_blank" rel="noopener noreferrer">脑机接口的2026：医保跑在了商业前面，好事还是麻烦？</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:22</p>
+  <p class="article-summary">10月9日中共中央、国务院印发《关于发展新质生产力的意见》，将脑机接口与量子科技、核聚变并列列为前瞻布局的未来产业。2026年3月13日，博睿康的植入式脑机接口产品拿到全球首张侵入式脑机接口医疗器械注册证，两天后医保编码落地，再一周后在上海挂网，从获批到具备收费资格仅用十天。国家医保局早在2025年3月已提前设定价格：侵入式置入费6000至6600元/次，非侵入式适配费约960元，技术尚未大规模进入医院，支付制度已先行铺好。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033645885985923" target="_blank" rel="noopener noreferrer">国家数据标注先行先试苏皖城市联盟成立</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:16</p>
+  <p class="article-summary">在2026物理AI与世界模型大会上，国家数据标注先行先试苏皖城市联盟在江苏南京成立，南京、安徽芜湖等长三角10个城市将联合组建数据标注创新中心，协同发展数据标注产业，旨在破解行业资源分散、标准不统一、区域协同不足等问题，为区域人工智能创新提供底层数据支撑。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8173787.html" target="_blank" rel="noopener noreferrer">WorkBuddy住进企业微信，AI同事几分靠谱？</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:14</p>
+  <p class="article-summary">AI数字员工产品WorkBuddy已接入企业微信，文章记录了将工作任务外包给这个AI同事48小时的实际使用体验，探讨其在真实办公场景中的可靠程度。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8173901.html" target="_blank" rel="noopener noreferrer">双十一，谁能靠AI获得大结果？</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:14</p>
+  <p class="article-summary">临近双十一，电商平台和商家开始尝试借助AI工具获取经营结果，商品端出现由AI主导的带货新形式。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8173933.html" target="_blank" rel="noopener noreferrer">AI大厂的数据中心，正在撞上一堵比芯片更硬的墙</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:14</p>
+  <p class="article-summary">AI大厂的数据中心建设正面临一个比芯片供应更难突破的瓶颈，相关数据中心叙事随之发生转变。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783990" target="_blank" rel="noopener noreferrer">不到72小时，DeepSeek和MiniMax双双交卷，Flash集体挑战旗舰</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 11:00</p>
+  <p class="article-summary">10月17日，DeepSeek更新发布V4.1 Flash-1017模型，几乎同时MiniMax将此前以匿名模型“Space Bunny”身份出现在开发者社区的M3.1 Flash正式公开。M3.1 Flash在DeepSWE测试中获得74分。两款Flash模型的接连亮相，标志着国产大模型的Flash赛道竞争升级：行业重心正从争夺模型能力上限，转向比拼以更低成本把能力转化为开发者和企业真正用得起的生产力。</p>
+</article>
+  </div>
+    </div>
+  </div>
+  </section>
+  <section class="panel" data-panel="capital-markets" data-panel-label="资本市场">
+    <div class="sub-content active" data-sub-content="main" data-cat="capital-markets">
+    
+    <div class="source-contents">
+      <div class="source-content active" data-source-content="_merged" data-sub="main" data-cat="capital-markets">
+    <article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033701816112264" target="_blank" rel="noopener noreferrer">财政部拟发行2026年记账式贴现（六十八期）国债，招标面值总额550亿元</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 12:13</p>
+  <p class="article-summary">财政部拟发行2026年记账式贴现（第六十八期）国债，期限182天，竞争性招标面值总额550亿元，并对甲类成员追加投标。该期国债以低于票面金额的价格贴现发行，发行价格通过竞争性招标确定。招标时间为2026年10月27日上午10:35至11:35，国债自2026年10月28日起计息，2027年4月28日（遇节假日顺延）按面值偿还。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898878.html?f=rss" target="_blank" rel="noopener noreferrer">豪掷近半利润分红，“西北酒王”金徽酒正在打一场硬仗</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 12:09</p>
+  <p class="article-summary">甘肃白酒企业金徽酒公布2026年中期分红方案，每10股派现2.00元，合计派发1.014亿元，占上半年净利润的47.37%。这是公司年内第三次分红：此前2月派发2025年前三季度分红约9937万元，6月派发2025年度分红约1.52亿元，8个月累计分红超2.6亿元。与大手笔分红对照的是，公司2026年上半年营收18.16亿元，同比增长仅3.19%，增速放缓。业内观察认为，持续高比例分红体现对股东诚意，但公司能否赢得市场最终仍取决于产品、渠道与治理的实效。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783987" target="_blank" rel="noopener noreferrer">北证50半日大涨超4%，人形机器人爆发，芯片半导体反弹，宁德时代AH股同步下滑，恒科指跌超1%</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 12:07</p>
+  <p class="article-summary">10月20日，A股三大股指早盘低开高走后临近午盘回落，沪指转跌；北证50半日大涨超4%，此前证监会主席吴清宣布将推出北证50ETF、北交所新股市值配售及创新性评价标准等举措。人形机器人板块爆发，宇树科技盘中大涨12%，芯片半导体、电路板、覆铜板等AI硬件股反弹；白酒、煤炭、海运板块调整。港股方面，恒指、恒生科技指数均跌超1%，阿里、腾讯、美团等权重股下跌，宁德时代H股盘中大跌超6%并创阶段新低，蔚来跌3%。国债期货集体上涨。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033690260624517" target="_blank" rel="noopener noreferrer">恒指午间休盘跌0.95%，恒生科技指数跌1.21%</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 12:01</p>
+  <p class="article-summary">10月20日午间休盘，恒生指数跌0.95%，恒生科技指数跌1.21%。板块方面，电气设备、有色金属、耐用消费品跌幅居前，宁德时代、紫金黄金国际跌超6%，华夏文化科技跌超3%；家庭用品、医药生物、医疗设备与服务领涨，亮晴控股涨超23%，林清轩涨超8%，翰森制药涨超7%。南向资金当日净买入13.91亿港元。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.tmtpost.com/8174108.html" target="_blank" rel="noopener noreferrer">“金九银十”泡汤，猪价还在等一个答案</a></h3>
+  
+  <p class="article-meta">钛媒体 · 10/20 11:59</p>
+  <p class="article-summary">钛媒体报道，传统猪肉消费旺季“金九银十”未能带动猪价回升，旺季效应落空，猪价走势仍待明确转折信号。原文未进一步披露具体价格数据。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033677781128064" target="_blank" rel="noopener noreferrer">中原内配：收到国际客户燃气发动机气缸套项目定点</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:56</p>
+  <p class="article-summary">中原内配公告，公司近日收到某国际知名工程机械与动力设备企业（因保密要求未披露具体名称）的《定点通知》，获得其燃气发动机气缸套项目定点，产品主要应用于电力与能源基础设施领域。公司预计2028年开始供货，根据客户需求预测，预计年销售额约人民币5000万元。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://finance.eastmoney.com/news/11822,202610203901142287.html" target="_blank" rel="noopener noreferrer">挖机出口首超内销！工程机械景气回暖 这12股业绩连续两年增长可期(名单)</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 11:44</p>
+  <p class="article-summary">中国工程机械工业协会数据显示，2026年9月挖掘机销量22717台，同比增长14.4%；装载机销量12419台，同比增长17.9%。1-9月挖掘机累计销量214274台，同比增长23.1%；装载机累计销量117077台，同比增长24.9%。出口正成为行业增长主引擎：9月挖掘机出口12806台，同比增长20.7%，1-9月累计出口109744台，挖掘机出口量今年首次反超内销。在出海与设备更新共振下，工程机械行业景气度加速回暖，机构筛选出12只概念股业绩有望连续两年正增长。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033670299898754" target="_blank" rel="noopener noreferrer">半日主力资金加仓电子板块，抛售银行板块</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:41</p>
+  <p class="article-summary">10月20日早盘，主力资金净流入电子、机械设备、计算机等板块，净流出银行、非银金融、公用事业等板块。个股方面，瑞芯微、长盈精密、九阳股份分别获净流入9.36亿元、8.74亿元、7.40亿元；农业银行、中国平安、长鑫科技则遭净流出5.42亿元、4.84亿元、4.25亿元。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898866.html?f=rss" target="_blank" rel="noopener noreferrer">AI“新雷”炸响？这次是在韩国……</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:35</p>
+  <p class="article-summary">韩国数据中心基础设施公司Elice Inc.本周二在以科技股为主的科斯达克市场上市首日股价大幅下挫，早盘一度下跌33%至61000韩元，开盘不到半小时内约3000亿韩元市值蒸发。市场对数据中心行业前景的担忧拖累股价表现。该公司此次IPO募资2010亿韩元（约合1.51亿美元）。若跌势持续，该股将创下韩国大型IPO上市首日最差表现纪录。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://finance.eastmoney.com/news/11822,202610203901139937.html" target="_blank" rel="noopener noreferrer">苹果官宣10月28日发布新品 OLED赛道景气升温这10股业绩增幅有望超200%(名单)</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 11:34</p>
+  <p class="article-summary">苹果官宣将于10月28日举行新品发布会，预计推出首款搭载OLED屏幕的触摸屏MacBook Pro，这是苹果自2006年MacBook系列发布以来首次在笔记本产品线上同时搭载OLED屏幕与触控功能。据爆料，新机有望于11月6日开售。OLED面板凭借近乎无限的对比度、更快响应速度和更薄机身结构，成为本次升级最大看点，中尺寸OLED渗透率加速提升。机构预测受此带动，多只OLED概念股今年业绩有望翻倍增长，相关10只概念股业绩增幅有望超200%。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033661294039944" target="_blank" rel="noopener noreferrer">A股三大指数午间休盘涨跌不一，工业机械板块领涨</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:32</p>
+  <p class="article-summary">10月20日午间休盘，A股三大指数涨跌不一：沪指跌0.08%，深成指涨0.18%，创业板指涨0.27%。板块方面，工业机械、汽车零部件、互联网板块领涨，凡拓数创、田中精机涨停，斯菱智驱涨超13%；贵金属、保险、银行板块跌幅居前，山金国际、中国人保、农业银行跌超2%。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://finance.eastmoney.com/news/1345,202610203901139871.html" target="_blank" rel="noopener noreferrer">创业板指上涨0.27% 全市场超3900股上涨 物理AI概念领涨</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 11:30</p>
+  <p class="article-summary">10月20日午间收盘，沪指下跌0.08%报3727.75点，深成指上涨0.18%报11838.88点，创业板指上涨0.27%报2753.81点，科创50指数上涨0.79%报1339.66点，北证50指数上涨4.11%报985.02点。全市场上涨个股3915家，下跌个股1507家，60只股涨停，两市半日合计成交9335亿元。盘面上，物理AI、自动化设备、照明设备、无线耳机、机器视觉、WiFi、减速器、混合现实板块涨幅居前，航海装备、地面兵装、煤炭、保险、商用车、银行表现不佳。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898852.html?f=rss" target="_blank" rel="noopener noreferrer">贝因美清掉工业大麻旧账，谢宏时代最“野”跨界画上句号</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:20</p>
+  <p class="article-summary">贝因美披露重大诉讼进展公告，公司与黑龙江丰佑麻类种植有限公司之间的专利合同纠纷已于10月14日经杭州市中级人民法院调解结案，黑龙江丰佑向贝因美返还3480万元。该纠纷源于2021年11月支付的5000万元专利许可费定金，双方曾于2021年底至2022年初签署工业大麻相关专利产品独家许可及共同研发协议，但彼时政策已禁止相关业务，预付款纠纷历时近五年才了结，标志着贝因美创始人谢宏时代较具争议的跨界布局画上句号。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033639721718921" target="_blank" rel="noopener noreferrer">首批场外科创债指基获批</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:16</p>
+  <p class="article-summary">业内获悉，淳厚、圆信永丰等基金公司此前申报的场外科创债指数基金已获批准，为首批获批的场外科创债指基。随着科创债类产品谱系进一步拓宽，投资者在科创债领域的投资选择将更加丰富。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/newsflashes/4033644161864835" target="_blank" rel="noopener noreferrer">国家发展改革委：多措并举加大力度扩大内需</a></h3>
+  
+  <p class="article-meta">36氪 快讯 · 10/20 11:15</p>
+  <p class="article-summary">国家发展改革委10月份新闻发布会上，国民经济综合司副司长左刚表示，下一步将会同有关部门以更大力度、更实举措有效扩大内需。具体包括：一是坚持惠民生和促消费相结合，大力提振消费，合理提高公共服务支出占财政支出比重，推动商品消费扩容升级，扩大养老消费，促进文化演艺、旅游服务、体育赛事等产业发展，清理取消消费不合理限制性措施；二是坚持投资于物和投资于人紧密结合，积极扩大有效投资，强化「十五五」规划纲要109项重大工程与「六张网」规划建设协同推进，加快新型政策性金融工具资金投放使用，加大对社会民生、科技创新、产业升级等领域的投资支持。</p>
+</article>
+  </div>
+    </div>
+  </div>
+  </section>
+  <section class="panel" data-panel="global-business" data-panel-label="全球商业">
+    <div class="sub-content active" data-sub-content="main" data-cat="global-business">
+    
+    <div class="source-contents">
+      <div class="source-content active" data-source-content="_merged" data-sub="main" data-cat="global-business">
+    <article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.yicai.com/news/103400340.html" target="_blank" rel="noopener noreferrer">国家发改委推出首批136项标志性重大应用场景项目</a></h3>
+  
+  <p class="article-meta">第一财经 · 10/20 11:50</p>
+  <p class="article-summary">国家发展改革委近日公布首批136项标志性重大应用场景项目，涵盖新领域新赛道、产业转型升级、行业应用、社会治理、民生服务等五大类型，旨在以场景创新带动产业升级与技术应用落地。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898856.html?f=rss" target="_blank" rel="noopener noreferrer">气价至高点，库存处低位，2026-2027年冬季欧洲能源危机正在到来</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:26</p>
+  <p class="article-summary">据微信公众号「全说能源」文章，欧洲天然气基准TTF价格已涨至2022年12月以来最高水平，而欧洲储气库存处于近五年同期低位。叠加卡塔尔LNG供应不确定性及欧盟禁止进口俄罗斯LNG的政策，业内人士认为2026-2027年冬季欧洲能源危机正逼近。10月17日至18日，法国因能源价格上涨推高生活成本，爆发全国性示威、抗议与骚乱，凸显能源价格对社会稳定的冲击。媒体与行业专家预计，欧洲普通民众即将面对的这个冬天将比以往更难熬。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898855.html?f=rss" target="_blank" rel="noopener noreferrer">大众冻结本土12万员工薪资到2027年：战略在踩油门，旧组织却拉住了手刹</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 11:24</p>
+  <p class="article-summary">据内部文件披露，大众汽车计划将德国本土约12万名员工中大部分人的加薪推迟至2027年，同时在全球范围内削减数万个岗位。消息传出后，德国工会IG Metall发出罢工威胁。市场此前多将此解读为大众应对电动化转型、利润下滑而采取的常规降本措施，但报道指出，作为德国工业象征的大众，此次冻薪与裁员反映的是比单纯财务止血更深层的组织与战略矛盾。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.yicai.com/news/103400225.html" target="_blank" rel="noopener noreferrer">马斯克披露106亿美元“儿童股”承诺，但他并非第一人</a></h3>
+  
+  <p class="article-meta">第一财经 · 10/20</p>
+  <p class="article-summary">马斯克近期披露一项价值106亿美元的「儿童股」承诺，但报道指出他并非首位作出此类安排的富豪。受益人范围、股票交付方式等具体细节尚未明确。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898835.html?f=rss" target="_blank" rel="noopener noreferrer">中国消费品牌为何扎堆曼谷商场？</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 10:31</p>
+  <p class="article-summary">过去两年，喜茶、Tagi.、霸王茶姬、泡泡玛特等中国新消费品牌陆续进入泰国曼谷地标商场。喜茶已于9月底开出泰国首店，上述品牌将海外直营店、泰国首店或旗舰店落子CentralWorld、ICONSIAM、Siam Paragon等地标商业体，借助实体空间拓展东南亚市场。对重视产品体验与空间设计的新消费品牌而言，门店也是向当地消费者展示品牌形象的窗口；而商场同样需要新品牌与体验吸引客流，双方形成互需关系。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.huxiu.com/article/4898820.html?f=rss" target="_blank" rel="noopener noreferrer">双11再交手，抖音京东在争什么？</a></h3>
+  
+  <p class="article-meta">虎嗅 · 10/20 09:52</p>
+  <p class="article-summary">今年双11，抖音与京东的竞争再度升级。矛盾可追溯至今年618前夕，京东采销经理左琦曾在朋友圈截图中称，有大型流量平台要求商家公开指责京东即可换取流量支持，并质疑该平台将京东负面新闻推上热榜。10月中旬，左琦再次发朋友圈，质疑一篇阅读量仅约1000、无评论的报道却登上平台热搜榜，矛盾进一步升级。报道认为，今年双11的较量中，AI能否改写电商平台间的竞争格局成为新变量。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://global.eastmoney.com/news/1959,202610203900900076.html" target="_blank" rel="noopener noreferrer">突然！以色列总理下令：推翻伊朗政权！</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 09:35</p>
+  <p class="article-summary">当地时间10月19日晚，以色列总理内塔尼亚胡在接受以色列第14频道采访时称，已向以军、以色列情报和特勤局（摩萨德）及以军军事情报局下达「推翻伊朗政权」的指令，并称美国总统特朗普对此态度「非常明确」，核心任务是彻底消除伊朗对以色列的生存威胁。另据报道，美国防长赫格塞思19日访问以色列并与内塔尼亚胡会晤，此访事先未对外公布，距以色列议会选举仅剩数天，中东局势再度紧张。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://finance.eastmoney.com/news/1356,202610203900598759.html" target="_blank" rel="noopener noreferrer">特朗普直白批评泽连斯基：应更换乌克兰谈判代表</a></h3>
+  
+  <p class="article-meta">东方财富 · 10/20 08:51</p>
+  <p class="article-summary">当地时间周一，美国总统特朗普再次公开批评乌克兰总统泽连斯基，主张应由其他人代表乌克兰参与俄乌停战谈判，令美乌高层矛盾公开化。此前一周，特朗普签署行政令豁免对俄多项制裁，招致泽连斯基反对；泽连斯基称特朗普站在「历史的错误一边」。特朗普回应称泽连斯基「无助于局势缓和」，并表示若泽连斯基早听取其建议，停战协议早已达成，此番表态为全球能源与地缘市场增添了新的不确定性。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783962" target="_blank" rel="noopener noreferrer">印尼股交所将驱逐高度集中持股公司，力阻MSCI降级</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 08:05</p>
+  <p class="article-summary">印尼证券交易所周一宣布，将把股权高度集中的公司从旗舰指数——雅加达综合指数（JCI）中剔除，相关股票仍可正常交易，但其价格波动将不再纳入JCI计算。此举是为避免被MSCI将印尼重新划定为「独立市场」——这一分类通常适用于阿根廷、黎巴嫩、津巴布韦等市场，意味着市场可及性或流动性严重恶化。据英国《金融时报》报道，该举措的背景是印尼股市正面临数十亿美元规模的资金外流压力。印尼证交所CEO Jeffrey Hendrik对此作出表态确认。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783967" target="_blank" rel="noopener noreferrer">特朗普再否泽连斯基谈判资格：&quot;该换人谈判了&quot;，但情报共享与临时保护身份仍在</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 07:16</p>
+  <p class="article-summary">10月19日下午，美国总统特朗普在白宫对媒体表示，应由泽连斯基以外的人代表乌克兰同俄罗斯谈判结束战事，这是他近期对泽连斯基资格的又一次否定。特朗普称泽连斯基「可能从未想过要结束战争」。不过他同时表示，美国仍将继续与乌克兰共享情报，并考虑允许乌克兰人以临时保护身份留美直至战争结束。特朗普还透露已就乌克兰问题与俄罗斯总统普京进行「谈判」，这进一步加剧外界对俄乌停火进程走向的不确定性预期。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://wallstreetcn.com/articles/3783963" target="_blank" rel="noopener noreferrer">沙特&quot;沙漠达沃斯&quot;推迟至2027年：500亿美元签约窗口关闭，&quot;全球商业枢纽&quot;叙事受挫</a></h3>
+  
+  <p class="article-meta">华尔街见闻 · 10/20 04:50</p>
+  <p class="article-summary">沙特阿拉伯旗舰投资会议「未来投资倡议」（FII）主办方10月19日宣布，原定10月26日至29日在利雅得举行的第十届大会推迟至2027年举行，具体日期将「很快」公布。推迟原因是中东安全局势持续恶化，此前胡塞武装10月10日袭击了利雅得哈立德国王国际机场等沙特境内目标。这场被称为「沙漠达沃斯」的盛会一度带来高达500亿美元的签约窗口，此次推迟令沙特打造「全球商业枢纽」的雄心蒙上阴影。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.theinformation.com/articles/pentagons-emil-michael-vows-export-controls-ai-labs-cooperate-government" target="_blank" rel="noopener noreferrer">五角大楼警告：AI实验室若不配合政府将面临出口管制</a></h3>
+  
+  <p class="article-meta">The Information · 10/19 21:00</p>
+  <p class="article-summary">美国国防部高级官员、特朗普政府「超级智能」工作组成员埃米尔·迈克尔（Emil Michael）在采访中表示，如果AI公司不配合政府要求，他将动用包括出口管制等一系列行政工具来约束这些企业的行为。报道未进一步说明具体配合事项及实施时间表。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.36kr.com/p/4029535928652161" target="_blank" rel="noopener noreferrer">成为全球第二，优衣库的答案不再是中国</a></h3>
+  
+  <p class="article-meta">36氪 热榜 · 10/19 14:08</p>
+  <p class="article-summary">本月底，优衣库上海全球旗舰店将从淮海中路887号迁至755号重新开业。原址于2013年开业，营业面积超8000平方米，是优衣库全球最大门店，新址面积约2800平方米，不到原址一半。原店开业时，迅销创始人柳井正曾亲赴上海，并提出「3000家门店」的中国市场目标，中国区CEO潘宁称此为优衣库在华「新的发展阶段」。报道指出，优衣库成为全球第二大市场的增长答案已不再主要依赖中国。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.leiphone.com/category/industrynews/PjxlLXJnnCMoa2q3.html" target="_blank" rel="noopener noreferrer">阿里速卖通公布未来三年目标：品牌数、品牌滚动GMV每年增长50%</a></h3>
+  
+  <p class="article-meta">雷峰网 · 10/19 12:14</p>
+  <p class="article-summary">10月19日举办的速卖通年度峰会上，速卖通总裁惊石公布未来三年目标：品牌数量与品牌滚动GMV每年均增长50%（「双50%」增长）。为支撑这一目标，速卖通将持续投入全球履约、本地化流量、品牌营销、合规及AI能力建设，并借助AI能力拓展拉美、东南亚、非洲等66个新市场。大会传递的信号是，跨境电商已从轻小件、低价竞争阶段转向全球履约、本地经营、品牌化与合规能力的综合竞争。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.chinaventure.com.cn/news/78-20261019-393667.html" target="_blank" rel="noopener noreferrer">今年第一个，被外资无情收割的亚洲国家</a></h3>
+  
+  <p class="article-meta">投中网 · 10/19</p>
+  <p class="article-summary">报道称，今年以来已有一个亚洲国家遭遇外资大规模撤离，当地财富经历「残酷的再分配」。摘录中未提及该国具体名称及资金规模等细节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.chinaventure.com.cn/news/110-20261019-393668.html" target="_blank" rel="noopener noreferrer">中国汽车出口太猛，船不够用了？</a></h3>
+  
+  <p class="article-meta">投中网 · 10/19</p>
+  <p class="article-summary">报道称，中国汽车出口增长迅猛，导致滚装船运力持续紧张，舱位提前一个月预订都未必能抢到，运力瓶颈正成为中国车企出海的新制约因素。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.bbc.co.uk/news/articles/c9p8gz7zx4peo?at_medium=RSS&amp;at_campaign=rss" target="_blank" rel="noopener noreferrer">特朗普：暂停对俄制裁是为推进和平谈判</a></h3>
+  
+  <p class="article-meta">BBC World · 10/19 07:20</p>
+  <p class="article-summary">美国总统特朗普在原定多项对俄制裁生效前两天予以阻止，他表示此举是为了让俄乌和平谈判能够继续推进。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.theinformation.com/articles/upstart-banks-may-keep-raising-money" target="_blank" rel="noopener noreferrer">新创银行为何可能被迫持续融资</a></h3>
+  
+  <p class="article-meta">The Information · 10/18 23:00</p>
+  <p class="article-summary">特朗普政府为创业者在美国新设银行打开了大门，许多新银行由风险投资资金支持，例如Palmer Luckey旗下的Erebor Bank，以及Openreserve、Augustus等新进入者。报道指出，这些快速增长的新银行存在隐患：为满足资本要求，它们可能需要持续不断地融资以支撑增长。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="https://www.chinaventure.com.cn/news/80-20261017-393658.html" target="_blank" rel="noopener noreferrer">《哈利波特》的东家被卖了，价值7361亿</a></h3>
+  
+  <p class="article-meta">投中网 · 10/17</p>
+  <p class="article-summary">报道称，《哈利波特》版权所属的影视公司被出售，交易价值约7361亿。摘录中未披露买方及具体币种等细节。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><span class="tier tier-lang">英文报道</span><a href="https://www.theinformation.com/articles/apples-antitrust-settlement-talks-spur-worries-among-developers" target="_blank" rel="noopener noreferrer">苹果反垄断和解谈判引发开发者担忧</a></h3>
+  
+  <p class="article-meta">The Information · 10/16 21:00</p>
+  <p class="article-summary">美国司法部正与苹果就其反垄断诉讼进行和解谈判，应用开发者担忧最终协议力度不足，无法有效遏制他们眼中苹果的反竞争行为。多名开发者已对谈判进展表达担忧。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-first">第一手</span><span class="tier tier-lang">英文报道</span><a href="https://news.mit.edu/2026/state-of-supply-chain-sustainability-report-1015" target="_blank" rel="noopener noreferrer">MIT报告：企业供应链可持续承诺创新高，但治理滞后</a></h3>
+  
+  <p class="article-meta">MIT News 人工智能 · 10/16 05:00</p>
+  <p class="article-summary">麻省理工学院运输与物流中心发布的《供应链可持续发展状况报告》显示，企业在可持续发展方面的承诺已达历史最高水平，但治理机制存在缺口，加之外部干扰因素，导致相关承诺难以落地执行。</p>
+</article>
+<article class="article">
+  <h3 class="article-title"><span class="tier tier-media">媒体报道</span><a href="http://www.geekpark.net/news/372386" target="_blank" rel="noopener noreferrer">卖出去≠全球化成功，中国企业出海究竟还差什么？</a></h3>
+  
+  <p class="article-meta">极客公园 · 10/15 12:40</p>
+  <p class="article-summary">2025年中国企业全球汽车销量达2700万辆，首次超越日本，其中出口832万辆，较十年前的72.82万辆增长超10倍。但销量上升的同时利润率持续下滑：2026年上半年国内汽车销售利润率跌至1.52%，创10年最低纪录。报道指出，出海已从企业的选择题变为必答题，但真正的出海成功不只是把车卖出去，还需要本地团队、合规体系与运营能力环环相扣。小鹏集团作为国内头部企业对此体会深刻，交付海外用户后才是真正考验的开始。</p>
+</article>
+  </div>
+    </div>
+  </div>
+  </section>
+  <section class="panel" data-panel="trading" data-panel-label="数据指标"><section class="trading-overview-card">
+    <span class="eyebrow">市场总览</span>
+    <p class="overview-text trading-overview-text">中国市场方面，A股整体偏弱：上证指数报3727.75点，接近一年最低区间，已跌破20日、50日、200日均价，中长期走势偏弱；深证成指近5日下跌4.17%，强弱指标RSI仅21.3，处于超卖状态，短线存在技术性反弹可能，但中长期均价仍远高于现价，趋势仍偏弱。科创50、恒生科技指数当日数据持平，位于一年高点附近，显示部分成长板块相对抗跌。港股方面，恒生指数跌0.95%、恒生科技指数跌1.21%，均跌破中长期均价，走势偏弱，但恒生指数短期动能已见转强迹象。美国市场相对平稳：纳斯达克涨1.11%，标普500涨0.41%且接近一年最高点，道琼斯基本持平，三大指数RSI均处于40-52的中性区间，短期动能略转弱但未现明显超买超卖。科技巨头分化：苹果、微软延续偏强走势，股价站上中长期均价上方，RSI分别为61.2、59.6；英伟达、台积电当日反弹但5日仍为负；腾讯、阿里巴巴延续偏弱，腾讯距一年最低点仅1.08%。汇率方面，以人民币视角看，美元对人民币持续走低（现报6.68，5日跌0.21%），人民币整体走强，该汇率逼近一年最低、RSI跌至18.8的超卖水平，短线有技术性反弹空间。另外，加密市场恐慌贪婪指数为55（贪婪区间），总市值2.77万亿美元但24小时下跌2.2%，情绪与主流股指的谨慎基调形成一定反差。</p>
+  </section>
+
+  <section class="trading-watchlist">
+    <h2 class="category-title trading-section-title">今日关注</h2>
+    <div class="trading-picks">
+      <article class="trading-pick stance-bull">
+    <header class="pick-head">
+      <div class="pick-symbol-block">
+        <span class="pick-symbol">AAPL</span>
+        <span class="pick-name">苹果 (AAPL)</span>
+      </div>
+      <span class="pick-stance pick-stance-bull">偏上行</span>
+    </header>
+    <p class="pick-rationale">苹果股价342.94美元，距一年最高点仅-1.5%；股价站在20日、50日、200日均价(337.62/326.29/292.82)上方，中长期走势偏强；强弱指标RSI为61.2，处于中性偏强区间，短期动能由弱转强（技术上称MACD金叉，当前4.12高于信号线3.97）。</p>
+  </article>
+<article class="trading-pick stance-bear">
+    <header class="pick-head">
+      <div class="pick-symbol-block">
+        <span class="pick-symbol">0700.HK</span>
+        <span class="pick-name">腾讯控股 (0700.HK)</span>
+      </div>
+      <span class="pick-stance pick-stance-bear">偏下行</span>
+    </header>
+    <p class="pick-rationale">腾讯控股报410.8港元，今日下跌1.68%，近5日累计跌3.52%，距一年最低点仅1.08%；股价跌破20日、50日、200日均价(427.52/436.76/488.71)，走势偏弱；强弱指标RSI为38.2，短期动能偏弱（MACD为-5.92，低于信号线-5.23）。</p>
+  </article>
+<article class="trading-pick stance-bear">
+    <header class="pick-head">
+      <div class="pick-symbol-block">
+        <span class="pick-symbol">399001.SZ</span>
+        <span class="pick-name">深证成指</span>
+      </div>
+      <span class="pick-stance pick-stance-bear">偏下行</span>
+    </header>
+    <p class="pick-rationale">深证成指报11838.88点，近5日下跌4.17%，距一年最低点仅1.2%，已跌破20日、50日、200日均价(12811.8/13506.1/14311.45)，中长期走势偏弱；强弱指标RSI为21.3，处于超卖区间（通常30以下意味着短期跌幅偏大，存在技术性反弹可能），仍需留意短线能否企稳。</p>
+  </article>
+<article class="trading-pick stance-neutral">
+    <header class="pick-head">
+      <div class="pick-symbol-block">
+        <span class="pick-symbol">^GSPC</span>
+        <span class="pick-name">标普 500</span>
+      </div>
+      <span class="pick-stance pick-stance-neutral">中性</span>
+    </header>
+    <p class="pick-rationale">标普500指数报7690.73点，今日上涨0.41%，距一年最高点仅1.96%；指数位于20日、50日均价(7735.54/7705.08)下方，但仍站在200日均价(7275.66)上方，短期与中长期趋势出现分歧；强弱指标RSI为47.3，处于中性水平，短期动能略有转弱，整体呈震荡状态。</p>
+  </article>
+<article class="trading-pick stance-neutral">
+    <header class="pick-head">
+      <div class="pick-symbol-block">
+        <span class="pick-symbol">USDCNY=X</span>
+        <span class="pick-name">美元 / 人民币</span>
+      </div>
+      <span class="pick-stance pick-stance-neutral">中性</span>
+    </header>
+    <p class="pick-rationale">美元/人民币报6.68，较一年最低点仅高0.16%，处于近一年偏弱区间，意味着人民币对美元持续走强；该汇率已跌破20日、50日、200日均价(6.70/6.71/6.81)；强弱指标RSI为18.8，处于明显超卖区间，短期美元兑人民币存在技术性反弹（即人民币短线转弱）的可能，整体仍呈窄幅震荡格局。</p>
+  </article>
+    </div>
+  </section>
+
+  <section class="trading-tickers">
+    <h2 class="category-title trading-section-title">全部资产</h2>
+    <nav class="trading-group-tabs"><button class="trading-group-tab active" data-group="cn-market">中国市场<span class="count">5</span></button><button class="trading-group-tab" data-group="us-market">美国市场<span class="count">3</span></button><button class="trading-group-tab" data-group="tech-giants">科技巨头<span class="count">8</span></button><button class="trading-group-tab" data-group="fx">汇率<span class="count">3</span></button></nav>
+    <div class="trading-group-contents"><div class="trading-group-content active" data-group="cn-market">
+      <article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">000001.SS</h3>
+        <p class="ticker-name">上证指数</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">¥3,727.75</span>
+        <span class="ticker-pct negative">-0.08%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-1.92%</dd></div>
+      <div><dt>距一年最高</dt><dd>-12.5%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">31.4</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>3,832.00 / 3,889.28 / 4,004.05</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-50.068 / -37.488</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">接近一年最低</span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">399001.SZ</h3>
+        <p class="ticker-name">深证成指</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">¥11,838.88</span>
+        <span class="ticker-pct positive">+0.18%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-4.17%</dd></div>
+      <div><dt>距一年最高</dt><dd>-27.7%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-oversold">21.3</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>12,811.80 / 13,506.10 / 14,311.45</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-504.419 / -406.879</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-caution">短期跌得偏多，可能反弹</span><span class="signal-pill tone-bear">接近一年最低</span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">000688.SS</h3>
+        <p class="ticker-name">科创 50</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">¥1,339.66</span>
+        <span class="ticker-pct positive">+0.00%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="positive">+0.00%</dd></div>
+      <div><dt>距一年最高</dt><dd>-1.1%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">—</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>— / — / —</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>— / —</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bull">接近一年最高</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">^HSI</h3>
+        <p class="ticker-name">恒生指数</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">HK$23,956.93</span>
+        <span class="ticker-pct negative">-0.95%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-1.29%</dd></div>
+      <div><dt>距一年最高</dt><dd>-14.6%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">39.3</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>24,378.65 / 24,951.35 / 25,464.67</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-239.067 / -245.897</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bull">短期动能转强 <span class="signal-age">(4 天前)</span></span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">HSTECH.HK</h3>
+        <p class="ticker-name">恒生科技指数</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">4,058.39</span>
+        <span class="ticker-pct positive">+0.00%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="positive">+0.00%</dd></div>
+      <div><dt>距一年最高</dt><dd>-0.6%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">—</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>— / — / —</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>— / —</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bull">接近一年最高</span></div>
+    
+  </article>
+    </div><div class="trading-group-content" data-group="us-market">
+      <article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">^IXIC</h3>
+        <p class="ticker-name">纳斯达克</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$26,430.89</span>
+        <span class="ticker-pct positive">+1.11%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-2.99%</dd></div>
+      <div><dt>距一年最高</dt><dd>-4.7%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">43.3</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>27,016.61 / 26,626.02 / 24,935.35</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>17.755 / 151.826</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">短期动能转弱 <span class="signal-age">(4 天前)</span></span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">^GSPC</h3>
+        <p class="ticker-name">标普 500</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$7,690.73</span>
+        <span class="ticker-pct positive">+0.41%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-1.49%</dd></div>
+      <div><dt>距一年最高</dt><dd>-2.0%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">47.3</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>7,735.54 / 7,705.08 / 7,275.66</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>12.941 / 23.926</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">短期动能转弱 <span class="signal-age">(2 天前)</span></span><span class="signal-pill tone-bull">接近一年最高</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">^DJI</h3>
+        <p class="ticker-name">道琼斯</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$51,966.03</span>
+        <span class="ticker-pct negative">-0.07%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="positive">+0.22%</dd></div>
+      <div><dt>距一年最高</dt><dd>-5.1%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">52.0</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>51,526.94 / 52,418.89 / 50,459.23</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-87.511 / -224.842</dd></div>
+    </dl>
+    
+    
+  </article>
+    </div><div class="trading-group-content" data-group="tech-giants">
+      <article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">NVDA</h3>
+        <p class="ticker-name">英伟达</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$217.09</span>
+        <span class="ticker-pct positive">+1.38%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-4.08%</dd></div>
+      <div><dt>距一年最高</dt><dd>-10.8%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">41.5</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>227.66 / 222.94 / 203.12</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-0.792 / 1.586</dd></div>
+    </dl>
+    
+    <p class="ticker-driver"><span class="ticker-driver-label">异动原因</span>据报道英伟达从AI初创公司Modal赢得CPU芯片订单，被视为其进军英特尔、AMD主导CPU市场的信号，提振当日市场情绪。</p>
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">TSM</h3>
+        <p class="ticker-name">台积电</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$420.22</span>
+        <span class="ticker-pct positive">+1.84%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-5.43%</dd></div>
+      <div><dt>距一年最高</dt><dd>-13.8%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">39.0</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>451.22 / 434.37 / 395.63</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-2.783 / 4.011</dd></div>
+    </dl>
+    
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">MSFT</h3>
+        <p class="ticker-name">微软</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$533.52</span>
+        <span class="ticker-pct positive">+0.84%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-1.41%</dd></div>
+      <div><dt>距一年最高</dt><dd>-3.6%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">59.6</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bullish">偏强</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>521.82 / 506.20 / 435.50</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>10.737 / 10.891</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">短期动能转弱 <span class="signal-age">(今天)</span></span><span class="signal-pill tone-bull">站在中长期均价上方，走势偏强</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">GOOGL</h3>
+        <p class="ticker-name">谷歌</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$344.18</span>
+        <span class="ticker-pct positive">+1.05%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-2.42%</dd></div>
+      <div><dt>距一年最高</dt><dd>-15.8%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">48.1</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>345.87 / 344.38 / 341.06</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>0.682 / 1.071</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">短期动能转弱 <span class="signal-age">(1 天前)</span></span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">AAPL</h3>
+        <p class="ticker-name">苹果</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$342.94</span>
+        <span class="ticker-pct negative">-0.15%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="positive">+0.58%</dd></div>
+      <div><dt>距一年最高</dt><dd>-1.5%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">61.2</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bullish">偏强</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>337.62 / 326.29 / 292.82</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>4.124 / 3.973</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bull">短期动能转强 <span class="signal-age">(3 天前)</span></span><span class="signal-pill tone-bull">接近一年最高</span><span class="signal-pill tone-bull">站在中长期均价上方，走势偏强</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">TSLA</h3>
+        <p class="ticker-name">特斯拉</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$368.06</span>
+        <span class="ticker-pct positive">+3.76%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-2.64%</dd></div>
+      <div><dt>距一年最高</dt><dd>-26.2%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">50.6</dd></div>
+      <div><dt>趋势</dt><dd class="trend-neutral">震荡</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>369.97 / 360.25 / 387.58</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>1.273 / 3.059</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">短期动能转弱 <span class="signal-age">(3 天前)</span></span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">0700.HK</h3>
+        <p class="ticker-name">腾讯控股</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">HK$410.80</span>
+        <span class="ticker-pct negative">-1.68%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-3.52%</dd></div>
+      <div><dt>距一年最高</dt><dd>-38.1%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">38.2</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>427.52 / 436.76 / 488.71</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-5.922 / -5.231</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">短期动能转弱 <span class="signal-age">(2 天前)</span></span><span class="signal-pill tone-bear">接近一年最低</span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">BABA</h3>
+        <p class="ticker-name">阿里巴巴</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">$108.57</span>
+        <span class="ticker-pct negative">-0.49%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-1.99%</dd></div>
+      <div><dt>距一年最高</dt><dd>-40.5%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">45.0</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>109.53 / 114.27 / 128.76</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-0.860 / -1.235</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article>
+    </div><div class="trading-group-content" data-group="fx">
+      <article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">USDCNY=X</h3>
+        <p class="ticker-name">美元 / 人民币</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">¥6.68</span>
+        <span class="ticker-pct negative">-0.19%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-0.21%</dd></div>
+      <div><dt>距一年最高</dt><dd>-7.1%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-oversold">18.8</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>6.70 / 6.71 / 6.81</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-0.008 / -0.006</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-caution">短期跌得偏多，可能反弹</span><span class="signal-pill tone-bear">接近一年最低</span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">JPYCNY=X</h3>
+        <p class="ticker-name">日元 / 人民币</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">¥0.04</span>
+        <span class="ticker-pct negative">-0.70%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-0.27%</dd></div>
+      <div><dt>距一年最高</dt><dd>-11.0%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">39.8</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>0.04 / 0.04 / 0.04</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-0.000 / -0.000</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">接近一年最低</span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article><article class="ticker-card">
+    <header class="ticker-head">
+      <div class="ticker-id">
+        <h3 class="ticker-symbol">SGDCNY=X</h3>
+        <p class="ticker-name">新加坡元 / 人民币</p>
+      </div>
+      <div class="ticker-price-block">
+        <span class="ticker-price">¥5.22</span>
+        <span class="ticker-pct negative">-0.15%</span>
+      </div>
+    </header>
+    <dl class="ticker-indicators">
+      <div><dt>近 5 日</dt><dd class="negative">-0.05%</dd></div>
+      <div><dt>距一年最高</dt><dd>-5.5%</dd></div>
+      <div><dt>强弱指标 RSI</dt><dd class="rsi-normal">39.4</dd></div>
+      <div><dt>趋势</dt><dd class="trend-bearish">偏弱</dd></div>
+      <div><dt>20 / 50 / 200 日均价</dt><dd>5.24 / 5.26 / 5.32</dd></div>
+      <div><dt>动量 MACD / 信号线</dt><dd>-0.012 / -0.011</dd></div>
+    </dl>
+    <div class="ticker-signals"><span class="signal-pill tone-bear">接近一年最低</span><span class="signal-pill tone-bear">跌破中长期均价，走势偏弱</span></div>
+    
+  </article>
+    </div></div>
+  </section>
+
+  <section class="trading-risk">
+    <span class="eyebrow">风险提示</span>
+    <p>以上内容基于公开行情数据计算的技术指标客观描述，仅供技术指标解读参考，不构成任何投资建议；过去走势不代表未来表现，市场变化具有不确定性，请结合自身判断谨慎决策。</p>
+  </section></section>
+  <section class="panel" data-panel="about" data-panel-label="关于本项目">
+    <div class="about">
+    <h2 class="about-title">前沿科技投资简报 Agent</h2>
+    <p class="about-lead">这是一套每天早上 8 点自动运行的资讯 Agent，从 44 个中外可靠信源抓取约 900 条资讯，用大模型逐条判断价值、剔除噪音、生成中文摘要，最后产出一份 5 分钟能读完的资讯早餐。</p>
+    <div class="about-links"><a class="about-link" href="https://wimlan-daniel.github.io/Tech-Investment-Daily-Brief/" target="_blank" rel="noopener noreferrer">
+      <span class="about-link-label">在线阅读（每日自动更新）</span>
+      <span class="about-link-url">https://wimlan-daniel.github.io/Tech-Investment-Daily-Brief/</span>
+      <span class="about-link-note">打开即当天简报，七个板块可切换</span>
+    </a><a class="about-link" href="https://github.com/Wimlan-Daniel/Tech-Investment-Daily-Brief" target="_blank" rel="noopener noreferrer">
+      <span class="about-link-label">源码与技术说明</span>
+      <span class="about-link-url">https://github.com/Wimlan-Daniel/Tech-Investment-Daily-Brief</span>
+      <span class="about-link-note">含完整实现与迭代记录</span>
+    </a></div>
+    <h3 class="about-h">项目初衷</h3>
+    <p class="about-p">做一级市场研究，信息源非常分散——融资事件在投中和 36 氪，技术进展在 arXiv 和官方博客，宏观环境在第一财经。每天挨个刷要一小时以上，噪音非常多。</p>
+    <p class="about-p">现有媒体也有每日简讯合集，但它们服务的是最大公约数读者：内容按编辑部的口味筛选，赛道划分不统一，原文出处也常常要点进两三层才能找到。我想要一个更符合自己关注点、更聚焦前沿科技和一级市场、每条都能快速溯源的信息看板，所以用 Claude Code 自己搭了一个。</p>
+    <h3 class="about-h">六个板块</h3>
+    <table class="about-table">
+  <thead><tr><th>板块</th><th>对应内容</th></tr></thead>
+  <tbody><tr><td>每日简报</td><td>跨板块精选当天最关键的 10 条</td></tr><tr><td>一级市场</td><td>融资事件、基金募集、并购退出、IPO、创投政策与行业数据</td></tr><tr><td>前沿技术</td><td>论文、模型能力突破、技术路线之争、开源动向</td></tr><tr><td>科技商业</td><td>产品发布、定价、客户落地、产能、供应链、公司战略</td></tr><tr><td>资本市场</td><td>上市公司与二级市场、宏观数据、利率汇率</td></tr><tr><td>全球商业</td><td>按《金融时报》头版标准筛选的重大商业事件</td></tr><tr><td>数据指标</td><td>A股/港股/美股指数、科技巨头股价异动及原因、汇率</td></tr></tbody>
+</table>
+    <p class="about-p">现成的资讯聚合平台对于板块分类的效果并不理想，往往一个信源固定归一个板块。所以我让 Agent 逐条判断，而不是按来源判断。每条内容单独交给大模型看它属于哪个板块，或者直接丢弃。实测每天从约 520 条里剔除 145 条噪音，保留 373 条分入五个内容板块（行情面板数据指标除外）。</p>
+    <h3 class="about-h">信息价值评分标准</h3>
+    <p class="about-p">每条内容打 1-10 分，评价标准是这件事改变了多少人的判断，改变能持续多久。9-10 分是改变行业格局（一年几次），7-8 分是改变一条赛道的判断，5-6 分是赛道内实质进展。</p>
+    <ol class="about-list"><li><strong>传闻减 1 分</strong>——“据悉”“洽谈中”的事，官方确认前打折</li><li><strong>判重看昨日简报</strong>——昨天报过的事今天不再选，除非有新进展（传闻变官宣、金额敲定）</li><li><strong>分数跨天可比</strong>——衡量的是事件本身的量级，不是当天这批里的排名</li></ol>
+    <p class="about-p">此外，重要的资讯会精选放在第一栏的每日简报，每天扫一眼头条分数就知道当天量级：出现 9 分说明有大事，头条只有 6 分说明可以快速翻过。</p>
+    <h3 class="about-h">信源工程是工作量最大的部分</h3>
+    <p class="about-p">中文网站的订阅接口大面积失效：36 氪、投中、清科、i黑马、融中财经、第一财经的官方 RSS 全部下线。在实测了 100 多个地址后，我让 Claude Code 为 7 个关键信源写了抓取器直接解析网页。其中投中已成为一级市场板块的第一来源，清科的免费报告标题本身就是数据（如《本周投资、退出、并购事件共 265 起，涉及金额 1974.62 亿元》）。</p>
+    <p class="about-p">另一个难点在于，微信公众号生态封闭，里面的文章无法自动获取，试了很多方案都实测失败，最后我用内容同步的网站替代；一级市场明细数据是付费库，用清科的总量周报做近似。</p>
+    <h3 class="about-h">技术实现</h3>
+    <p class="about-p">TypeScript + Node.js，基于开源项目 DailyBrief（MIT 协议）二次开发。上游是面向硅谷科技爱好者的通用日报工具，我保留了它的调度框架和网页渲染层，重写了内容组织逻辑、信源体系和全部提示词，并新增了分类层和简报页。</p>
+    <table class="about-table">
+  <thead><tr><th>项</th><th>说明</th></tr></thead>
+  <tbody><tr><td>模型</td><td>Claude Sonnet 负责分类与摘要，每日简报单独用 Opus——全流程唯一需要判断力而非执行力的环节。通过本地 Claude Code 命令行调用，复用订阅额度，无额外 API 支出</td></tr><tr><td>调度</td><td>macOS launchd 定时任务，每天 08:00 无人值守执行，跑完自动用浏览器打开</td></tr><tr><td>产出</td><td>单文件 HTML，约 150KB，样式与交互全部内嵌，可直接转发或离线打开</td></tr><tr><td>性能</td><td>单轮 20 分钟。抓取 42 个源和 9 个 AI 任务都做了并发控制，分别是 8 路和 2 路——大模型调用超过 2 路会触发限流，实测出来的上限</td></tr><tr><td>可维护性</td><td>板块名称、顺序、条数、分类标准全部收敛到一个配置文件，改一处全局生效</td></tr></tbody>
+</table>
+    <h3 class="about-h">迭代</h3>
+    <p class="about-p">使用中持续优化，比如重要度评分从与板块绑定改为独立标准、增加中文源和自建抓取器。经过 20 个版本的迭代，目前已能稳定无人值守运行，每天让我的资讯获取更为全面、精确、高效。</p>
+    <p class="about-note">本页为项目说明，非当日资讯内容。</p>
+  </div>
+  </section>
+
+  <footer>
+    内容均来自原媒体，本站仅作摘要整理与回链。
+  </footer>
+</main>
+<script>
+  // 支持用网址片段直接打开指定标签页，例如 …/#china-vc
+  // 两个用处：把某个板块单独分享给别人；截图工具能定位到指定页面。
+  function activateTab(target) {
+    if (!target) return false;
+    var btn = document.querySelector('.tabs > .tab[data-tab="' + target + '"]');
+    if (!btn) return false;
+    document.querySelectorAll('.tabs > .tab').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.classList.toggle('active', p.dataset.panel === target);
+    });
+    return true;
+  }
+  activateTab(location.hash.replace(/^#/, ''));
+  window.addEventListener('hashchange', function () {
+    activateTab(location.hash.replace(/^#/, ''));
+  });
+
+  document.querySelectorAll('.tabs > .tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.dataset.tab;
+      if (history.replaceState) history.replaceState(null, '', '#' + target);
+      document.querySelectorAll('.tabs > .tab').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      document.querySelectorAll('.panel').forEach(function (p) {
+        p.classList.toggle('active', p.dataset.panel === target);
+      });
+    });
+  });
+  // Scope sub-tab / source-tab toggles to the parent .panel so two L1 panels
+  // can share the same data-cat (e.g. tech main + community both data-cat=tech)
+  // without stomping on each other's active state.
+  document.querySelectorAll('.sub-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = btn.closest('.panel');
+      if (!panel) return;
+      var sub = btn.dataset.sub;
+      panel.querySelectorAll('.sub-tab').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      panel.querySelectorAll('.sub-content').forEach(function (p) {
+        p.classList.toggle('active', p.dataset.subContent === sub);
+      });
+    });
+  });
+  document.querySelectorAll('.source-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var subContent = btn.closest('.sub-content');
+      if (!subContent) return;
+      var src = btn.dataset.source;
+      subContent.querySelectorAll('.source-tab').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      subContent.querySelectorAll('.source-content').forEach(function (p) {
+        p.classList.toggle('active', p.dataset.sourceContent === src);
+      });
+    });
+  });
+  // Trading panel: asset-group sub-tabs (US/crypto/china/commodity)
+  document.querySelectorAll('.trading-group-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var grp = btn.dataset.group;
+      document.querySelectorAll('.trading-group-tab').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      document.querySelectorAll('.trading-group-content').forEach(function (p) {
+        p.classList.toggle('active', p.dataset.group === grp);
+      });
+    });
+  });
+</script>
+</body>
+</html>
